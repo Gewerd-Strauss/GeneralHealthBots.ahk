@@ -33,7 +33,8 @@ ____
 
 
 ## Set Timer
-Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at
+
+Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings)
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
 ## Pause
