@@ -46,8 +46,10 @@ Deactivate the notification and sound played whenever the timer goes off. Note t
 Toggle wether or not a HUD or Sound is used to notify the user when the timer goes off.
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
-Not available if the respective timer is officially [paused](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk#pause). 
+Not available if the respective timer is officially [paused](#pause). 
 
+
+See! Easy: Go to Real Cool Heading section
 
 
 
