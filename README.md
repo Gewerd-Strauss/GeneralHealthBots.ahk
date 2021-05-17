@@ -30,7 +30,7 @@ ____
    
    This is the time each notification remains visible on screen, given in milliseconds. 1 second equals 1000 milliseconds.
 
-
+Note that pressing enter in any edit field saves the current edits into Settings. 
 
 ## Set Timer
 
@@ -50,7 +50,7 @@ Functionally this also just prohibits the respective aspect from triggering, the
 Not available if the respective timer is officially [paused](#pause). 
 
 
-See! Easy: Go to Real Cool Heading section
+
 
 
 
