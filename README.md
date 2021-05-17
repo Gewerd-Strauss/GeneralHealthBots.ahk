@@ -53,6 +53,7 @@ Not available if the respective timer is officially [paused](#pause).
 
 
 ___
+# Credits
 All code except where noted otherwhise is mine, as bad as it is.
 Autohotkey-code used within this script:
 * maestrith's[*Notify.ahk](https://github.com/maestrith/Notify)
