@@ -34,7 +34,7 @@ ____
 
 ## Set Timer
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at
-[alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
+![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
 ## Pause
 Deactivate the notification and sound played whenever the timer goes off. Note that the timer itself continues running, however it will not execute any code when it triggers.
@@ -46,6 +46,7 @@ Deactivate the notification and sound played whenever the timer goes off. Note t
 Toggle wether or not a HUD or Sound is used to notify the user when the timer goes off.
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
+Not available if the respective timer is officially [paused](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk#pause). 
 
 
 
