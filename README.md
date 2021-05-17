@@ -56,6 +56,9 @@ ___
 All code except where noted otherwhise is mine, as bad as it is.
 Autohotkey-code used within this script:
 * maestrith's[*Notify.ahk](https://github.com/maestrith/Notify)
+* wolf_II's [INI-file object maker functions](https://www.autohotkey.com/boards/viewtopic.php?p=256940#p256940)
 
 Other mentions:
-* anonymous1184's [* help for solving the .wav-file bug in soundplay for me ](https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3)
+* anonymous1184's [help for solving the .wav-file bug in soundplay for me](https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3)
+
+
