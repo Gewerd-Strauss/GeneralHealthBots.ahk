@@ -6,17 +6,16 @@ However, as I am myself suffering from a bad posture as a result of way too much
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Overview.jpeg?raw=true)
 
 
-# Help
+## Help
 Go to this documentation or report a bug directly on GitHub. 
-
-
-## StayHydratedBot
 
 
 ## Settings
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_ActiveBackup.jpeg?raw=true)
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_Original.jpeg?raw=true)
+
 The sections "Active" and "Backup" can be edited, the section "Original" can not be edited and only serves as a simple way of retrieving the factory-default settings. 
+Only the "Active" settings are used. 
 
 ____
 1. Insert (full) File Path of Audiofile
@@ -35,7 +34,7 @@ ____
 
 ## Set Timer
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at
-
+[alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
 ## Pause
 Deactivate the notification and sound played whenever the timer goes off. Note that the timer itself continues running, however it will not execute any code when it triggers.
@@ -47,3 +46,15 @@ Deactivate the notification and sound played whenever the timer goes off. Note t
 Toggle wether or not a HUD or Sound is used to notify the user when the timer goes off.
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
+
+
+
+
+
+
+
+
+
+
+
+
