@@ -34,7 +34,8 @@ Note that pressing enter in any edit field saves the current edits into Settings
 
 ## Set Timer
 
-Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings)
+Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
+
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
 ## Pause
@@ -48,3 +49,13 @@ Toggle wether or not a HUD or Sound is used to notify the user when the timer go
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
 Not available if the respective timer is officially [paused](#pause). 
+
+
+
+___
+All code except where noted otherwhise is mine, as bad as it is.
+Autohotkey-code used within this script:
+* maestrith's[*Notify.ahk](https://github.com/maestrith/Notify)
+
+Other mentions:
+* anonymous1184's [* help for solving the .wav-file bug in soundplay for me ](https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3)
