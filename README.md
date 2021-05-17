@@ -15,19 +15,9 @@ Go to this documentation or report a bug directly on GitHub.
 
 ## Settings
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_ActiveBackup.jpeg?raw=true)
+![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_Original.jpeg?raw=true)
+The sections "Active" and "Backup" can be edited, the section "Original" can not be edited and only serves as a simple way of retrieving the factory-default settings. 
 
-1. First ordered list item
-2. Another item
-⋅⋅* Unordered sub-list. 
-1. Actual numbers don't matter, just that it's a number
-⋅⋅1. Ordered sub-list
-4. And another item.
-
-   You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
-
-⋅⋅⋅To have a line break without a paragraph, you will need to use two trailing spaces.⋅⋅
-⋅⋅⋅Note that thi
-   
 ____
 1. Insert (full) File Path of Audiofile
    
@@ -39,7 +29,7 @@ ____
 
 3. Set default notification time in milliseconds
    
-   This is the time each notification remains visible on screen, given in milliseconds. 1 Secondequals 1000 milliseconds.
+   This is the time each notification remains visible on screen, given in milliseconds. 1 second equals 1000 milliseconds.
 
 
 
