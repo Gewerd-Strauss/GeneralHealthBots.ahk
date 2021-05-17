@@ -48,17 +48,3 @@ Toggle wether or not a HUD or Sound is used to notify the user when the timer go
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
 Not available if the respective timer is officially [paused](#pause). 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
