@@ -1,5 +1,4 @@
-﻿;; PROTOTYPE file for GeneralHealthBot
-
+?;; PROTOTYPE file for GeneralHealthBot
 
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #SingleInstance,Force
@@ -18,6 +17,19 @@ VN=2.1.20.4
 PublicVersionNumber=1.0.0.1
 LE=18 Mai 2021 15:47:03                                
 ;}_____________________________________________________________________________________
+;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
+VERSION_REGEX := "(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
+
+AutoUpdate(FILE, mode,, [CHANGELOG_URL, VERSION_REGEX])
+
+
+;FILE := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/ExampleManualUpdate.ahk"
+FILE := "https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/StayHydratedBot%20settingsGUI_16.05.2021.ahk"
+mode := 1
+;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
+;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
+VERSION_REGEX := "(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
+
 ;{#[Autorun Section]
 if WinActive(" Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
 	bRunNotify:=0
@@ -30,7 +42,7 @@ Run, %WinSpyPath%
 	Date: 18 Mai 2021 15:47:46: TODO:  
 	1. finish implementation of "other settings" (stuff like checkbox for which bot to natively start is missing) 
 	2. separate this file into several include files
-	2. refine readme.md to include swap, other settings 3. add subsetting to create verknüpfung in startup menu, and to remove said verknüpfung again 
+	2. refine readme.md to include swap, other settings 3. add subsetting to create verkn�pfung in startup menu, and to remove said verkn�pfung again 
 	3. implement updater routine to github, linked to Update in Help-gui: ask on reddit.
 */
 
@@ -763,7 +775,7 @@ return
 			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
 			SoundPlay % sFullFilePathToAudioFile_StayHydratedBot
 			PathForNotify_StayHydratedBot=%A_ScriptDir%\Waterbottle.png
-			;Notify().AddWindow("Remember to stay hydrated...",{Title:"(~˘▾˘)~",TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:PathForNotify_StayHydratedBot})
+			;Notify().AddWindow("Remember to stay hydrated...",{Title:"(~???)~",TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:PathForNotify_StayHydratedBot})
 		}
 	}
 */ 
@@ -1076,7 +1088,7 @@ f_ReadBackSettings_StayHydratedBot()
 		performed.  rewrite the gui for the settings edit to contain all six to nine
 		fields per bot << prefer this version, as it is MUCH simpler.  	 or rename all
 		sections into "A"/"B"/"C", then just make a button to set which one is actively
-		loaded. ← this is the more versatile, albeit more complex version because it
+		loaded. ? this is the more versatile, albeit more complex version because it
 		requires more extensive rewrites across the entire file (or, on rewrite replace
 		the )
 	*/
@@ -1091,7 +1103,7 @@ f_ReadBackSettings_StayHydratedBot()
 				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StayHydratedBot: 	45
 				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
-				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot (~˘▾˘)~"
+				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot (~???)~"
 				, 	sNotifyMessageRemember_StayHydratedBot: "Remember to stay hydrated"
 				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
 				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
@@ -1102,7 +1114,7 @@ f_ReadBackSettings_StayHydratedBot()
 				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StayHydratedBot: 	90
 				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
-				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot (~˘▾˘)~"
+				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot (~???)~"
 				, 	sNotifyMessageRemember_StayHydratedBot: "Remember to stay hydrated"
 				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
 				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
@@ -1114,7 +1126,7 @@ f_ReadBackSettings_StayHydratedBot()
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	90
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
-				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (•◡•) /"
+				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (�?�) /"
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
 				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
@@ -1126,7 +1138,7 @@ f_ReadBackSettings_StayHydratedBot()
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	120
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
-				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (•◡•) /"
+				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (�?�) /"
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
 				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
