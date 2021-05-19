@@ -1,5 +1,3 @@
-?;; PROTOTYPE file for GeneralHealthBot
-
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #SingleInstance,Force
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
@@ -13,12 +11,12 @@ SetTitleMatchMode, 2
 ;{ General Information for file management_____________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss
-VN=2.1.20.4                                                                     
+VN=2.1.15.4                                                                     
 PublicVersionNumber=1.0.0.1
 LE=18 Mai 2021 15:47:03                                
 ;}_____________________________________________________________________________________
 ;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
-VERSION_REGEX := "(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
+VERSION_REGEX := "VN=(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
 
 AutoUpdate(FILE, mode,, [CHANGELOG_URL, VERSION_REGEX])
 
@@ -1353,42 +1351,277 @@ Obj2String(Obj,FullPath:=1,BottomBlank:=0){
 }
 
 
+AutoUpdate(FILE, mode:=0, updateIntervalDays:=7, CHANGELOG:="", iniFile:="", backupNumber:=1) {
+	iniFile := iniFile ? iniFile : GetNameNoExt(A_ScriptName) . ".ini"
+	VERSION_FromScript_REGEX := "Oi)(?:^|\R);\s*ver\w*\s*=?\s*(\d+(?:\.\d+)?)(?:$|\R)"
+	if NeedToCheckUpdate(mode, updateIntervalDays, iniFile) {
+		if (CHANGELOG!="") {
+			if Not (currVer := GetCurrentVer(iniFile))
+				currVer := GetCurrentVerFromScript(VERSION_FromScript_REGEX)
+			changelogContent := DownloadChangelog(CHANGELOG)
+			If changelogContent {
+				if (lastVer := GetLastVer(CHANGELOG, changelogContent)) {
+					LastVerNews := GetLastVerNews(CHANGELOG, changelogContent)
+					WriteLastCheckTime(iniFile)
+					if Not (lastVer > currVer)
+						Return
+				}
+			} else {
+				if ((ErrorLevel != "") && (Manually := mode & 1)) {
+					MsgBox 48,, %ErrorLevel%, 5
+					Return
+				}
+			}
+		}
+		
+		Update(FILE, mode, backupNumber, iniFile, currVer, lastVer, LastVerNews)
+	}
+}
+NeedToCheckUpdate(mode, updateIntervalDays, iniFile) {
+	if ((NotAuto := mode & 2) And Not (Manually := mode & 1)) {
+		NeedToCheckUpdate := False
+	} else if (A_Now > GetTimeToUpdate(updateIntervalDays, iniFile)) || (manually := mode & 1) {
+		NeedToCheckUpdate := True
+	}
+	OutputDebug % "NeedToCheckUpdate: " (NeedToCheckUpdate ? "Yes" : "No")
+	Return NeedToCheckUpdate
+}
+Update(FILE, mode, backupNumber, iniFile, currVer, lastVer, LastVerNews:="") {
+	silentUpdate := ! ((mode & 4) || (mode & 1))
+	if silentUpdate {
+		OutputDebug % DownloadAndReplace(FILE, backupNumber, iniFile, lastVer, currVer)
+		if (mode & 8)
+			Reload
+	} else {
+		MsgBox, 36, %A_ScriptName% %currVer%, New version %lastVer% available.`n%LastVerNews%`nDownload it now? ; [Yes] [No]  [x][Don't check update]
+		IfMsgBox Yes
+		{
+			if (Err := DownloadAndReplace(FILE, backupNumber, iniFile, lastVer, currVer)) {
+				if ((Err != "") && (Err != "No access to the Internet"))
+					MsgBox 48,, %Err%, 5
+			} else {
+				if (mode & 8)
+					Reload
+				else if ((mode & 16) || (mode & 1)) {
+					MsgBox, 36, %A_ScriptName%, Script updated.`nRestart it now?
+					IfMsgBox Yes
+					{
+						Reload ; no CL parameters!
+					}
+				}
+			}
+		}
+	}
+}
+DownloadAndReplace(FILE, backupNumber, iniFile, lastVer, currVer) {
+	; Download File from Net and replace origin
+	; Return "" if update success Or return Error, if not
+	; Write CurrentVersion to ini
+	currFile := FileOpen(A_ScriptFullPath, "r").Read()
+	if A_LastError
+		Return "FileOpen Error: " A_LastError
+	lastFile := UrlDownloadToVar(FILE)
+	if ErrorLevel
+		Return ErrorLevel
+	OutputDebug DownloadAndReplace: File download
+	if (RegExReplace(currFile, "\R", "`n") = RegExReplace(lastFile, "\R", "`n")) {
+		WriteCurrentVersion(lastVer, iniFile)
+		Return "Last version the same file"
+	} else {
+		backupName := A_ScriptFullPath ".v" currVer ".backup"
+		FileCopy %A_ScriptFullPath%, %backupName%, 1
+		if ErrorLevel
+			Return "Error access to " A_ScriptFullPath " : " ErrorLevel
 
+		file := FileOpen(A_ScriptFullPath, "w")
+		if !IsObject(file) {
+			MsgBox Can't open "%A_ScriptFullPath%" for writing.
+			return
+		}
+		file.Write(lastFile)
+		file.Close()
 
+		; FileAppend %lastFile%, %A_ScriptFullPath%
+		if ErrorLevel
+			Return "Error create new " A_ScriptFullPath " : " ErrorLevel
+	}
+	WriteCurrentVersion(lastVer, iniFile)
+	OutputDebug DownloadAndReplace: File update
+}
+GetTimeToUpdate(updateIntervalDays, iniFile) {
+	timeToUpdate := GetLastCheckTime(iniFile)
+	timeToUpdate += %updateIntervalDays%, days
+	OutputDebug GetTimeToUpdate %timeToUpdate%
+	Return timeToUpdate
+}
+GetLastCheckTime(iniFile) {
+	IniRead lastCheckTime, %iniFile%, update, last check, 0
+	OutputDebug LastCheckTime %lastCheckTime%
+	Return lastCheckTime
+}
+WriteLastCheckTime(iniFile) {
+	IniWrite, %A_Now%, %iniFile%, update, last check
+	OutputDebug WriteLastCheckTime
+	If ErrorLevel
+		Return 1
+}
+WriteCurrentVersion(lastVer, iniFile) {
+	OutputDebug WriteCurrentVersion %lastVer% to %iniFile%
+	IniWrite %lastVer%, %iniFile%, update, current version
+	If ErrorLevel
+		Return 1
+}
+GetCurrentVer(iniFile) {
+	IniRead currVer, %iniFile%, update, current version, 0
+	OutputDebug, GetCurrentVer() = %currVer% from %iniFile%
+	Return currVer
+}
+GetCurrentVerFromScript(Regex) {
+	FileRead, ScriptText, % A_ScriptFullPath
+	RegExMatch(ScriptText, Regex, currVerObj)
+	currVer := currVerObj.1
+	OutputDebug, GetCurrentVerFromScript() = %currVer% from %A_ScriptFullPath%
+	Return currVer
+}
+GetLastVer(CHANGELOG, changelogContent) {
+	If IsObject(CHANGELOG) {
+		Regex := CHANGELOG[2]
+		RegExMatch(changelogContent, Regex, changelogContentObj)
+		lastVer := changelogContentObj.0
+	} else
+		lastVer := changelogContent
+
+	OutputDebug, GetLastVer() = %lastVer%`, Regex = %Regex% 
+	Return lastVer
+}
+GetLastVerNews(CHANGELOG, changelogContent) {
+	If IsObject(CHANGELOG) {
+		if (WhatNew_REGEX := CHANGELOG[3]) {
+			RegExMatch(changelogContent, WhatNew_REGEX, WhatNewO)
+			WhatNew := WhatNewO.1
+		}
+	}
+	Return WhatNew
+}
+DownloadChangelog(CHANGELOG) {
+	If IsObject(CHANGELOG)
+		URL := CHANGELOG[1]
+	else
+		URL := CHANGELOG
+
+	If changelogContent := UrlDownloadToVar(URL)
+		Return changelogContent
+}
+UrlDownloadToVar(URL) {
+	WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	try WebRequest.Open("GET", URL, true)
+	catch	Error {
+		ErrorLevel := "Wrong URL"
+		return false
+		}
+	WebRequest.Send()
+	try WebRequest.WaitForResponse()
+	catch	Error {
+		ErrorLevel := "No access to the Internet"
+		return false
+		}
+	HTTPStatusCode := WebRequest.status
+	if (SubStr(HTTPStatusCode, 1, 1) ~= "4|5") { ; 4xx â€” Client Error, 5xx â€” Server Error. wikipedia.org/wiki/List_of_HTTP_status_codes
+		ErrorLevel := "HTTPStatusCode: " HTTPStatusCode
+		return false
+		}
+	OutputDebug UrlDownloadToVar() HTTPStatusCode = %HTTPStatusCode% 
+	ans:=WebRequest.ResponseText
+	return ans
+}
+GetNameNoExt(FileName) {
+	SplitPath FileName,,, Extension, NameNoExt
+	Return NameNoExt
+}
+
+/*
+	AutoUpdate(FILE, mode:=0, updateIntervalDays:="", CHANGELOG:="", iniFile:="", backupNumber:=1) {
+		CHANGELOG := [CHANGELOG_URL, VERSION_REGEX, WhatNew_REGEX]
+		FILE := [FILE_URL, FILE_REGEX, VERSION_FromScript_REGEX]
+		
+		ini file strucnure:
+		[update]
+		last check
+		current version
+	?auto check
+	?auto download
+	?auto restart
+		
+		mode:
+		manually(ignore timeToUpdate)							1 ? set updateIntervalDays:=0
+		if auto, don't check updated							2 ? if (autocheck) {AU()}
+			if exist update, ask before download it 	4
+				auto restart after download 							8
+		if not autorestart, ask if restart need 	16
+			
+		Scenaries:
+		1) Silent check new version available, if exist such, AutoUpdate
+		2) Silent check new version available, if exist such, ask whether you want to update
+		3) Manual check new version available, if exist such, ask whether you want to update
+		â€¢ (ToolTip/MsgBox) asking whether you want to reload straight away
+		
+		updateIntervalDays: check for update every %updateIntervalDays% days
+		
+		CHANGELOG:
+		1)"url"
+		2)"url regex"
+		
+		3 Ð¼ÐµÑÑ‚Ð° Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ: .ahk, .ini, regestry
+		1)ini
+		"ini:"        IniRead currVer, %A_ScriptNameNoExt%.ini, update, current version, 0
+		"ini:xxx"     IniRead currVer, %xxx%, update, current version, 0
+		2)inside
+		"inside:"				currVer := regex("Oi)^;\s*(?:version|ver)?\s*=?\s*(\d+(?:\.\d+)?)", A_Script)
+		"inside:xxx"    currVer := regex(xxx, A_Script)
+		3)regestry
+		"regestry:"				RegRead, currVer, HKEY_CURRENT_USER, SOFTWARE\%A_ScriptNameNoExt%\CurrentVersion, Version
+		"regestry:xxx"		RegRead, currVer, HKEY_CURRENT_USER, SOFTWARE\%xxx%, Version
+		
+		2 Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ñ… Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð´Ð»Ñ Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ: currVers (ÐµÑÐ»Ð¸ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð°, ÑÐºÑ€Ð¸Ð¿Ñ‚ Ð¿Ñ€Ð¸ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐµ ÑÐºÐ°Ñ‡Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ð¿Ð¾Ð»Ð½Ð¾ÑÑ‚ÑŒÑŽ Ð¸ ÑÑ€Ð°Ð²Ð½Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ñ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¼), lastCheckDate (ÐµÑÐ»Ð¸ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð°, Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚ Ð¿Ñ€Ð¸ ÐºÐ°Ð¶Ð´Ð¾Ð¼ Ð²Ñ‹Ð·Ð¾Ð²Ðµ Ñ„-Ð¸Ð¸ AutoUpdate())
+		
+		backupNumber:
+		
+		
+		
 ;{ Notify
 ;#SingleInstance,Force
-Count:=0
-Notify:=Notify(20)
-/*
-	Usage:
-	Notify:=Notify()
-	Window:=Notify.AddWindow("Your Text Here",{Icon:4,Background:"0xAA00AA"})
-	|---Window ID                                          |--------Options
-	Options:
-	
-	Window ID will be used when making calls to Notify.SetProgress(Window,ProgressValue)
-	
-	Animate: Ways that the window will animate in eg. {Animate:""} Can be Bottom, Top, Left, Right, Slide, Center, or Blend (Some work together, and some override others)
-	Background: Color value in quotes eg. {Background:"0xAA00AA"}
-	Buttons: Comma Delimited list of names for buttons eg. {Buttons:"One,Two,Three"}
-	Color: Font color eg.{Color:"0xAAAAAA"}
-	Destroy: Comma Delimited list of Bottom, Top, Left, Right, Slide, Center, or Blend
-	Flash: Flashes the background of the notification every X ms eg. {Flash:1000}
-	FlashColor: Sets the second color that your notification will change to when flashing eg. {FlashColor:"0xFF00FF"}
-	Font: Face of the message font eg. {Font:"Consolas"}
-	Icon: Can be either an Integer to pull an icon from Shell32.dll or a full path to an EXE or full path to a dll.  You can add a comma and an integer to select an icon from within that file eg. {Icon:"C:\Windows\HelpPane.exe,2"}
-	IconSize: Width and Height of the Icon eg. {IconSize:20}
-	Hide: Comma Separated List of Directions to Hide the Notification eg. {Hide:"Left,Top"}
-	Progress: Adds a progress bar eg. {Progress:10} ;Starts with the progress set to 10%
-	Radius: Size of the border radius eg. {Radius:10}
-	Size: Size of the message text eg {Size:20}
-	ShowDelay: Time in MS of how long it takes to show the notification
-	Sound: Plays either a beep if the item is an integer or the sound file if it exists eg. {Sound:500}
-	Time: Sets the amount of time that the notification will be visible eg. {Time:2000}
-	Title: Sets the title of the notification eg. {Title:"This is my title"}
-	TitleColor: Title font color eg. {TitleColor:"0xAAAAAA"}
-	TitleFont: Face of the title font eg. {TitleFont:"Consolas"}
-	TitleSize: Size of the title text eg. {TitleSize:12}
+		Count:=0
+		Notify:=Notify(20)
+		/*
+		Usage:
+		Notify:=Notify()
+		Window:=Notify.AddWindow("Your Text Here",{Icon:4,Background:"0xAA00AA"})
+		|---Window ID                                          |--------Options
+		Options:
+		
+		Window ID will be used when making calls to Notify.SetProgress(Window,ProgressValue)
+		
+		Animate: Ways that the window will animate in eg. {Animate:""} Can be Bottom, Top, Left, Right, Slide, Center, or Blend (Some work together, and some override others)
+		Background: Color value in quotes eg. {Background:"0xAA00AA"}
+		Buttons: Comma Delimited list of names for buttons eg. {Buttons:"One,Two,Three"}
+		Color: Font color eg.{Color:"0xAAAAAA"}
+		Destroy: Comma Delimited list of Bottom, Top, Left, Right, Slide, Center, or Blend
+		Flash: Flashes the background of the notification every X ms eg. {Flash:1000}
+		FlashColor: Sets the second color that your notification will change to when flashing eg. {FlashColor:"0xFF00FF"}
+		Font: Face of the message font eg. {Font:"Consolas"}
+		Icon: Can be either an Integer to pull an icon from Shell32.dll or a full path to an EXE or full path to a dll.  You can add a comma and an integer to select an icon from within that file eg. {Icon:"C:\Windows\HelpPane.exe,2"}
+		IconSize: Width and Height of the Icon eg. {IconSize:20}
+		Hide: Comma Separated List of Directions to Hide the Notification eg. {Hide:"Left,Top"}
+		Progress: Adds a progress bar eg. {Progress:10} ;Starts with the progress set to 10%
+		Radius: Size of the border radius eg. {Radius:10}
+		Size: Size of the message text eg {Size:20}
+		ShowDelay: Time in MS of how long it takes to show the notification
+		Sound: Plays either a beep if the item is an integer or the sound file if it exists eg. {Sound:500}
+		Time: Sets the amount of time that the notification will be visible eg. {Time:2000}
+		Title: Sets the title of the notification eg. {Title:"This is my title"}
+		TitleColor: Title font color eg. {TitleColor:"0xAAAAAA"}
+		TitleFont: Face of the title font eg. {TitleFont:"Consolas"}
+		TitleSize: Size of the title text eg. {TitleSize:12}
 */
 if(1){
 	Notify.AddWindow("Testing",{Background:"0xFF00FF",Color:"0xFF0000",ShowDelay:1000,Hide:"Top,Left",Buttons:"This,One,Here",Radius:40})
