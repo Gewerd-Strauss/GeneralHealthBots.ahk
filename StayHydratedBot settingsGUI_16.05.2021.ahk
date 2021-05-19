@@ -11,22 +11,20 @@ SetTitleMatchMode, 2
 ;{ General Information for file management_____________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss
-VN=2.1.15.4                                                                     
+VN=2.1.20.4                                                                     
 PublicVersionNumber=1.0.0.1
 LE=18 Mai 2021 15:47:03                                
 ;}_____________________________________________________________________________________
-;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
-VERSION_REGEX := "VN=(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
 
+VERSION_REGEX:="VN=(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
+FILE:="https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/StayHydratedBot%20settingsGUI_16.05.2021.ahk"
+mode:=1
+VERSION_REGEX:="(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
+CHANGELOG_URL:="https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/CHANGELOG.md"
 AutoUpdate(FILE, mode,, [CHANGELOG_URL, VERSION_REGEX])
 
-
-;FILE := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/ExampleManualUpdate.ahk"
-FILE := "https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/StayHydratedBot%20settingsGUI_16.05.2021.ahk"
-mode := 1
-;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
-;CHANGELOG_URL := "https://raw.githubusercontent.com/stealzy/AutoUpdate/master/CHANGELOG.md"
-VERSION_REGEX := "(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
+;_____________________________________________________________________________________
+;_____________________________________________________________________________________
 
 ;{#[Autorun Section]
 if WinActive(" Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
@@ -40,7 +38,7 @@ Run, %WinSpyPath%
 	Date: 18 Mai 2021 15:47:46: TODO:  
 	1. finish implementation of "other settings" (stuff like checkbox for which bot to natively start is missing) 
 	2. separate this file into several include files
-	2. refine readme.md to include swap, other settings 3. add subsetting to create verkn�pfung in startup menu, and to remove said verkn�pfung again 
+	2. refine readme.md to include swap, other settings 3. add subsetting to create verkn?pfung in startup menu, and to remove said verkn?pfung again 
 	3. implement updater routine to github, linked to Update in Help-gui: ask on reddit.
 */
 
@@ -1124,7 +1122,7 @@ f_ReadBackSettings_StayHydratedBot()
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	90
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
-				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (�?�) /"
+				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (???) /"
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
 				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
@@ -1136,7 +1134,7 @@ f_ReadBackSettings_StayHydratedBot()
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	120
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
-				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (�?�) /"
+				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (???) /"
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
 				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
@@ -1526,7 +1524,7 @@ UrlDownloadToVar(URL) {
 		return false
 		}
 	HTTPStatusCode := WebRequest.status
-	if (SubStr(HTTPStatusCode, 1, 1) ~= "4|5") { ; 4xx â€” Client Error, 5xx â€” Server Error. wikipedia.org/wiki/List_of_HTTP_status_codes
+	if (SubStr(HTTPStatusCode, 1, 1) ~= "4|5") { ; 4xx — Client Error, 5xx — Server Error. wikipedia.org/wiki/List_of_HTTP_status_codes
 		ErrorLevel := "HTTPStatusCode: " HTTPStatusCode
 		return false
 		}
@@ -1563,7 +1561,7 @@ GetNameNoExt(FileName) {
 		1) Silent check new version available, if exist such, AutoUpdate
 		2) Silent check new version available, if exist such, ask whether you want to update
 		3) Manual check new version available, if exist such, ask whether you want to update
-		â€¢ (ToolTip/MsgBox) asking whether you want to reload straight away
+		• (ToolTip/MsgBox) asking whether you want to reload straight away
 		
 		updateIntervalDays: check for update every %updateIntervalDays% days
 		
@@ -1571,7 +1569,7 @@ GetNameNoExt(FileName) {
 		1)"url"
 		2)"url regex"
 		
-		3 Ð¼ÐµÑÑ‚Ð° Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ: .ahk, .ini, regestry
+		3 места хранения: .ahk, .ini, regestry
 		1)ini
 		"ini:"        IniRead currVer, %A_ScriptNameNoExt%.ini, update, current version, 0
 		"ini:xxx"     IniRead currVer, %xxx%, update, current version, 0
@@ -1582,7 +1580,7 @@ GetNameNoExt(FileName) {
 		"regestry:"				RegRead, currVer, HKEY_CURRENT_USER, SOFTWARE\%A_ScriptNameNoExt%\CurrentVersion, Version
 		"regestry:xxx"		RegRead, currVer, HKEY_CURRENT_USER, SOFTWARE\%xxx%, Version
 		
-		2 Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ñ… Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð´Ð»Ñ Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ: currVers (ÐµÑÐ»Ð¸ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð°, ÑÐºÑ€Ð¸Ð¿Ñ‚ Ð¿Ñ€Ð¸ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐµ ÑÐºÐ°Ñ‡Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ð¿Ð¾Ð»Ð½Ð¾ÑÑ‚ÑŒÑŽ Ð¸ ÑÑ€Ð°Ð²Ð½Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ñ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¼), lastCheckDate (ÐµÑÐ»Ð¸ Ð½Ðµ ÑƒÐºÐ°Ð·Ð°Ð½Ð°, Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚ Ð¿Ñ€Ð¸ ÐºÐ°Ð¶Ð´Ð¾Ð¼ Ð²Ñ‹Ð·Ð¾Ð²Ðµ Ñ„-Ð¸Ð¸ AutoUpdate())
+		2 опциональных значения для хранения: currVers (если не указана, скрипт при проверке скачивается полностью и сравнивается с текущим), lastCheckDate (если не указана, проверка происходит при каждом вызове ф-ии AutoUpdate())
 		
 		backupNumber:
 		
