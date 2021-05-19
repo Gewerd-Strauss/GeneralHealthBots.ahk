@@ -17,7 +17,7 @@ AU=Gewerd Strauss
 VN=2.1.20.4                                                                     
 PublicVersionNumber=1.0.0.1
 LE=18 Mai 2021 15:47:03                                
-;}_____________________________________________________________________________________ A_ScriptName
+;}_____________________________________________________________________________________
 ;{#[Autorun Section]
 if WinActive(" Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
 	bRunNotify:=0
