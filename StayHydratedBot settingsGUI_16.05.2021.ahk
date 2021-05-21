@@ -1,3 +1,6 @@
+; note that this is an experimental file for testing purposes, and likely doesn't work with the files provided here. Don't use it.
+
+
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #SingleInstance,Force
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
