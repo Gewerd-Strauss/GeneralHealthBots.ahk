@@ -1,6 +1,6 @@
 ﻿f_AddStartupToggleToTrayMenu(ScriptName,MenuNameToInsertAt:="Tray")
 {
-	VNI=1.0.0.1
+	VNI=1.0.0.5
 	global startUpDir 
 	global MenuNameToInsertAt2
 	global bBootSetting
