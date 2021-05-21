@@ -1,6 +1,6 @@
 ﻿f_WriteINI_Bots(ByRef Array2D, INI_File)  ; write 2D-array to INI-file 
 {	
-	VNI=1.0.0.-10
+	VNI=1.0.0.99
 	;m(Array2D["Original Setings StayHydratedBot"])
 	if !FileExist("GeneralHealthBots") ; check for StayHydratedBot directory
 	{
