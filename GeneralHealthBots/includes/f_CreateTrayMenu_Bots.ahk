@@ -1,4 +1,4 @@
-﻿f_CreateTrayMenu_Bots()
+f_CreateTrayMenu_Bots()
 {
 	VNI=1.0.0.5
 	menu, tray, add,
