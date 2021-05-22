@@ -1,4 +1,3 @@
-﻿
 f_UnstickModKeys()
 {
 	VNI=1.0.0.11
