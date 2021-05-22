@@ -1,4 +1,4 @@
-﻿f_ToggleOffAllGuiHotkeys()
+f_ToggleOffAllGuiHotkeys()
 {
 	VNF:=1.0.0.15
 	Hotkey, ^S, lTriggerAdvancedSettingsGUI_StandUpBot,Off
