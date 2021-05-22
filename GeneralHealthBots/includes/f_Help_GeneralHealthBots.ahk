@@ -38,7 +38,7 @@ f_Help_GeneralHealthBots(AU,VN)
 	return
 	lLinkCheckforUpdates:
 	{
-		f_UpdateRoutine(,,,1,1)
+		f_UpdateRoutine(,,,1)
 		gui, destroy
 	}
 	return
