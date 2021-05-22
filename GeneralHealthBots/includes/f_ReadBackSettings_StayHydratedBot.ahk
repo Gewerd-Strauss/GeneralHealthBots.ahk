@@ -1,4 +1,4 @@
-﻿f_ReadBackSettings_StayHydratedBot()
+f_ReadBackSettings_StayHydratedBot()
 {
 	VNI=1.0.0.9
 	SplitPath, A_ScriptName,,,, ScriptName
