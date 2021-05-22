@@ -1,7 +1,4 @@
-; note that this is an experimental file for testing purposes, and likely doesn't work with the files provided here. Don't use it.
-
-
-#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #SingleInstance,Force
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
@@ -18,13 +15,17 @@ VN=2.1.20.4
 PublicVersionNumber=1.0.0.1
 LE=18 Mai 2021 15:47:03                                
 ;}_____________________________________________________________________________________
-
-VERSION_REGEX:="VN=(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
-FILE:="https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/StayHydratedBot%20settingsGUI_16.05.2021.ahk"
-mode:=1
-VERSION_REGEX:="(?<Major>\d+)\.(?<Minor>\d+)\.(?<Revision>\d+)\.(?<Build>\d+)"
-CHANGELOG_URL:="https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/CHANGELOG.md"
-AutoUpdate(FILE, mode,, [CHANGELOG_URL, VERSION_REGEX])
+vsdb:=true
+vUserName:="Gewerd-Strauss"
+vProjectName:="GeneralHealthBots.ahk"
+vFileName:="StayHydratedBot%20settingsGUI_16.05.2021.ahk"	; added testing stuff so I don't have to use this 
+FolderStructIncludesRelativeToMainScript:="GeneralHealthBots/includes/"
+FolderStructIniFileRelativeToMainScript:="GeneralHealthBots/StayHydratedBot settingsGUI_16.05.2021.ini"
+LocalValues:=[]
+GitPageURLComponents:=[]
+LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript]
+GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
+;FolderStructIncludesRelativeToMainScript ← needs to be packaged into another array, probably localvalues
 
 ;_____________________________________________________________________________________
 ;_____________________________________________________________________________________
@@ -36,7 +37,7 @@ else
 	bRunNotify:=1 	; otherwise 
 bStandingposition:=0	;  0 = start sitting, 1 = start standing
 WinSpyPath=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\AutoHotkey\Window Spy.lnk
-Run, %WinSpyPath%
+;Run, %WinSpyPath%
 /*
 	Date: 18 Mai 2021 15:47:46: TODO:  
 	1. finish implementation of "other settings" (stuff like checkbox for which bot to natively start is missing) 
@@ -55,6 +56,7 @@ Run, %WinSpyPath%
 	Code by others:	
 	WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
 	Notify | maestrith | https://github.com/maestrith/Notify
+	f_ConvertRelativeWavPath_StayHydratedBot | u/anonymous1184 | https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
 	f_ConvertRelativeWavPath_StayHydratedBot | u/anonymous1184 | https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
 	
 	Code may or may not be heavily edited, in that case the original code has been added as well.
@@ -134,21 +136,22 @@ sleep, 3000
 ;{ GuiEscape/GuiSubmit____________________________________________________________
 GuiEscape_StandUpBot:				;**
 {
+	f_UnstickModKeys()
+	f_DestroyGuis()
 	gui, destroy, 
-	f_ToggleOffAllGuiHotkeys()
 }
 return 
 GuiEscape_StayHydratedBot:			;**
 {
-	f_ToggleOffAllGuiHotkeys()
+	f_UnstickModKeys()
 	f_DestroyGuis()
 	gui, destroy
 }
 return
 GuiEscape_GeneralReminderBot:			;**
 {
-	f_ToggleOffAllGuiHotkeys()
-	
+	f_UnstickModKeys()
+	f_DestroyGuis()
 	gui, destroy
 }
 return
@@ -217,7 +220,7 @@ return
 
 
 
-
+Numpad0::
 lHelp_StayHydratedBot:				;**
 f_Help_GeneralHealthBots(AU,VN)
 return
@@ -233,7 +236,7 @@ lSetCurrentDelay_StayHydratedBot:		;**
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
 	Gui, Color, 1d1f21, 373b41, 
-	Gui, Font, s7 cWhite, Verdana
+	Gui, Font, s7 cWhite, Verdana 
 	Gui, Font, s11 cWhite, Segoe UI 
 	gui, add, text,xm ym+10,Set Time in minutes till the next`ndrinking reminder
 	Gui, add, Edit, %gui_control_options%  vvMinutes_StayHydratedBot -VScroll 
@@ -324,6 +327,7 @@ PlayTune_StayHydratedBot: 			;***
 	if HUDStatus_StayHydratedBot
 	{
 		sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
+		sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
 		if bRunNotify
 			Notify().AddWindow(sNotifyMessageRemember_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:PathForNotify_StayHydratedBot})
 	}
@@ -340,6 +344,7 @@ PlayTune_StandUpBot: 				;***
 {
 	if HUDStatus_StandUpBot
 	{
+		sFullFilePathToAudioFile_StandUpBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StandUpBot)
 		sFullFilePathToAudioFile_StandUpBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StandUpBot)
 		if bRunNotify
 		{
@@ -426,7 +431,7 @@ lPause_StandUpBot:  				;***
 }
 return
 
-Numpad7:: ; trigger code section
+;Numpad7:: ; trigger code section
 lEditSettings_StandUpBot:			;**
 {
 	gui, destroy
@@ -434,9 +439,9 @@ lEditSettings_StandUpBot:			;**
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
 	Gui, Color, 1d1f21, 373b41, 
-	gui, add, button, xm+222 w28 ym+1 glTriggerAdvancedSettingsGUI_StandUpBot, Othr
-	gui, add, button, xm+188 w28 ym+1 glSwapActiveBackup_StandUpBot, Swp
-	gui, add, button, xm+255 w28 ym+1 glRestoreActiveBackup_StandUpBot, Res
+	gui, add, button, xm+190 w28 ym+1 glSwapActiveBackup_StandUpBot, Swp
+	gui, add, button, xm+223 w28 ym+1 glTriggerAdvancedSettingsGUI_StandUpBot, Othr
+	gui, add, button, xm+256 w28 ym+1 glRestoreActiveBackup_StandUpBot, Res
 	gui, add, text, 
 	Gui, Font, s11 cWhite, Segoe UI 
 	gui, add, text, xm ym-17 w0 h0 ; reposition next elements
@@ -462,11 +467,11 @@ lEditSettings_StandUpBot:			;**
 	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll  vNotificationTimeInMilliSeconds_StandUpBot_Backup, % IniObj["Backup Settings StandUpBot"]["vNotificationTimeInMilliSeconds_StandUpBot"]
 	gui, tab, Original
 	gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab ReadOnly r3 vPathToNewFileNew_StandUpBot_Original, % IniObj["Settings StandUpBot"]["sFullFilePathToAudioFile_StandUpBot"]
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab ReadOnly r3 vPathToNewFileNew_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["sFullFilePathToAudioFile_StandUpBot"]
 	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
-	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll ReadOnly vDefaultTimeInMinutes_StandUpBot_Original, % IniObj["Settings StandUpBot"]["vDefaultTimeInMinutes_StandUpBot"]
+	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll ReadOnly vDefaultTimeInMinutes_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["vDefaultTimeInMinutes_StandUpBot"]
 	gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
-	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll ReadOnly vNotificationTimeInMilliSeconds_StandUpBot_Original, % IniObj["Settings StandUpBot"]["vNotificationTimeInMilliSeconds_StandUpBot"]
+	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll ReadOnly vNotificationTimeInMilliSeconds_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["vNotificationTimeInMilliSeconds_StandUpBot"]
 	gui, tab
 	Gui, Font, s7 cWhite, Verdana
 	Gui, Add, Text,x25, StandUpBot v.%VN%	Author: %AU% 
@@ -476,7 +481,7 @@ lEditSettings_StandUpBot:			;**
 }
 return
 
-Numpad6::
+;Numpad6::
 lEditSettings_StayHydratedBot:		;**
 {
 	gui, destroy
@@ -484,9 +489,9 @@ lEditSettings_StayHydratedBot:		;**
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
 	Gui, Color, 1d1f21, 373b41, 
-	gui, add, button, xm+222 w28 ym+1 glTriggerAdvancedSettingsGUI_StayHydratedBot, Othr
-	gui, add, button, xm+188 w28 ym+1 glSwapActiveBackup_StayHydratedBot, Swp
-	gui, add, button, xm+255 w28 ym+1 glRestoreActiveBackup_StayHydratedBot, Res
+	gui, add, button, xm+190 w28 ym+1 glSwapActiveBackup_StayHydratedBot, Swp
+	gui, add, button, xm+223 w28 ym+1 glTriggerAdvancedSettingsGUI_StayHydratedBot, Othr
+	gui, add, button, xm+256 w28 ym+1 glRestoreActiveBackup_StayHydratedBot, Res
 	gui, add, text, 
 	Gui, Font, s11 cWhite, Segoe UI 
 	gui, add, text, xm ym-17 w0 h0 ; reposition next elements
@@ -513,11 +518,11 @@ lEditSettings_StayHydratedBot:		;**
 	;Gui, Add, Button, x-10 y-10 w1 h1 +default gSubmitChangedSettings_StayHydratedBot ; hidden button
 	gui, tab, Original
 	gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab ReadOnly r3 vPathToNewFileNew_StayHydratedBot_Original, % IniObj["Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab ReadOnly r3 vPathToNewFileNew_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
 	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
-	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll ReadOnly  vDefaultTimeInMinutes_StayHydratedBot_Original, % IniObj["Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
+	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll ReadOnly  vDefaultTimeInMinutes_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
 	gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
-	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll ReadOnly  vNotificationTimeInMilliSeconds_StayHydratedBot_Original, % IniObj["Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
+	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll ReadOnly  vNotificationTimeInMilliSeconds_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
 	;Gui, Add, Button, x-10 y-10 w1 h1 +default gSubmitChangedSettings_StayHydratedBot ; hidden button
 	gui, tab
 	Gui, Font, s7 cWhite, Verdana
@@ -530,9 +535,9 @@ return
 lSwapActiveBackup_StandUpBot:
 {
 	gui, destroy
-	;f_ToggleOffAllGuiHotkeys()
+	;f_UnstickModKeys()
 	vTempActiveINISettings_StandUpBot:=[]
-	vTempBackupINISettin7gs_StandUpBot:=[]
+	vTempBackupINISettings_StandUpBot:=[]
 	vTempActiveINISettings_StandUpBot:=IniObj["Settings StandUpBot"].clone()
 	vTempBackupINISettings_StandUpBot:=IniObj["Backup Settings StandUpBot"].clone()
 	IniObj["Settings StandUpBot"]:=vTempBackupINISettings_StandUpBot
@@ -551,7 +556,8 @@ lSwapActiveBackup_StandUpBot:
 	vMinutes_StandUpBot:=IniObj["Settings StandUpBot"].vDefaultTimeInMinutes_StandUpBot
 	vNotificationTimeInMilliSeconds_StandUpBot:=IniObj["Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot
 	HUDStatus_StandUpBot:=IniObj["Settings StandUpBot"].HUDStatus_StandUpBot
-	Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0})
+	if bRunNotify
+		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0})
 	sleep, 1100
 	gosub, Submit_StandUpBot
 	
@@ -561,7 +567,7 @@ return
 lSwapActiveBackup_StayHydratedBot:
 {
 	gui, destroy
-	f_ToggleOffAllGuiHotkeys()
+	f_UnstickModKeys()
 	;m(IniObj["Settings StayHydratedBot"])
 	vTempActiveINISettings_StayHydratedBot:=[]
 	vTempBackupINISettings_StayHydratedBot:=[]
@@ -572,6 +578,7 @@ lSwapActiveBackup_StayHydratedBot:
 	SplitPath, A_ScriptName,,,, ScriptName
 	FileNameIniRead:=ScriptName . ".ini"
 	f_WriteINI_Bots(IniObj,ScriptName)
+	;m(IniObj["Original Settings StayHydratedBot"])
 	sFullFilePathToAudioFile_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot	; extract values for notify
 	sNotifyMessagePause_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyMessagePause_StayHydratedBot
 	sNotifyMessageRemember_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyMessageRemember_StayHydratedBot
@@ -582,7 +589,8 @@ lSwapActiveBackup_StayHydratedBot:
 	vMinutes_StayHydratedBot:=IniObj["Settings StayHydratedBot"].vDefaultTimeInMinutes_StayHydratedBot*1 ; get rid of those pesky quotes. Need to remember this trick ._.
 	vNotificationTimeInMilliSeconds_StayHydratedBot:=IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot
 	HUDStatus_StayHydratedBot:=IniObj["Settings StayHydratedBot"].HUDStatus_StayHydratedBot
-	Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
+	if bRunNotify
+		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
 	sleep, 1100
 	gosub, Submit_StayHydratedBot
 }
@@ -590,10 +598,11 @@ return
 
 lRestoreActiveBackup_StandUpBot:				;**
 {
-	f_ToggleOffAllGuiHotkeys()
+	gui, cQ: destroy
+	gui, destroy
 	answer:=f_Confirm_Question("Do you want to reset the settings?",AU,VN)
 	
-	if answer=1
+	if answer="1"
 	{
 		IniObj["Backup Settings StandUpBot"]:=IniObj["Original Settings StandUpBot"].clone()
 		SplitPath, A_ScriptName,,,, ScriptName
@@ -601,13 +610,12 @@ lRestoreActiveBackup_StandUpBot:				;**
 		f_WriteINI_Bots(IniObj,ScriptName)
 		Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StandUpBot})
 		sleep, 1300
-		gosub, lEditSettings_StayHydratedBot
+		gosub, Submit_StayHydratedBot
 	}
 	else	; reactivate previous hotkeys.
 	{
-		gui, destroy 
-		;Hotkey, Enter, SubmitChangedSettings_StandUpBot,On
-		;Hotkey, Esc, GuiEscape_StandUpBot,On
+		gui, cQ: destroy
+		gui, destroy
 		gosub, lEditSettings_StayHydratedBot
 	}
 }
@@ -619,10 +627,6 @@ lRestoreActiveBackup_StayHydratedBot:			;**
 	answer:=f_Confirm_Question("Do you want to reset the settings?",AU,VN)
 	if answer="1"
 	{
-		;m(true,"ylol"	)
-		;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-		;Hotkey, Esc, GuiEscape_StayHydratedBot,On
-		
 		IniObj["Settings StayHydratedBot"]:=IniObj["Original Settings StayHydratedBot"].clone()
 		SplitPath, A_ScriptName,,,, ScriptName
 		FileNameIniRead:=ScriptName . ".ini"
@@ -655,7 +659,7 @@ SubmitChangedSettings_StayHydratedBot: 	;**
 {
 	gui, submit
 	gui, destroy
-	f_ToggleOffAllGuiHotkeys()
+	f_UnstickModKeys()
 	; active
 	if PathToNewFileNew_StayHydratedBot_Active
 		IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot:=PathToNewFileNew_StayHydratedBot_Active
@@ -692,7 +696,7 @@ SubmitChangedSettings_StandUpBot:		;**
 {
 	gui, submit
 	gui, destroy
-	f_ToggleOffAllGuiHotkeys()
+	f_UnstickModKeys()
 	; active 
 	if PathToNewFileNew_StandUpBot_Active
 		IniObj["Settings StandUpBot"].sFullFilePathToAudioFile_StandUpBot:=PathToNewFileNew_StandUpBot_Active
@@ -733,7 +737,7 @@ return
 
 GuiEscape_AboutStandUpBot: 			;**
 GuiEscape_AboutStayHydratedBot:		;**
-f_ToggleOffAllGuiHotkeys()
+f_UnstickModKeys()
 gui, destroy
 return
 
@@ -772,6 +776,7 @@ return
 		if HUDStatus_StayHydratedBot
 		{
 			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
+			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
 			SoundPlay % sFullFilePathToAudioFile_StayHydratedBot
 			PathForNotify_StayHydratedBot=%A_ScriptDir%\Waterbottle.png
 			;Notify().AddWindow("Remember to stay hydrated...",{Title:"(~???)~",TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:PathForNotify_StayHydratedBot})
@@ -801,92 +806,700 @@ return
 
 
 
-;#Include GeneralHealthBots\includes\f Confirm Question.ahk
-;#Include GeneralHealthBots\includes\notify.ahk
-;#Include GeneralHealthBots\includes\f AddStartupToggleToTrayMenu.ahk
-;#Include GeneralHealthBots\includes\f ConvertRelativePath.ahk
-;#Include GeneralHealthBots\includes\f WriteINI Bots.ahk
-;#Include GeneralHealthBots\includes\f ReadINI Bots.ahk
-;#Include GeneralHealthBots\includes\fUnstickModKeys.ahk
-;#Include GeneralHealthBots\includes\f ToggleOffAllGuiHotkeys.ahk
-;#Include GeneralHealthBots\includes\f Help GeneralHealthBots.ahk
-;#Include GeneralHealthBots\includes\f CreateTrayMenu Bots.ahk
-;#Include GeneralHealthBots\includes\f ReadBackSettings StayHydratedBot.ahk
-;#Include GeneralHealthBots\includes\f ConvertRelativeWavPath StayHydratedBot.ahk
-;#Include GeneralHealthBots\includes\f OnExit StayHydratedBot.ahk
-;#Include GeneralHealthBots\includes\f AboutStayHydratedBot.ahk
 
-f_AboutStayHydratedBot(ScriptName,AU,VN,LE) ;__ 
-{
-	MsgBox,, File Overview, Name: %ScriptName%`nAuthor: %AU%`nVersionNumber: %VN%`nLast Edit: %LE%`n`nScript Location: %A_ScriptDir%
-}
+
+
+
+#IfWinactive, lHelp_StayHydratedBot
+Esc:: 
+gosub, GuiEscape_AboutStayHydratedBot
 return
-f_AddStartupToggleToTrayMenu(ScriptName,MenuNameToInsertAt:="Tray")
+
+Enter:: 
+gosub, GuiEscape_AboutStayHydratedBot
+return
+#IfWinActive, lEditSettings_StayHydratedBot
+
+Enter:: 
+gosub, SubmitChangedSettings_StayHydratedBot
+return
+
+Esc:: 
+gosub, GuiEscape_StayHydratedBot
+return
+
+#IfWinActive, Numpad6
+Enter:: 
+gosub, SubmitChangedSettings_StayHydratedBot
+return
+
+Esc:: 
+gosub, GuiEscape_StayHydratedBot
+return
+
+;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
+;Hotkey, Esc, GuiEscape_StayHydratedBot,On
+#IfWinActive, lRestoreActiveBackup_StayHydratedBot
+#IfWinActive, lSetCurrentDelay_StayHydratedBot
+
+Esc:: 
+gosub, GuiEscape_StayHydratedBot
+return
+
+;Hotkey, Esc, GuiEscape_StayHydratedBot,On
+#IfWinActive, 
+#IfWinActive, 
+
+
+#IfWinActive, ; other-tabs in settings missing
+#IfWinActive, ; other-tabs in settings missing
+#IfWinActive, lEditSettings_StandUpBot
+Enter:: 
+gosub,SubmitChangedSettings_StandUpBot
+return
+
+Esc:: 
+gosub, GuiEscape_StandUpBot
+return
+
+#IfWinActive, Numpad7
+Enter:: 
+gosub,SubmitChangedSettings_StandUpBot
+return
+
+Esc:: 
+gosub, GuiEscape_StandUpBot
+return
+
+;Hotkey, Enter, SubmitChangedSettings_StandUpBot,On
+;Hotkey, Esc, GuiEscape_StandUpBot,On
+#IfWinActive, lRestoreActiveBackup_StandUpBot
+#IfWinActive, lSetCurrentDelay_StandUpBot
+Esc:: 
+gosub, GuiEscape_StandUpBot
+return
+
+;Hotkey, Esc, GuiEscape_StandUpBot,On
+#IfWinActive, 
+
+#IfWinActive, CQlRestoreActiveBackup_StayHydratedBot
+
+Esc:: 
+pause off
+Gosub, GuiEscape_StayHydratedBot
+
+return
+
+Enter:: 
+gosub, SubmitChangedSettings_StayHydratedBot
+return
+
+#IfWinActive, CQlRestoreActiveBackup_StandUpBot
+;Esc:: gosub, GuiEscape_ConfirmQuestion_f_ConfirmQuestion
+
+Esc:: 
+pause off
+gosub, GuiEscape_StandUpBot
+return
+
+Enter:: 
+gosub, SubmitChangedSettings_StandUpBot
+return
+
+;{ INCLUDE_____________________________________________________________________________
+
+
+#Include GeneralHealthBots\includes\f_Confirm_Question.ahk
+#Include GeneralHealthBots\includes\f_AddStartupToggleToTrayMenu.ahk
+#Include GeneralHealthBots\includes\f_CreateTrayMenu_Bots.ahk
+#Include GeneralHealthBots\includes\f_ConvertRelativePath.ahk
+#Include GeneralHealthBots\includes\f_ConvertRelativeWavPath_StayHydratedBot.ahk
+#Include GeneralHealthBots\includes\f_Help_GeneralHealthBots.ahk
+#Include GeneralHealthBots\includes\notify.ahk
+#Include GeneralHealthBots\includes\f_OnExit_StayHydratedBot.ahk
+#Include GeneralHealthBots\includes\f_ReadINI_Bots.ahk
+#Include GeneralHealthBots\includes\f_ReadBackSettings_StayHydratedBot.ahk
+#Include GeneralHealthBots\includes\f_ToggleOffAllGuiHotkeys.ahk 	; not used right now, as is obsolete
+#Include GeneralHealthBots\includes\f_UnstickModKeys.ahk
+#Include GeneralHealthBots\includes\f_WriteINI_Bots.ahk
+#Include GeneralHealthBots\includes\f_DestroyGuis.ahk
+#Include GeneralHealthBots\includes\m.ahk
+;#Include Updater.ahk
+f_UpdateRoutine(VersionNumberDefSubScripts:="VNI=",VersionNumberDefMainScript:="VN=",vNumberOfBackups:=0,IniObjFlag:=-1)
 {
-	global startUpDir 
-	global MenuNameToInsertAt2
-	global bBootSetting
-	MenuNameToInsertAt2:=MenuNameToInsertAt
-	startUpDir:=("C:\Users\" A_UserName "\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\" A_ScriptName " - Shortcut.lnk")
-	Menu, %MenuNameToInsertAt%, add, Start at Boot, lStartUpToggle
-	If FileExist(startUpDir)
-	{
-		Menu, %MenuNameToInsertAt%, Check, Start at Boot
-		bBootSetting:=1
-		
-	}
-	else
-	{
-		Menu, %MenuNameToInsertAt%, UnCheck, Start at Boot
-		bBootSetting:=0
-	}
-	return
-	lStartUpToggle: ; I could really use a better way to know the name of the menu item that was selected
-	if !bBootSetting 
-	{
-		bBootSetting:=1
-		FileCreateShortcut, %A_ScriptFullPath%, %startUpDir%
-		Menu, %MenuNameToInsertAt2%, Check, Start at Boot
-	}
-	else if bBootSetting
-	{
-		bBootSetting:=0
-		FileDelete, %startUpDir%
-		Menu, %MenuNameToInsertAt2%, UnCheck, Start at Boot
-	}
-	return
+	; facilitates all subfunctions for 
+	; m(GitPageURLComponents,"`n",LocalValues)
+	; add input verification: 
+	; does gitpage connect successfully, 
+	; does gitpage4 contain a valid path on the harddrive
+	; 
+	global GitPageURLComponents 
+	global LocalValues
 	
-	/* Original from Exaskryz: https://www.autohotkey.com/boards/viewtopic.php?p=176247#p176247
-		Menu, Tray, UseErrorLevel
-		
-		If FileExist(startUpDir:=("C:\Users\" A_UserName "\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\" A_ScriptName " - Shortcut.lnk"))
-			Menu, Tray, Add, Remove from StartUp, StartUpToggle
-		else
-			Menu, Tray, Add, Add to StartUp, StartUpToggle
-		GoSub, SkipLabel_StartUp
-		return
-		
-		StartUpToggle: ; I could really use a better way to know the name of the menu item that was selected
-; Using now errorlevel to determine if the menu item name exists
-		Menu, Tray, Rename, Remove from StartUp, Add to StartUp
-		If ErrorLevel ; Remove from StartUp doesn't exist. So Add to StartUp does. So we're adding this script to startup
+	/*
+		Date: 22 Mai 2021 10:57:45: an alternative way would be to use the ini-file
+		only for fetching file-urls, then check for missing files. all other files are
+		compared on a line-by-line basis to check if they match everywhere. you could
+		make this a "cutting edge"-feature (possibly search another git branch for this?
+		) and ask the user if they want to use experimental versions. Much more prone to
+		error,  but in theory possible.
+	*/
+	gui, destroy
+	vFileCountToUpdate:=0
+	ReturnPackage:=f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefMainScript)
+	vFileCountToUpdate:=ReturnPackage[2].Count()
+	if ReturnPackage[1]!=0
+		vFileCountToUpdate++
+		;tooltip, updating 	; insert f_PerformUpdate here
+	if vFileCountToUpdate!=0 			; MainFile's VN doesn't match → update (insert assume-all function? Not necessary, as each file with unique name is also loggged by vn.)
+		if f_Confirm_Question_Updater("Do you want to update?`nNew Version is "GitPageURLComponents[1],LocalValues[1],LocalValues[2])
+			f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,IniObjFlag,vNumberOfBackups)
+	else if (lIsDifferent=-1) 	; vn-identifier string not found
+		if !vsdb
 		{
-			FileCreateShortcut, %A_ScriptFullPath%, %startUpDir%
-			Menu, Tray, Rename, Add to StartUp, Remove from StartUp
+			Notify().AddWindow("No update available",{Title:"Checking for updates.",TitleColor:"0xFFFFFF",Time:1200,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1200,FlashColor:0x5555})
+			UpdateCheck:=-1
+			return UpdateCheck ; insert notify guis to tell no update is available
 		}
-		else ; we successfully renamed the Remove from StartUp, which means that was selected, so we need to remove the script from startup
-			FileDelete, %startUpDir%
+	else if (lIsDifferent=0) 	; vn's match
 		return
+}
+
+f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefSubScripts,VersionNumberDefMainScript:="VN=")
+{
+	; returns:
+	;  0 - match
+	;  1 - don't match
+	; -1 - VersionNumberDefMainScript could not be found 
+	;__________________________________________
+	
+	
+	;__________________________________________
+	;__________________________________________
+	; Check main script against github instance
+	;__________________________________________
+	;__________________________________________
+	; taken from https://www.autohotkey.com/docs/commands/URLDownloadToFile.htm#WHR example 3
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	; https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/StayHydratedBot%20settingsGUI_16.05.2021.ahk
+	url:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[3]""
+	;m(url)
+	whr.Open("GET","https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[3]"", true)
+	whr.Send()
+	; Using 'true' above and the call below allows the script to remain responsive.
+	whr.WaitForResponse()
+	ReadLine := strsplit(whr.ResponseText,"`r`n")
+	vNumel:=ReadLine.length()
+	loop, %vNumel%
+		if Instr(ReadLine[A_Index],VersionNumberDefMainScript)
+		{
+			; if (substr(vNumel))
+			vVNOnline:=ReadLine[A_Index]
+			; m(vVNOnline,VN)
+			;d:=SubStr(vVNOnline,1,1)
+ 			;if (d="") 	; this doesn't work, how do I get the fucking string of the thing? ffs. 
+			;	MsgBox, hi
+			vVNOnline:=StrReplace(vVNOnline," ")
+			vVNOnline:=StrReplace(vVNOnline,VersionNumberDefMainScript,"")
+			if (vVNOnline != LocalValues[2])		; vVNOnline is the github version, GitpageURLComponents1 is the local version, this needs to be switched
+				VersionDifference_MainScript:=true
+			Else
+				VersionDifference_MainScript:=false
+			break
+		}
+	Else
+		VersionDifference_MainScript:=-1
+	;MsgBox % vVNOnline "`n" LocalValues[2] "`nDifference:" VersionDifference_MainScript
+	
+	
+	;________________________________________________
+	;________________________________________________
+	; Get Local include version Numbers (VNs)
+	; write to common ini-file to query when uploaded
+	;________________________________________________
+	;________________________________________________
+	
+	
+	
+	OfflineVNs:=[]
+	OfflineVNs["local"]:=[]
+	OfflineVNs["local"]:=f_PullLocalVersionsFromIncludeFiles("GeneralHealthBots\includes")
+	OfflineVNs["local"][A_ScriptName]:=LocalValues[2]	; this throws an error in the testfile, but won't do so in the actual file. 
+	OfflineVNs["localend"]:=[]
+	f_WriteINI(OfflineVNs,"StayHydratedBot settingsGUI_16.05.2021")		; figure out how to write this array to the ini-file
+	;m(OfflineVNs)
+	SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	INiObj:=f_ReadINI("StayHydratedBot settingsGUI_16.05.2021.ini") ;; replace this with FileNameIniRead later once this is written out fully. 
+	; now we have the VN's of all subscripts locally, and they are always updated to the ini-file itself. 
+	
+	; now we have: Function pulls vn's from local files, with OfflineVNs being an array of filename - vn created at start of mainscript
+	; 
+	
+	;________________________________________________
+	;________________________________________________
+	; Get online include version Numbers (VNs) from the online ini.file ← this is important to go over the ini-file as we need to make 
+	; sure we also catch the files that are new, but for those we cannot assemble the url-string yet, as we would be lacking the filenames. 
+	; Hence, we need to read back the ini-file to get the names of the functions existing on github
+	
+	
+	
+	; for v, k in OfflineVNs.local
+	; {
+	; 	m(v)
+	
+	; wrap this code in a function OnlineVNs:=f_PullOnlineVersionsFromIniFile(GitPageURLComponents) ; returns OnlineVNs
+	OnlineVNs:=f_PullOnlineVersionsFromIniFile(GitPageURLComponents)
+	
+	OnlineVNs.Remove("")
+	FilesToDownload:=f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
+	
+	
+	ReturnPackage:=[]
+	ReturnPackage:=[VersionDifference_MainScript,FilesToDownload]
+	/*
+		Date: 21 Mai 2021 23:00:37: todo tomorrow:  1. verify that my filtering
+		function does indeed work correctly. 2. write the downloader-fn (which really is
+		just a https-request linked to a FileOpen/FileClose to properly edit all. Make
+		sure you have all necessary values passed.)
+	*/
+	
+	return ReturnPackage
+	
+}
+
+f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
+{ ; returns array of filenames to download. Files with version mismatch and files not existing on the local instance/ini-file are selected, and marked to be downloaded
+	; 1. Check if vn's are equal
+		; this doesn't work because files are not in the same order, hence if a new file is inserted one pattern will shift by 1 completely, resulting in permanent hits where there aren't any irl.
+		; fix:
+		; 1. Collect the Keys of the OFFLINE array in a separate array (which is non-associative)
+		; 2. Loop through the keys of ONLINE arr and check if they exist in the new offline-key-array
+		; 2.1 YES: compare the vn's of that key between both arrays and check if unequal → download
+		; 2.2 NO:  key of an online-fn doesn't exist in the offline-fn, hence the function doesn't exist either. → download to file
 		
-		SkipLabel_StartUp:
+	FilesToDownload:=[]
+	Ind:=1
+	k:=""
+	OfflineFiles:=[]
+	for k,v in OfflineVNs.local
+		OfflineFiles[A_Index]:=k		; contains all keys of offline files: these files exist on the pc.
+	for k, v in OnlineVNs			; loop through the keys of Online files to check if they exist within the offline files. 
+	{
+		HV:=HasVal(OfflineFiles,k)
+		if HV!=0	; if HV!=0 OfflineFiles does have the key, hence the file exists. now compare the respective VNs
+		{
+			a:=OfflineVNs.local[k]
+			b:=OnlineVNs[k]
+			if !Instr(a,b)	; if a!=b the file VNs are unequal, hence download
+			{
+				FilesToDownload[Ind]:=k
+				Ind++
+			}
+		}
+		Else		; if HV=0, the file doesn't exist locally, hence add it. 
+		{
+			;m(HV,"doesn't exist, hence download directly")
+			;m(k,"very much news","`nLocal:",a,LocalVN_current,"`nOnline:",b,VN_kOn)
+			FilesToDownload[Ind]:=k
+			Ind++
+		}	
+	}
+	return FilesToDownload
+}
+
+f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,IniObjFlag:=1,vNumberOfBackups:=0)
+{
+	/*
+		OLD Steps:
+		{
+		0. Read ALL files in directory to an object
+		1.  run github
+		2.  inform user to download  AND UNZIP to A_ScriptDir/update_files
+		3.  create directories A_ScriptDir/UserBackup <- copy there. user's current ini-file and the "user"-folder which can contain any user-specific files. If that folder doesn't exist, do nothing
+		4.  let ahk save the current settings to the old ini-file, 
+		5.  let ahk read the new ini-file
+		6.  let ahk compare both files and merge the array (keeping old settings, without removing the new ini-files additional settings (difficult, as it is a associative array, not a normal one))
+		6.1 write the updated array to A_ScriptDir/update_files/.../Settings***
+		7.  delete all files from the old version * this will most likely not delete the active script, so use the ReadLine-replacer way of writing to the file itself
+		8.  finish up: check if all files exist (compare object path's names with all files in /update_files)
+		8.1 if successful, cut and paste all contents of /update_files to the parent directory <- make sure /update_files is empty at the end
+		8.2 check for existance of ini-file in correct directory
 		
+		{
+			; 1.  run github
+			sProjectUrl:="https://github.com/" GitPageURLComponents[2] "/" GitPageURLComponents[3]
+			H:="Please download the new version, save it and unzip it to" A_ScriptDir "\update_files"
+			f_InformOfNextSteps(H)
+			; run, %sProjectUrl%
+			sleep, 250
+			; 2.  inform user to download  AND UNZIP to A_ScriptDir/update_files
+			; 2.1 check if A_ScriptDir/update_files exists
+			IfNotExist, %A_ScriptDir%\update_files
+				FileCreateDir, %A_ScriptDir%\update_files
+			IfNotExist, %A_ScriptDir%\
+				MsgBox, finished creating
+			; 3.  create directories A_ScriptDir/UserBackup <- copy there. user's current ini-file and 
+			; the "user"-folder which can contain any user-specific files. 
+			; If that folder doesn't exist, do nothing
+			if vNumberOfBackups!=0
+				f_CreateBackup()
+			; f_AssembleDownloadURLs(ReturnPackage )
+			sleep, 2500
+	
+			m("finsh")	
+		}
+
+
+
+
+		NEW PROCEDURE: 
+		0. Create Backup
 		
+			1. Parse throught ReturnPackage[2]
+			1.1. Create dummy-values "FileNotReadFromGitPage"
+		1.2. attempt to read each file from gitpage into the respective variable.
+			 The files that remain unchanged couldn't be downloaded for some reason
+			 	- faulty vn, faulty name f.e.
+		2. Assemble the respective url's and write them to an array DownloadURLs
+		3. Check if ReturnPackage[1]=1 ← download MainScript
+		4. pass that to f_downloadfiles, returning array (FileArray) of filenames (keys) and the entire files (vals)
+		5. pass that to f_writedownloads, which takes the FileArray and all paths ()
+		}
+	*/
+	
+	; 0. Create Backup
+	if vNumberOfBackups>0
+	{
+		ExcludedFolders:=["AHK-Studio Backup","PrivateMusic"]
+		f_CreateBackup(vNumberOfBackups,ExcludedFolders)
+	}
+	; 1. Parse throught ReturnPackage[2]
+	FilesReadFromGitPage:=[]
+	for k,v in ReturnPackage[2]
+		FilesReadFromGitPage[k]:="-1: File Not read from gitpage"
+	GitPageURLComponents[5]:=LocalValues[3]
+	FileTexts:=f_DownloadFilesFromGitPage(FilesReadFromGitPage,GitPageURLComponents,ReturnPackage)
+	ReturnPackage[2].Push(A_ScriptName)
+	f_WriteFilesFromArray(ReturnPackage[2],FileTexts,GitPageURLComponents)
+	f_NotifyUserOfUpdates()
+	return ; VersionDifference_MainScript
+} 
+
+f_NotifyUserOfUpdates()
+{
+	m("remember to create the notifyuserofupdates_fn")
+	/*
+		Date: 22 Mai 2021 13:34:03: todo: notify what has changed, where the old files
+		are, etc etc  1. Old files are dropped to 
 	*/
 }
-f_Confirm_Question(Question,AU,VN)
+
+f_WriteFilesFromArray(FileNames,FileTexts,GitPageURLComponents)
 {
-	;m("this is triggerrd")
-	;f_ToggleOffAllGuiHotkeys()
+	global vsdb
+	m(FileNames)
+	m(GitPageURLComponents[5])
+	m(FileTexts)
+	FilePathsLocal:=f_AssembleLocalFilePaths(FileNames,GitPageURLComponents[5])
+	for k,v in FilePathsLocal
+	{
+		if FileTexts[k]!="404: Not Found"
+		{
+			if  vsdb ;!
+			{
+				CurrFile:=FileOpen(v,"rw") ; backup is handled already, so I don't have to worry about it. Or I do a better backup, and do it here just for the files that are updated. 101
+				CurrFile.Write(FileTexts[k])
+				CurrFile.Close()
+
+			}
+						
+		}
+		else
+			m("File not found online: Reference exists, file itself does not")
+	}
+	; and now we only have to write the files to the files, duh.
+	if !vsdb
+		m("f_writeFilesFromArray:`nremember to finish thee notify-msgs")
+}
+
+f_AssembleLocalFilePaths(FileNames,FileDirIncludes)
+{
+	FilePathsLocal:=[]
+	for k,v in FileNames
+	{
+		CurrFilePath:=A_ScriptDir "\" FileDirIncludes FileNames[A_Index]
+		CurrFilePath:=StrReplace(CurrFilePath,"/","\" )
+		FilePathsLocal[A_Index]:=CurrFilePath
+		Ind:=A_Index
+	}
+	FilePathsLocal[Ind]:=A_ScriptFullPath
+	return FilePathsLocal
+}
+
+f_DownloadFilesFromGitPage(FilesReadFromGitPage,GitPageURLComponents,ReturnPackage)
+{
+	DownloadURLs:=f_AssembleDownloadURLs(FilesReadFromGitPage,GitPageURLComponents,ReturnPackage)
+
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	for k,v in DownloadURLs
+	{
+		whr.Open("GET",DownloadURLs[A_Index]"", true)
+		whr.Send()	
+		whr.WaitForResponse()
+		FileNameArr:=StrSplit(DownloadURLs[A_Index],"/")
+		ArrayVal:=whr.ResponseText ;"||" FileNameArr[FileNameArr.MaxIndex()]
+			FilesReadFromGitPage[A_Index]:=ArrayVal
+		;Clipboard:=ArrayVal
+	}
+	
+	return FilesReadFromGitPage
+}
+
+f_AssembleDownloadURLs(FilesReadFromGitPage,GitPageURLComponents,ReturnPackage)
+{
+	DownloadURLs:=[]
+	for k,v in ReturnPackage[2]
+		DownloadURLs[A_Index]:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[5] ReturnPackage[2][A_Index]
+	MaxIndPlusOne:=DownloadURLs.MaxIndex()+1
+	DownloadURLs[MaxIndPlusOne]:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[3]""		; figure out if the %20 is valid or f_InformOfNextSteps(
+ 
+	return DownloadURLs
+}
+
+f_PullOnlineVersionsFromIniFile(GitPageURLComponents)
+{
+
+
+
+
+   	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	url:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[4]""
+	whr.Open("GET","https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[4]"", true)
+	whr.Send()
+	; Using 'true' above and the call below allows the script to remain responsive.
+	whr.WaitForResponse()
+	ReadLine := strsplit(whr.ResponseText,"`r`n")
+	vNumel:=ReadLine.length()
+ 	RunCount:=0
+	OnlineVNs:=[]
+	lCatchLines:=false
+	loop, %vNumel%
+	{
+		
+		
+		if lCatchLines or lCatchLines=2 ; assuming these 
+		{
+			lCatchLines:=2
+			RunCount++
+			; if (substr(vNumel))
+			LineReadInd:=A_INdex
+			vVNOnline:=ReadLine[LineReadInd]
+			; m(vVNOnline,VN)
+		 	;d:=SubStr(vVNOnline,1,1)
+			;if (d="") 	; this doesn't work, how do I get the fucking string of the thing? ffs. 
+			;	MsgBox, hi
+			vVNOnline:=StrReplace(vVNOnline," ")
+			vVNOnline:=StrReplace(vVNOnline,VersionNumberDefMainScript,"")
+			RegExMatch(vVNOnline, "(?<FileName>[a-z A-Z _\- 0-9]+.ahk)(=)(?<VersionNumberOfFileName>[0-9]+.[0-9]+.[0-9]+.[0-9]+)",v)
+			; how do I get the contents of vFileName and vVersionNUmberOfFileName into an array?
+			OnlineVNs[vFileName]:=vVersionNumberOfFileName
+		}
+		if Instr(ReadLine[A_Index],"[local]") and ((lCatchLines=false) or (lCatchLines=true))
+			lCatchLines:=true
+		else if Instr(ReadLine[A_Index] ,"[local end]") and lCatchLines and ((lCatchLines=false) or (lCatchLines=true))		;; remember to edit the ini-write function to add this section at the end as well to signify the end of the include-files-ini-section.
+			lCatchLines:=false
+		else
+			if lCatchLines!=2
+				lCatchLines:=false
+	}
+	return OnlineVNs
+}
+
+f_PullLocalVersionsFromIncludeFiles(DirectoryOfIncludeFilesRelativeFromMainFile)
+{
+ 	VNI=1.0.0.1
+	FilesOfProject:=f_ListFiles(A_ScriptDir "\" DirectoryOfIncludeFilesRelativeFromMainFile)
+ 	versions := []
+	loop files, % A_ScriptDir "\GeneralHealthBots\includes\*.ahk", F ;R
+	{
+		FileRead buffer, % A_LoopFileFullPath
+		RegExMatch(buffer, "VNI[^\d]+([\d\.]+)", ReadLine)
+		versions[A_LoopFileName] := ReadLine1
+	}
+  	FileInd:=1
+	; vLocalVNArray:=["Ini Local"]
+	
+	/*
+		
+		vLocalVNArray:={}
+		loop, % FilesOfProject.length()
+		{
+			CurrFile:=FilesOfProject[FileInd]
+			CurrFilePath:=A_ScriptDir "\" DirectoryOfIncludeFilesRelativeFromMainFile "\" CurrFile
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			loop, files, %CurrFilePath%
+			{
+				self_o:=FileOpen(A_LoopFileFullPath,"r")
+				loop,
+				{
+					colours := Object("red", 0xFF0000, "blue", 0x0000FF, "green", 0x00FF00)
+				; The above expression could be used directly in place of "colours" below:
+					for k, v in colours
+						s .= k "=" v "`n"
+					MsgBox % s
+					lineStart:=self_o.Tell
+					sVersionLocal:=self_o.ReadLine()
+					if Instr(sVersionLocal,"VNI=")
+					{
+						sVNPure:=StrReplace(StrReplace(StrReplace(sVersionLocal,"VNI=",""),"`t",""),"`r`n","")
+						s:=A_LoopFileName
+						for k,v in FilesOfProject
+							vLocalVNArray:=sVNPure
+				;vLocalVNArray.A_LoopFileName:=sVNPure
+					;vLocalVNArray["Ini Local"].push(A_LoopFileNamesVNPure)
+						break
+					}
+					else
+						vLocalVNArray.A_LoopFileName:="Error:noVNFound"
+				}
+			}
+			FileInd++
+		}
+		
+	*/
+	
+	return versions
+}
+
+f_CreateBackup(vNumberOfBackups,ExcludeFolders)
+{
+	global vsdb 
+	if vNumberOfBackups>1
+	{
+		m("finish the multi-backup paths.")
+	}
+	m("implement logic for number of backups")
+	SourceCD:=A_ScriptDir ;"\"
+	DestCD:=A_ScriptDir "\UserBackup"
+	loop, files, %A_ScriptDir%
+	{
+		m(A_LoopFileName)
+		if !HasVal(ExcludeFolders,A_LoopFileName)
+			FileCopyDir, A_LoopFileFullPath, %DestCD%
+	}
+	
+	; 	FileCopyDir, %SourceCD%,%DestCD%,1
+	; SourceRD:=A_ScriptDir "\UserBackup\UserBackup"
+	;Notify().AddWindow("Backup completed",{Title:"",TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0})
+	if !vsdb
+		Notify().AddWindow("Backup completed",{Title:"Updating " A_ScriptName,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	;FileRemoveDir, %SourceRD
+}
+
+HasVal(haystack, needle) 
+{	; code from jNizM on the ahk forums: https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
+	if !(IsObject(haystack)) || (haystack.Length() = 0)
+		return 0
+	for index, value in haystack
+		if (value = needle)
+			return index
+	return 0
+}
+
+f_ListFiles(Directory)
+{
+	files:=[]
+	Loop %Directory%\*.ahk
+	{
+		files[A_Index]:=A_LoopFileName
+	}
+	return files
+}
+
+f_WriteINI(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
+{
+	m(INI_File)
+	VNI=1.0.0.12
+	if !FileExist("INI-Files") ; check for ini-files directory
+	{
+		MsgBox, Creating "INI-Files"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
+		FileCreateDir, INI-Files
+	}
+	OrigWorkDir:=A_WorkingDir
+	SetWorkingDir, INI-Files
+	for SectionName, Entry in Array2D 
+	{
+		Pairs := ""
+		for Key, Value in Entry
+			Pairs .= Key "=" Value "`n"
+		IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
+	}
+	if A_WorkingDir!=OrigWorkDir
+		SetWorkingDir, %OrigWorkDir%
+	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+		
+	;-------------------------------------------------------------------------------
+		WriteINI(ByRef Array2D, INI_File) { ; write 2D-array to INI-file
+	;-------------------------------------------------------------------------------
+			for SectionName, Entry in Array2D {
+				Pairs := ""
+				for Key, Value in Entry
+					Pairs .= Key "=" Value "`n"
+				IniWrite, %Pairs%, %INI_File%, %SectionName%
+			}
+		}
+	*/
+}
+
+f_ReadINI(INI_File) ; return 2D-array from INI-file
+{
+	VNI=1.0.0.10
+	Result := []
+	OrigWorkDir:=A_WorkingDir
+	SetWorkingDir, INI-Files
+	IniRead, SectionNames, %INI_File%
+	for each, Section in StrSplit(SectionNames, "`n") {
+		IniRead, OutputVar_Section, %INI_File%, %Section%
+		for each, Haystack in StrSplit(OutputVar_Section, "`n")
+			RegExMatch(Haystack, "(.*?)=(.*)", $)
+         , Result[Section, $1] := $2
+	}
+	if A_WorkingDir!=OrigWorkDir
+		SetWorkingDir, %OrigWorkDir%
+	return Result
+	
+	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+	;-------------------------------------------------------------------------------
+	ReadINI(INI_File) { ; return 2D-array from INI-file
+	;-------------------------------------------------------------------------------
+		Result := []
+		IniRead, SectionNames, %INI_File%
+		for each, Section in StrSplit(SectionNames, "`n") {
+			IniRead, OutputVar_Section, %INI_File%, %Section%
+			for each, Haystack in StrSplit(OutputVar_Section, "`n")
+				RegExMatch(Haystack, "(.*?)=(.*)", $)
+            , Result[Section, $1] := $2
+		}
+		return Result
+	*/
+}
+
+f_Confirm_Question_Updater(Question,AU,VN)
+{
+	; returns:
+	;  0 - answered no
+	;  1 - answered yes
+	; -1 - user canceled ()
 	gui, cQ: new
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	gui, cQ: Margin, 16, 16
@@ -906,999 +1519,70 @@ f_Confirm_Question(Question,AU,VN)
 	Gui, cQ: Color, 1d1f21, 373b41, 
 	Gui, cQ: Font, s11 cWhite, Segoe UI 
 	gui, cQ: add, text,xm ym, %Question%
-	gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion, Yes
-	gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion, No
+	gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion_Updater, &Yes
+	gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion_Updater, &No
 	Gui, cQ: Font, s7 cWhite, Verdana
-	Gui, cQ: Add, Text,x25, Version: %VN%	Author: %AU% 
-	;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,On
-	gui, cQ: show,autosize, CQ%A_ThisLabel%
-	loop, 5
-	{
-		sleep, 200
-		winactivate, CQ
-	}
-	;winactivate CQ
-	pause
-	;m(answer)
-	return answer
-	GuiEscape_ConfirmQuestion_f_ConfirmQuestion:
-	gui, cQ: destroy
-	;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,Off
-	return
+	if VN!="" and AU!=""
+		Gui, cQ: Add, Text,x25, Version: %VN%
+	else if VN!="" and AU=""
+		Gui, cQ: Add, Text,x25, Version: %VN%
+	else if VN="" and AU!=""
+		Gui, cQ: Add, Text,x25, Author: %AU% 
 	
-	ConfirmQuestion_f_ConfirmQuestion:
+	yc:=A_ScreenHeight-200
+	xc:=A_ScreenWidth-300
+	gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
+	winactivate, CQ
+	WinWaitClose, CQ%A_ThisFun%
+	return answer
+	
+	GuiEscape_ConfirmQuestion_f_ConfirmQuestion_Updater:
+	gui, cQ: destroy
+	return answer:=-1
+	
+	ConfirmQuestion_f_ConfirmQuestion_Updater:
 	gui, cQ: submit
 	gui, cQ: destroy
-	;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,Off
-	
-	pause off
 	return answer:=true
 	
-	DenyQuestion_f_ConfirmQuestion:
+	DenyQuestion_f_ConfirmQuestion_Updater:
 	gui, cQ: submit
 	gui, cQ: destroy
-	;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,Off
-	;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-	;Hotkey, Esc, GuiEscape_StayHydratedBot,On
-	pause off
 	return answer:=false
 	
+	
 }
-f_ConvertRelativePath(RelativePath)
+
+f_InformOfNextSteps(H:="No info given for this step.",XtOffset:=300,YtOffset:=400)
 {
-	RelativePath = %RelativePath%
-	RelativePath:=Trim(RelativePath, """ ")
-	FullPath:=StrReplace(RelativePath, "A_ScriptDir", A_ScriptDir)
-	if (StrLen(FullPath) >= 127)
-	{
-		loop % FullPath
-			FullPath := A_LoopFileShortPath
-	}
-	return FullPath
+	global
+	x:=A_ScreenWidth-XtOffset
+	y:=A_ScreenHeight-YtOffset
+	tooltip, % st_wordwrap(H), x,y
+	; 1
 }
-f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile) ; A solution to .wav-files
+
+st_wordWrap(string, column=56, indentChar="")
 {
-	sFullFilePathToAudioFile=%sFullFilePathToAudioFile%
-	sFullFilePathToAudioFile:=Trim(sFullFilePathToAudioFile, """ ")
-	sFullFilePathToAudioFile:=StrReplace(sFullFilePathToAudioFile, "A_ScriptDir", A_ScriptDir)
-	if (StrLen(sFullFilePathToAudioFile) >= 127)
+	indentLength := StrLen(indentChar)
+	
+	Loop, Parse, string, `n, `rff
 	{
-		loop % sFullFilePathToAudioFile
-			sFullFilePathToAudioFile:=A_LoopFileShortPath
-	}
-	return sFullFilePathToAudioFile
-	/*
-	; thank you u/anonymous1184 for resolving this stupid bug with soundplay and wavfiles 
-		https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
-		f_ConvertRelativePath(RelativePath)
+		If (StrLen(A_LoopField) > column)
 		{
-			RelativePath = %RelativePath%
-			RelativePath:=Trim(RelativePath, """ ")
-			FullPath:=StrReplace(RelativePath, "A_ScriptDir", A_ScriptDir)
-			if (StrLen(FullPath) >= 127)
-			{
-				loop % FullPath
-					FullPath := A_LoopFileShortPath
-			}
-			return FullPath
-		}
-		
-	*/
-}
-f_CreateTrayMenu_Bots()
-{
-	menu, tray, add,
-	menu, Misc, Add, Help, lHelp_StayHydratedBot
-	
-	SplitPath, A_ScriptName,,,, ScriptName
-	f_AddStartupToggleToTrayMenu(ScriptName,"Misc")
-	Menu, tray, add, Miscellaneous, :Misc
-	;f_AddStartupToggleToTrayMenu(ScriptName,"StayHydratedBot")
-	
-	menu, tray, add,
-	{
-		
-		menu, StayHydratedBot, Add, Settings, lEditSettings_StayHydratedBot
-		menu, StayHydratedBot, Add, Pause, lPause_StayHydratedBot
-		menu, StayHydratedBot, Add, Set Timer, lSetCurrentDelay_StayHydratedBot
-		menu, StayHydratedBot, Add, HUD, lToggleBotHUD_StayHydratedBot
-		menu, StayHydratedBot, Add, Sound, lToggleBotAudio_StayHydratedBot
-		menu, Tray, add, StayHydratedBot, :StayHydratedBot
-		
-		menu, StandUpBot, add, Settings, lEditSettings_StandUpBot
-		menu, StandUpBot, add, Pause, lPause_StandUpBot
-		menu, StandUpBot, add, Set Timer, lSetCurrentDelay_StandUpBot
-		menu, StandUpBot, add, HUD, lToggleBotHUD_StandUpBot
-		menu, StandUpBot, add, Sound, lToggleBotAudio_StandUpBot
-		menu, tray, Add, StandUpBot,:StandUpBot
-	}
-	menu, tray, icon, %A_ScriptDir%\WaterBottle.PNG
-	menu, tray, add,
-	return
-}
-f_Help_GeneralHealthBots(AU,VN)
-{
-	f_ToggleOffAllGuiHotkeys()
-	;m("hi tehrer")
-	gui, destroy
-	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-	Gui, Margin, 16, 16
-	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
-	Gui, Color, 1d1f21, 373b41, 
-	Gui, Font, s7 cWhite, Verdana
-	Gui, Font, s15 cWhite, Segoe UI 
-	gui, add, text,xm ym+10,GeneralHealthBots
-	
-	Gui, Font, Underline s11 cBlue , Segoe UI 
-	gui, add, text, xm ym+40 w212 0x10  ;Horizontal Line > Etched Gray
-	gui, add, text, xm ym+30 w0 ; position the documentation link
-	Gui, Add, Text, glLinkDocumentation, Documentation
-	
-	Gui, Font, Underline s09 cBlue , Segoe UI 
-	gui, add, text, xm ym+60 w0 ; position the documentation link
-	gui, add, text, glLinkCheckforUpdates, Check for Updates
-	
-	Gui, Font, Underline s09 cBlue , Segoe UI 
-	gui, add, text, xm ym+90 w0 ; position the documentation link
-	gui, add, text, glLinkReportABug,Report a bug
-	
-	
-	
-	gui, font,
-	Gui, Font, s7 cWhite, Verdana
-	;Hotkey, Esc, GuiEscape_AboutStayHydratedBot,On
-	;Hotkey, Enter, GuiEscape_AboutStayHydratedBot, On
-	Gui, Add, Text,x25, VN: %VN%	Author: %AU% 
-	gui, show,autosize,%A_ThisLabel% ; win_gui_Help_GeneralHealthBots
-	return
-	lLinkCheckforUpdates:
-	{
-		m("insert github updater here.00")
-		gui, destroy
-	}
-	return
-	lLinkDocumentation:					;**
-	{
-		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk
-		gui, destroy
-	}
-	return
-	lLinkReportABug:					;**
-	{
-		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/issues/new
-		gui,destroy
-	}
-	return
-}
-f_OnExit_StayHydratedBot() ; not finished: needs new setting
-{
-	Notify().AddWindow("Bye Bye.",{Title:GeneralHealthBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
-	sleep, 2000
-	ExitApp
-}
-f_ReadBackSettings_StayHydratedBot()
-{
-	SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
-	
-	CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%
-	/* DONE?
-		Date: 16 Mai 2021 09:15:33: Figure out how you want userconfirmation to  be
-		performed.  rewrite the gui for the settings edit to contain all six to nine
-		fields per bot << prefer this version, as it is MUCH simpler.  	 or rename all
-		sections into "A"/"B"/"C", then just make a button to set which one is actively
-		loaded. ? this is the more versatile, albeit more complex version because it
-		requires more extensive rewrites across the entire file (or, on rewrite replace
-		the )
-	*/
-	if FileExist(CheckFilePathIniRead) ; read back settings from IniFile
-		IniObj := f_ReadINI_Bots(FileNameIniRead) ; this does work
-	Else 							; set default-settings in case ini-file doesn't exist
-	{
-		
-		IniSections:=[]
-		IniSections ["Settings StayHydratedBot"]
-			:= {  	sFullFilePathToAudioFile_StayHydratedBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
-				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
-				,    vDefaultTimeInMinutes_StayHydratedBot: 	45
-				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
-				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot (~???)~"
-				, 	sNotifyMessageRemember_StayHydratedBot: "Remember to stay hydrated"
-				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
-				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
-				, 	HUDStatus_StayHydratedBot: 1
-				, 	SoundStatus_StayHydratedBot: 1}
-		IniSections ["Backup Settings StayHydratedBot"]
-			:= {  	sFullFilePathToAudioFile_StayHydratedBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
-				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
-				,    vDefaultTimeInMinutes_StayHydratedBot: 	90
-				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
-				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot (~???)~"
-				, 	sNotifyMessageRemember_StayHydratedBot: "Remember to stay hydrated"
-				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
-				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
-				, 	HUDStatus_StayHydratedBot: 1
-				, 	SoundStatus_StayHydratedBot: 1}
-		
-		IniSections ["Settings StandUpBot"]
-			:= {  	sFullFilePathToAudioFile_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
-				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
-				,    vDefaultTimeInMinutes_StandUpBot: 	90
-				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
-				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (???) /"
-				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
-				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
-				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
-				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
-				, 	HUDStatus_StandUpBot: 1
-				, 	SoundStatus_StandUpBot: 1}
-		IniSections ["Backup Settings StandUpBot"]
-			:= {  	sFullFilePathToAudioFile_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
-				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
-				,    vDefaultTimeInMinutes_StandUpBot: 	120
-				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
-				, 	sNotifyTitle_StandUpBot: "StandUpBot \ (???) /"
-				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
-				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
-				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
-				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
-				, 	HUDStatus_StandUpBot: 1
-				, 	SoundStatus_StandUpBot: 1}
-		f_WriteINI_Bots(IniSections, ScriptName)
-		IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this works
-		;IniObj["Backup Settings StayHydratedBot"]:=IniObj["Settings StayHydratedBot"].clone()	;; cf above for explanation
-		IniObj["Original Settings StayHydratedBot"]:=IniObj["Settings StayHydratedBot"].clone()
-		;IniObj["Backup Settings StandUpBot"]:=IniObj["Settings StandUpBot"].clone()	;; cf above for explanation 	; as I am starting with two different sets out by default, I no longer have to duplicate one set of settings
-		IniObj["Original Settings StandUpBot"]:=IniObj["Settings StandUpBot"].clone()
-		f_WriteINI_Bots(IniObj, ScriptName)		; super redundant, I will have to redo this once again. 
-		
-		
-	}
-	return IniObj
-}
-f_ReadINI_Bots(INI_File) ; return 2D-array from INI-file
-{
-	Result := [] 
-	OrigWorkDir:=A_WorkingDir
-	SetWorkingDir, GeneralHealthBots
-	IniRead, SectionNames, %INI_File%
-	for each, Section in StrSplit(SectionNames, "`n") {
-		IniRead, OutputVar_Section, %INI_File%, %Section%
-		for each, Haystack in StrSplit(OutputVar_Section, "`n")
-			RegExMatch(Haystack, "(.*?)=(.*)", $)
-         , Result[Section, $1] := $2
-	}
-	if A_WorkingDir!=OrigWorkDir
-		SetWorkingDir, %OrigWorkDir%
-	return Result
-	
-	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
-	;-------------------------------------------------------------------------------
-		ReadINI(INI_File) { ; return 2D-array from INI-file
-	;-------------------------------------------------------------------------------
-			Result := []
-			IniRead, SectionNames, %INI_File%
-			for each, Section in StrSplit(SectionNames, "`n") {
-				IniRead, OutputVar_Section, %INI_File%, %Section%
-				for each, Haystack in StrSplit(OutputVar_Section, "`n")
-					RegExMatch(Haystack, "(.*?)=(.*)", $)
-            , Result[Section, $1] := $2
-			}
-			return Result
-	*/
-}
-f_WriteINI_Bots(ByRef Array2D, INI_File)  ; write 2D-array to INI-file 
-{	
-	if !FileExist("GeneralHealthBots") ; check for StayHydratedBot directory
-	{
-		MsgBox, "Creating ""GeneralHealthBots"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
-		FileCreateDir, GeneralHealthBots
-	}
-	if IsObject(Array2D)	
-	{
-		OrigWorkDir:=A_WorkingDir
-		SetWorkingDir, GeneralHealthBots
-		for SectionName, Entry in Array2D 
-		{
-			Pairs := ""
-			for Key, Value in Entry
-				Pairs .= Key "=" Value "`n"
-			IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
-		}
-		if A_WorkingDir!=OrigWorkDir
-			SetWorkingDir, %OrigWorkDir%
-	}
-	Else
-	{
-		OrigWorkDir:=A_WorkingDir
-		SetWorkingDir, StayHydratedBot
-		for SectionName, Entry in Array2D 
-		{
-			Pairs := ""
-			for Key, Value in Entry
-				Pairs .= Key "=" Value "`n"
-			IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
-		}
-		if A_WorkingDir!=OrigWorkDir
-			SetWorkingDir, %OrigWorkDir%
-		
-	}
-	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
-		
-	;-------------------------------------------------------------------------------
-		WriteINI(ByRef Array2D, INI_File) { ; write 2D-array to INI-file
-	;-------------------------------------------------------------------------------
-			for SectionName, Entry in Array2D {
-				Pairs := ""
-				for Key, Value in Entry
-					Pairs .= Key "=" Value "`n"
-				IniWrite, %Pairs%, %INI_File%, %SectionName%
-			}
-		}
-	*/
-}
-f_ToggleOffAllGuiHotkeys()
-{
-	;Hotkey, ^S, lTriggerAdvancedSettingsGUI_StandUpBot,Off
-	;Hotkey, ^S, lTriggerAdvancedSettingsGUI_StayHydratedBot,Off
-	;Hotkey, Esc, GuiEscape_AboutStandUpBot,Off
-	;Hotkey, Esc, GuiEscape_AboutStayHydratedBot,Off
-	;Hotkey, Enter, GuiEscape_AboutStandUpBot, Off
-	;Hotkey, Enter, GuiEscape_AboutStayHydratedBot, Off
-	
-	;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,Off
-	;Hotkey, Enter, SubmitChangedSettings_StandUpBot,Off
-	
-	;Hotkey, Esc, GuiEscape_StayHydratedBot,Off
-	;Hotkey, Esc, GuiEscape_StandUpBot,Off
-	;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,Off
-	
-	fUnstickModKeys()
-}
-return
-fUnstickModKeys()
-{
-	BlockInput,On
-	SendInput, {Ctrl Up}
-	SendInput, {V Up}
-	SendInput, {Shift Up}
-	SendInput, {Alt Up}
-	BlockInput,Off
-}
-f_DestroyGuis()
-{
-	gui, GuiEscape_AboutStayHydratedBot: destroy, 
-	gui, lEditSettings_StayHydratedBot: destroy,
-	gui, Numpad6: destroy,
-	gui, lRestoreActiveBackup_StayHydratedBot: destroy,
-	gui, lSetCurrentDelay_StayHydratedBot: destroy,
-	
-	gui, lEditSettings_StandUpBot: destroy,
-	gui, Numpad7: destroy,
-	gui, lRestoreActiveBackup_StandUpBot: destroy,
-	gui, lSetCurrentDelay_StandUpBot: destroy,
-	
-	gui, CQlRestoreActiveBackup_StayHydratedBot: destroy,
-	gui, CQlRestoreActiveBackup_StandUpBot: destroy,
-	gui, cQ: destroy
-	
-}
-return
-m(x*){
-	static List:={BTN:{OC:1,ARI:2,YNC:3,YN:4,RC:5,CTC:6},ico:{X:16,"?":32,"!":48,I:64}},Msg:=[]
-	static Title
-	List.Title:="AutoHotkey",List.Def:=0,List.Time:=0,Value:=0,TXT:="",Bottom:=0
-	WinGetTitle,Title,A
-	for a,b in x{
-		Obj:=StrSplit(b,":"),(Obj.1="Bottom"?(Bottom:=1):""),(VV:=List[Obj.1,Obj.2])?(Value+=VV):(List[Obj.1]!="")?(List[Obj.1]:=Obj.2):TXT.=(IsObject(b)?Obj2String(b,,Bottom):b) "`n"
-	}
-	Msg:={option:Value+262144+(List.Def?(List.Def-1)*256:0),Title:List.Title,Time:List.Time,TXT:TXT}
-	Sleep,120
-	/*
-		SetTimer,Move,-1
-	*/
-	MsgBox,% Msg.option,% Msg.Title,% Msg.TXT,% Msg.Time
-	/*
-		SetTimer,ActivateAfterm,-150
-	*/
-	for a,b in {OK:Value?"OK":"",Yes:"YES",No:"NO",Cancel:"CANCEL",Retry:"RETRY"}
-		IfMsgBox,%a%
-			return b
-	return
-	Move:
-	TT:=List.Title " ahk_class #32770 ahk_exe AutoHotkey.exe"
-	WinGetPos,x,y,w,h,%TT%
-	WinMove,%TT%,,2000,% Round((A_ScreenHeight-h)/2)
-	/*
-		ToolTip,% A_ScriptFullPath
-		USE THIS TO SAVE LAST POSITIONS FOR MSGBOX'S
-	*/
-	return
-	/*
-		ActivateAfterm:
-		if(InStr(Title,"Omni-Search")||!Title){
-			Loop,20
-			{
-				WinGetActiveTitle,ATitle
-				if(InStr(ATitle,"AHK Studio"))
-					Break
-				Sleep,50
-			}
-		}else{
-			WinActivate,%Title%
-		}
-		return
-	*/
-}
-
-Obj2String(Obj,FullPath:=1,BottomBlank:=0){
-	static String,Blank
-	if(FullPath=1)
-		String:=FullPath:=Blank:=""
-	if(IsObject(Obj)){
-		for a,b in Obj{
-			if(IsObject(b))
-				Obj2String(b,FullPath "." a,BottomBlank)
-			else{
-				if(BottomBlank=0)
-					String.=FullPath "." a " = " b "`n"
-				else if(b!="")
-					String.=FullPath "." a " = " b "`n"
-				else
-					Blank.=FullPath "." a " =`n"
-			}
-	}}
-	return String Blank
-}
-
-
-AutoUpdate(FILE, mode:=0, updateIntervalDays:=7, CHANGELOG:="", iniFile:="", backupNumber:=1) {
-	iniFile := iniFile ? iniFile : GetNameNoExt(A_ScriptName) . ".ini"
-	VERSION_FromScript_REGEX := "Oi)(?:^|\R);\s*ver\w*\s*=?\s*(\d+(?:\.\d+)?)(?:$|\R)"
-	if NeedToCheckUpdate(mode, updateIntervalDays, iniFile) {
-		if (CHANGELOG!="") {
-			if Not (currVer := GetCurrentVer(iniFile))
-				currVer := GetCurrentVerFromScript(VERSION_FromScript_REGEX)
-			changelogContent := DownloadChangelog(CHANGELOG)
-			If changelogContent {
-				if (lastVer := GetLastVer(CHANGELOG, changelogContent)) {
-					LastVerNews := GetLastVerNews(CHANGELOG, changelogContent)
-					WriteLastCheckTime(iniFile)
-					if Not (lastVer > currVer)
-						Return
-				}
-			} else {
-				if ((ErrorLevel != "") && (Manually := mode & 1)) {
-					MsgBox 48,, %ErrorLevel%, 5
-					Return
-				}
-			}
-		}
-		
-		Update(FILE, mode, backupNumber, iniFile, currVer, lastVer, LastVerNews)
-	}
-}
-NeedToCheckUpdate(mode, updateIntervalDays, iniFile) {
-	if ((NotAuto := mode & 2) And Not (Manually := mode & 1)) {
-		NeedToCheckUpdate := False
-	} else if (A_Now > GetTimeToUpdate(updateIntervalDays, iniFile)) || (manually := mode & 1) {
-		NeedToCheckUpdate := True
-	}
-	OutputDebug % "NeedToCheckUpdate: " (NeedToCheckUpdate ? "Yes" : "No")
-	Return NeedToCheckUpdate
-}
-Update(FILE, mode, backupNumber, iniFile, currVer, lastVer, LastVerNews:="") {
-	silentUpdate := ! ((mode & 4) || (mode & 1))
-	if silentUpdate {
-		OutputDebug % DownloadAndReplace(FILE, backupNumber, iniFile, lastVer, currVer)
-		if (mode & 8)
-			Reload
-	} else {
-		MsgBox, 36, %A_ScriptName% %currVer%, New version %lastVer% available.`n%LastVerNews%`nDownload it now? ; [Yes] [No]  [x][Don't check update]
-		IfMsgBox Yes
-		{
-			if (Err := DownloadAndReplace(FILE, backupNumber, iniFile, lastVer, currVer)) {
-				if ((Err != "") && (Err != "No access to the Internet"))
-					MsgBox 48,, %Err%, 5
-			} else {
-				if (mode & 8)
-					Reload
-				else if ((mode & 16) || (mode & 1)) {
-					MsgBox, 36, %A_ScriptName%, Script updated.`nRestart it now?
-					IfMsgBox Yes
-					{
-						Reload ; no CL parameters!
-					}
-				}
-			}
-		}
-	}
-}
-DownloadAndReplace(FILE, backupNumber, iniFile, lastVer, currVer) {
-	; Download File from Net and replace origin
-	; Return "" if update success Or return Error, if not
-	; Write CurrentVersion to ini
-	currFile := FileOpen(A_ScriptFullPath, "r").Read()
-	if A_LastError
-		Return "FileOpen Error: " A_LastError
-	lastFile := UrlDownloadToVar(FILE)
-	if ErrorLevel
-		Return ErrorLevel
-	OutputDebug DownloadAndReplace: File download
-	if (RegExReplace(currFile, "\R", "`n") = RegExReplace(lastFile, "\R", "`n")) {
-		WriteCurrentVersion(lastVer, iniFile)
-		Return "Last version the same file"
-	} else {
-		backupName := A_ScriptFullPath ".v" currVer ".backup"
-		FileCopy %A_ScriptFullPath%, %backupName%, 1
-		if ErrorLevel
-			Return "Error access to " A_ScriptFullPath " : " ErrorLevel
-
-		file := FileOpen(A_ScriptFullPath, "w")
-		if !IsObject(file) {
-			MsgBox Can't open "%A_ScriptFullPath%" for writing.
-			return
-		}
-		file.Write(lastFile)
-		file.Close()
-
-		; FileAppend %lastFile%, %A_ScriptFullPath%
-		if ErrorLevel
-			Return "Error create new " A_ScriptFullPath " : " ErrorLevel
-	}
-	WriteCurrentVersion(lastVer, iniFile)
-	OutputDebug DownloadAndReplace: File update
-}
-GetTimeToUpdate(updateIntervalDays, iniFile) {
-	timeToUpdate := GetLastCheckTime(iniFile)
-	timeToUpdate += %updateIntervalDays%, days
-	OutputDebug GetTimeToUpdate %timeToUpdate%
-	Return timeToUpdate
-}
-GetLastCheckTime(iniFile) {
-	IniRead lastCheckTime, %iniFile%, update, last check, 0
-	OutputDebug LastCheckTime %lastCheckTime%
-	Return lastCheckTime
-}
-WriteLastCheckTime(iniFile) {
-	IniWrite, %A_Now%, %iniFile%, update, last check
-	OutputDebug WriteLastCheckTime
-	If ErrorLevel
-		Return 1
-}
-WriteCurrentVersion(lastVer, iniFile) {
-	OutputDebug WriteCurrentVersion %lastVer% to %iniFile%
-	IniWrite %lastVer%, %iniFile%, update, current version
-	If ErrorLevel
-		Return 1
-}
-GetCurrentVer(iniFile) {
-	IniRead currVer, %iniFile%, update, current version, 0
-	OutputDebug, GetCurrentVer() = %currVer% from %iniFile%
-	Return currVer
-}
-GetCurrentVerFromScript(Regex) {
-	FileRead, ScriptText, % A_ScriptFullPath
-	RegExMatch(ScriptText, Regex, currVerObj)
-	currVer := currVerObj.1
-	OutputDebug, GetCurrentVerFromScript() = %currVer% from %A_ScriptFullPath%
-	Return currVer
-}
-GetLastVer(CHANGELOG, changelogContent) {
-	If IsObject(CHANGELOG) {
-		Regex := CHANGELOG[2]
-		RegExMatch(changelogContent, Regex, changelogContentObj)
-		lastVer := changelogContentObj.0
-	} else
-		lastVer := changelogContent
-
-	OutputDebug, GetLastVer() = %lastVer%`, Regex = %Regex% 
-	Return lastVer
-}
-GetLastVerNews(CHANGELOG, changelogContent) {
-	If IsObject(CHANGELOG) {
-		if (WhatNew_REGEX := CHANGELOG[3]) {
-			RegExMatch(changelogContent, WhatNew_REGEX, WhatNewO)
-			WhatNew := WhatNewO.1
-		}
-	}
-	Return WhatNew
-}
-DownloadChangelog(CHANGELOG) {
-	If IsObject(CHANGELOG)
-		URL := CHANGELOG[1]
-	else
-		URL := CHANGELOG
-
-	If changelogContent := UrlDownloadToVar(URL)
-		Return changelogContent
-}
-UrlDownloadToVar(URL) {
-	WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	try WebRequest.Open("GET", URL, true)
-	catch	Error {
-		ErrorLevel := "Wrong URL"
-		return false
-		}
-	WebRequest.Send()
-	try WebRequest.WaitForResponse()
-	catch	Error {
-		ErrorLevel := "No access to the Internet"
-		return false
-		}
-	HTTPStatusCode := WebRequest.status
-	if (SubStr(HTTPStatusCode, 1, 1) ~= "4|5") { ; 4xx — Client Error, 5xx — Server Error. wikipedia.org/wiki/List_of_HTTP_status_codes
-		ErrorLevel := "HTTPStatusCode: " HTTPStatusCode
-		return false
-		}
-	OutputDebug UrlDownloadToVar() HTTPStatusCode = %HTTPStatusCode% 
-	ans:=WebRequest.ResponseText
-	return ans
-}
-GetNameNoExt(FileName) {
-	SplitPath FileName,,, Extension, NameNoExt
-	Return NameNoExt
-}
-
-/*
-	AutoUpdate(FILE, mode:=0, updateIntervalDays:="", CHANGELOG:="", iniFile:="", backupNumber:=1) {
-		CHANGELOG := [CHANGELOG_URL, VERSION_REGEX, WhatNew_REGEX]
-		FILE := [FILE_URL, FILE_REGEX, VERSION_FromScript_REGEX]
-		
-		ini file strucnure:
-		[update]
-		last check
-		current version
-	?auto check
-	?auto download
-	?auto restart
-		
-		mode:
-		manually(ignore timeToUpdate)							1 ? set updateIntervalDays:=0
-		if auto, don't check updated							2 ? if (autocheck) {AU()}
-			if exist update, ask before download it 	4
-				auto restart after download 							8
-		if not autorestart, ask if restart need 	16
+			pos := 1
+			Loop, Parse, A_LoopField, %A_Space%
+				If (pos + (loopLength := StrLen(A_LoopField)) <= column)
+					out .= (A_Index = 1 ? "" : " ") A_LoopField
+                    , pos += loopLength + 1
+			Else
+				pos := loopLength + 1 + indentLength
+                    , out .= "`n" indentChar A_LoopField
 			
-		Scenaries:
-		1) Silent check new version available, if exist such, AutoUpdate
-		2) Silent check new version available, if exist such, ask whether you want to update
-		3) Manual check new version available, if exist such, ask whether you want to update
-		• (ToolTip/MsgBox) asking whether you want to reload straight away
-		
-		updateIntervalDays: check for update every %updateIntervalDays% days
-		
-		CHANGELOG:
-		1)"url"
-		2)"url regex"
-		
-		3 места хранения: .ahk, .ini, regestry
-		1)ini
-		"ini:"        IniRead currVer, %A_ScriptNameNoExt%.ini, update, current version, 0
-		"ini:xxx"     IniRead currVer, %xxx%, update, current version, 0
-		2)inside
-		"inside:"				currVer := regex("Oi)^;\s*(?:version|ver)?\s*=?\s*(\d+(?:\.\d+)?)", A_Script)
-		"inside:xxx"    currVer := regex(xxx, A_Script)
-		3)regestry
-		"regestry:"				RegRead, currVer, HKEY_CURRENT_USER, SOFTWARE\%A_ScriptNameNoExt%\CurrentVersion, Version
-		"regestry:xxx"		RegRead, currVer, HKEY_CURRENT_USER, SOFTWARE\%xxx%, Version
-		
-		2 опциональных значения для хранения: currVers (если не указана, скрипт при проверке скачивается полностью и сравнивается с текущим), lastCheckDate (если не указана, проверка происходит при каждом вызове ф-ии AutoUpdate())
-		
-		backupNumber:
-		
-		
-		
-;{ Notify
-;#SingleInstance,Force
-		Count:=0
-		Notify:=Notify(20)
-		/*
-		Usage:
-		Notify:=Notify()
-		Window:=Notify.AddWindow("Your Text Here",{Icon:4,Background:"0xAA00AA"})
-		|---Window ID                                          |--------Options
-		Options:
-		
-		Window ID will be used when making calls to Notify.SetProgress(Window,ProgressValue)
-		
-		Animate: Ways that the window will animate in eg. {Animate:""} Can be Bottom, Top, Left, Right, Slide, Center, or Blend (Some work together, and some override others)
-		Background: Color value in quotes eg. {Background:"0xAA00AA"}
-		Buttons: Comma Delimited list of names for buttons eg. {Buttons:"One,Two,Three"}
-		Color: Font color eg.{Color:"0xAAAAAA"}
-		Destroy: Comma Delimited list of Bottom, Top, Left, Right, Slide, Center, or Blend
-		Flash: Flashes the background of the notification every X ms eg. {Flash:1000}
-		FlashColor: Sets the second color that your notification will change to when flashing eg. {FlashColor:"0xFF00FF"}
-		Font: Face of the message font eg. {Font:"Consolas"}
-		Icon: Can be either an Integer to pull an icon from Shell32.dll or a full path to an EXE or full path to a dll.  You can add a comma and an integer to select an icon from within that file eg. {Icon:"C:\Windows\HelpPane.exe,2"}
-		IconSize: Width and Height of the Icon eg. {IconSize:20}
-		Hide: Comma Separated List of Directions to Hide the Notification eg. {Hide:"Left,Top"}
-		Progress: Adds a progress bar eg. {Progress:10} ;Starts with the progress set to 10%
-		Radius: Size of the border radius eg. {Radius:10}
-		Size: Size of the message text eg {Size:20}
-		ShowDelay: Time in MS of how long it takes to show the notification
-		Sound: Plays either a beep if the item is an integer or the sound file if it exists eg. {Sound:500}
-		Time: Sets the amount of time that the notification will be visible eg. {Time:2000}
-		Title: Sets the title of the notification eg. {Title:"This is my title"}
-		TitleColor: Title font color eg. {TitleColor:"0xAAAAAA"}
-		TitleFont: Face of the title font eg. {TitleFont:"Consolas"}
-		TitleSize: Size of the title text eg. {TitleSize:12}
-*/
-if(1){
-	Notify.AddWindow("Testing",{Background:"0xFF00FF",Color:"0xFF0000",ShowDelay:1000,Hide:"Top,Left",Buttons:"This,One,Here",Radius:40})
-	return
-}
-Text:=["Longer text for a longer thing","Taller Text`nfor`na`ntaller`nthing"]
-SetTimer,RandomProgress,500
-Loop,2
-{
-	Random,Time,3000,8000
-	/*
-		Time:=A_Index=40?1000:Time
-		Random,Sound,500,800
-	*/
-	Random,TT,1,2
-	Random,Background,0x0,0xFFFFFF
-	Random,Color,0x0,0xFFFFFF
-	Random,Icon,20,200
-	Notify.AddWindow(Text[TT],{Icon:300,Title:"This is my title",TitleFont:"Tahoma",TitleSize:10,Time:Time,Background:Background,Flash:1000,Color:Color})
-	Notify.AddWindow(Text[TT],{Icon:"D:\AHK\AHK-Studio\AHK-Studio.exe",IconSize:20,Title:"This is my title",TitleFont:"Tahoma",TitleSize:10,Time:Time,Background:Background,Flash:1000,FlashColor:"0xAA00AA",Color:Color,Time:Time,Sound:Sound})
-	Notify.AddWindow(Text[TT],{Icon:Icon,IconSize:80,Title:"This is my title",TitleFont:"Tahoma",TitleSize:10,Time:Time,Background:Background,Flash:1000,FlashColor:"0xAA00AA",Color:Color,Time:Time,Sound:Sound})
-	ID:=Notify.AddWindow(Text[TT],{Progress:0,Icon:Icon,IconSize:80,Title:"This is my title",TitleFont:"Tahoma",TitleSize:10,Time:Time,Background:Background,Flash:1000,FlashColor:"0xAA00AA",Color:Color,Time:Time,Sound:Sound})
-	Notify.AddWindow("This is my text",{Title:"My Title"})
-	Random,Ico,1,5
-	Notify.AddWindow("Odd icon",{Icon:A_AhkPath "," Ico,IconSize:20,Title:"This is my title",TitleFont:"Tahoma",TitleSize:10,Time:Time,Background:Background,Flash:1000,Color:Color,Time:Time})
-	Random,Delay,100,400
-	Delay:=1000
-	Notify.AddWindow(Text[TT],{Radius:20,Hide:"Left,Bottom",Animate:"Right,Slide",ShowDelay:Delay,Icon:Icon,IconSize:20,Title:"This is my title",TitleFont:"Tahoma",TitleSize:10,Background:Background,Color:Color,Time:Time,Progress:0})
-}
-return
-RandomProgress:
-for a,b in NotifyClass.Windows{
-	Random,Pro,10,100
-	Notify.SetProgress(a,Pro)
-}
-return
-Click(Obj){
-	for a,b in Obj
-		Msg.=a " = " b "`n"
-    	;MsgBox,%Msg% ;; this msg-box is activated whenever any editfield of any gui within a script containing notify is clicked.
-}
-;Actual code starts here
-Notify(Margin:=5){
-	static Notify:=New NotifyClass()
-	Notify.Margin:=Margin
-	return Notify
-}
-Class NotifyClass{
-	__New(Margin:=10){
-		this.ShowDelay:=40,this.ID:=0,this.Margin:=Margin,this.Animation:={Bottom:0x00000008,Top:0x00000004,Left:0x00000001,Right:0x00000002,Slide:0x00040000,Center:0x00000010,Blend:0x00080000}
-		if(!this.Init)
-			OnMessage(0x201,NotifyClass.Click.Bind(this)),this.Init:=1
-	}AddWindow(Text,Info:=""){
-		(Info?Info:Info:=[])
-		for a,b in {Background:0,Color:"0xAAAAAA",TitleColor:"0xAAAAAA",Font:"Consolas",TitleSize:12,TitleFont:"Consolas",Size:20,Font:"Consolas",IconSize:20}
-			if(Info[a]="")
-				Info[a]:=b
-		if(!IsObject(Win:=NotifyClass.Windows))
-			Win:=NotifyClass.Windows:=[]
-		Hide:=0
-		for a,b in StrSplit(Info.Hide,",")
-			if(Val:=this.Animation[b])
-				Hide|=Val
-		Info.Hide:=Hide
-		DetectHiddenWindows,On
-		this.Hidden:=Hidden:=A_DetectHiddenWindows,this.Current:=ID:=++this.ID,Owner:=WinActive("A")
- 		Gui,Win%ID%:Default
-		if(Info.Radius)
-			Gui,Margin,% Floor(Info.Radius/3),% Floor(Info.Radius/3)
-		Gui,-Caption +HWNDMain +AlwaysOnTop +Owner%Owner%
-		Gui,Color,% Info.Background,% Info.Background
-		NotifyClass.Windows[ID]:={ID:"ahk_id" Main,HWND:Main,Win:"Win" ID,Text:Text,Background:Info.Background,FlashColor:Info.FlashColor,Title:Info.Title,ShowDelay:Info.ShowDelay,Destroy:Info.Destroy}
-		for a,b in Info
-			NotifyClass.Windows[ID,a]:=b
-		if((Ico:=StrSplit(Info.Icon,",")).1)
-			Gui,Add,Picture,% (Info.IconSize?"w" Info.IconSize " h" Info.IconSize:""),% "HBITMAP:" LoadPicture(Foo:=(Ico.1+0?"Shell32.dll":Ico.1),Foo1:="Icon" (Ico.2!=""?Ico.2:Info.Icon),2)
-		if(Info.Title){
-			Gui,Font,% "s" Info.TitleSize " c" Info.TitleColor,% Info.TitleFont
-			Gui,Add,Text,x+m,% Info.Title
-		}Gui,Font,% "s" Info.Size " c" Info.Color,% Info.Font
-		Gui,Add,Text,HWNDText,%Text%
-		SysGet,Mon,MonitorWorkArea
-		if(Info.Sound+0)
-			SoundBeep,% Info.Sound
-		if(FileExist(Info.Sound))
-			SoundPlay,% Info.Sound
-		this.MonBottom:=MonBottom,this.MonTop:=MonTop,this.MonLeft:=MonLeft,this.MonRight:=MonRight
-		if(Info.Time){
-			TT:=this.Dismiss.Bind({this:this,ID:ID})
-			SetTimer,%TT%,% "-" Info.Time
-		}if(Info.Flash){
-			TT:=this.Flash.Bind({this:this,ID:ID})
-			SetTimer,%TT%,% Info.Flash
-			NotifyClass.Windows[ID].Timer:=TT
-		}
-		for a,b in StrSplit(Info.Buttons,","){
-			Gui,Margin,% Info.Radius?Info.Radius/2:5,5
-			Gui,Font,s10
-			Gui,Add,Button,% (a=1?"xm":"x+m"),%b%
-		}
-		if(Info.Progress!=""){
-			Gui,Win%ID%:Font,s4
-			ControlGetPos,x,y,w,h,,ahk_id%Text%
-			Gui,Add,Progress,w%w% HWNDProgress,% Info.Progress
-			NotifyClass.Windows[ID].Progress:=Progress
-		}Gui,Win%ID%:Show,Hide
-		WinGetPos,x,y,w,h,ahk_id%Main%
-		if(Info.Radius)
-			WinSet, Region, % "0-0 w" W " h" H " R" Info.Radius "-" Info.Radius,ahk_id%Main%
-		Obj:=this.SetPos(),Flags:=0
-		for a,b in StrSplit(Info.Animate,",")
-			Flags|=Round(this.Animation[b])
-		DllCall("AnimateWindow","UInt",Main,"Int",(Info.ShowDelay?Info.ShowDelay:this.ShowDelay),"UInt",(Flags?Flags:0x00000008|0x00000004|0x00040000|0x00000002))
-		for a,b in StrSplit((Obj.Destroy?Obj.Destroy:"Top,Left,Slide"),",")
-			Flags|=Round(this.Animation[b])
-		Flags|=0x00010000,NotifyClass.Windows[ID].Flags:=Flags
-		DetectHiddenWindows,%Hidden%
-		return ID
-	}Click(){
-		Obj:=NotifyClass.Windows[RegExReplace(A_Gui,"\D")],Obj.Button:=A_GuiControl,(Fun:=Func("Click"))?Fun.Call(Obj):"",this.Delete(A_Gui)
-	}Delete(Win){
-		Win:=RegExReplace(Win,"\D"),Obj:=NotifyClass.Windows[Win],NotifyClass.Windows.Delete(Win)
-		if(WinExist("ahk_id" Obj.HWND)){
-			DllCall("AnimateWindow","UInt",Obj.HWND,"Int",Obj.ShowDelay,"UInt",Obj.Flags)
-			Gui,% Obj.Win ":Destroy"
-		}if(TT:=Obj.Timer)
-			SetTimer,%TT%,Off
-		this.SetPos()
-	}Dismiss(){
-		this.this.Delete(this.ID)
-	}Flash(){
-		Obj:=NotifyClass.Windows[this.ID]
-		Obj.Bright:=!Obj.Bright
-		Color:=Obj.Bright?(Obj.FlashColor!=""?Obj.FlashColor:Format("{:06x}",Obj.Background+800)):Obj.Background
-		if(WinExist(Obj.ID))
-			Gui,% Obj.Win ":Color",%Color%,%Color%
-	}SetPos(){
-		Width:=this.MonRight-this.MonLeft,MH:=this.MonBottom-this.MonTop,MinX:=[],MinY:=[],Obj:=[],Height:=0,Sub:=0,MY:=MH,MaxW:={0:1},Delay:=A_WinDelay,Hidden:=A_DetectHiddenWindows
-		DetectHiddenWindows,On
-		SetWinDelay,-1
-		for a,b in NotifyClass.Windows{
-			WinGetPos,x,y,w,h,% b.ID
-			Height+=h+this.Margin
-			if(MH<=Height)
-				Sub:=Width-MinX.MinIndex()+this.Margin,MY:=MH,MinY:=[],MinX:=[],Height:=h,MaxW:={0:1},Reset:=1
-			MaxW[w]:=1,MinX[Width-w-Sub]:=1,MinY[MY:=MY-h-this.Margin]:=y,XPos:=MinX.MinIndex()+(Reset?0:MaxW.MaxIndex()-w)
-			WinMove,% b.ID,,%XPos%,MinY.MinIndex()
-			Obj[a]:={x:x,y:y,w:w,h:h},Reset:=0
-		}DetectHiddenWindows,%Hidden%
-		SetWinDelay,%Delay%
-	}SetProgress(ID,Progress){
-		GuiControl,,% NotifyClass.Windows[ID].Progress,%Progress%
+			out .= "`n"
+		} Else
+			out .= A_LoopField "`n"
 	}
+	
+	Return SubStr(out, 1, -1)
 }
-
-;Actual Code Ends Here
-return
-;Escape::
-;ExitApp
-;return
-;}
-
-
-
-
-
-#IfWinactive, lHelp_StayHydratedBot
-Esc:: 
-m("1")
-gosub, GuiEscape_AboutStayHydratedBot
-return
-
-Enter:: 
-m("2")
-gosub, GuiEscape_AboutStayHydratedBot
-return
-#IfWinActive, lEditSettings_StayHydratedBot
-
-Enter:: 
-m("3")
-gosub, SubmitChangedSettings_StayHydratedBot
-return
-
-Esc:: 
-m("4")
-gosub, GuiEscape_StayHydratedBot
-return
-
-#IfWinActive, Numpad6
-Enter:: 
-m("5")
-gosub, SubmitChangedSettings_StayHydratedBot
-return
-
-Esc:: 
-m("6")
-gosub, GuiEscape_StayHydratedBot
-return
-
-;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-;Hotkey, Esc, GuiEscape_StayHydratedBot,On
-#IfWinActive, lRestoreActiveBackup_StayHydratedBot
-#IfWinActive, lSetCurrentDelay_StayHydratedBot
-
-Esc:: 
-m("7")
-gosub, GuiEscape_StayHydratedBot
-return
-
-;Hotkey, Esc, GuiEscape_StayHydratedBot,On
-#IfWinActive, 
-#IfWinActive, 
-
-
-#IfWinActive, ; other-tabs in settings missing
-#IfWinActive, ; other-tabs in settings missing
-#IfWinActive, lEditSettings_StandUpBot
-Enter:: 
-m("8")
-gosub,SubmitChangedSettings_StandUpBot
-return
-
-Esc:: 
-m("9")
-gosub, GuiEscape_StandUpBot
-return
-
-#IfWinActive, Numpad7
-Enter:: 
-m("10")
-gosub,SubmitChangedSettings_StandUpBot
-return
-
-Esc:: 
-m("11")
-gosub, GuiEscape_StandUpBot
-return
-
-;Hotkey, Enter, SubmitChangedSettings_StandUpBot,On
-;Hotkey, Esc, GuiEscape_StandUpBot,On
-#IfWinActive, lRestoreActiveBackup_StandUpBot
-#IfWinActive, lSetCurrentDelay_StandUpBot
-Esc:: 
-m("12")
-gosub, GuiEscape_StandUpBot
-return
-
-;Hotkey, Esc, GuiEscape_StandUpBot,On
-#IfWinActive, 
-
-#IfWinActive, CQlRestoreActiveBackup_StayHydratedBot
-
-Esc:: 
-m("13")
-Gosub, GuiEscape_StayHydratedBot
-return
-
-Enter:: 
-m("14")
-gosub, SubmitChangedSettings_StayHydratedBot
-return
-
-#IfWinActive, CQlRestoreActiveBackup_StandUpBot
-;Esc:: gosub, GuiEscape_ConfirmQuestion_f_ConfirmQuestion
-
-Enter:: 
-m("15")
-gosub, SubmitChangedSettings_StandUpBot
-return
-
-Esc:: 
-m("16")
-gosub, GuiEscape_StandUpBot
-return
-
-;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,On
-;Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,Off
-;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-;Hotkey, Esc, GuiEscape_StayHydratedBot,On
