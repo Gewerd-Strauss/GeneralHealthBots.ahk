@@ -1,4 +1,3 @@
-﻿
 f_Help_GeneralHealthBots(AU,VN)
 {
 	VNI=1.0.0.7
