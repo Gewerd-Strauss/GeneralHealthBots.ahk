@@ -15,6 +15,6 @@ f_ToggleOffAllGuiHotkeys()
 	Hotkey, Esc, GuiEscape_StandUpBot,Off
 	Hotkey, Escape, GuiEscape_ConfirmQuestion_f_ConfirmQuestion,Off
 	
-	fUnstickModKeys()
+	f_UnstickModKeys()
 }
 return
