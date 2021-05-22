@@ -1,4 +1,4 @@
-﻿
+
 
 ;{ Notify
 ;#SingleInstance,Force
