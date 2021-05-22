@@ -1,4 +1,4 @@
-﻿f_ConvertRelativePath(RelativePath)
+f_ConvertRelativePath(RelativePath)
 {
 	VNI=1.0.0.3
 	RelativePath = %RelativePath%
