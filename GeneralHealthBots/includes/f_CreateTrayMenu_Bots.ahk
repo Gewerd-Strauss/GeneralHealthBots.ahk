@@ -30,3 +30,9 @@ f_CreateTrayMenu_Bots()
 	menu, tray, add,
 	return
 }
+;		menu, StayHydratedBot, Add, Settings, lEditSettings_StayHydratedBot
+;		menu, StayHydratedBot, Add, Pause, lPause_StayHydratedBot
+;		menu, StayHydratedBot, Add, Set Timer, lSetCurrentDelay_StayHydratedBot
+;		menu, StayHydratedBot, Add, HUD, lToggleBotHUD_StayHydratedBot
+;		menu, StayHydratedBot, Add, Sound, lToggleBotAudio_StayHydratedBot
+;		menu, Tray, add, StayHydratedBot, :StayHydratedBot
