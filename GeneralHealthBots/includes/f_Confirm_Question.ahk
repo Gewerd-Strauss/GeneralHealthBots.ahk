@@ -1,4 +1,4 @@
-﻿f_Confirm_Question(Question,AU,VN)
+f_Confirm_Question(Question,AU,VN)
 {
 	VNI=1.0.0.2
 	;m("this is triggerrd")
