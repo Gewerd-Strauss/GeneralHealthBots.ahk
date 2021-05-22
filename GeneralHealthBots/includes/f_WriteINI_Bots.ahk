@@ -1,4 +1,4 @@
-﻿f_WriteINI_Bots(ByRef Array2D, INI_File)  ; write 2D-array to INI-file 
+f_WriteINI_Bots(ByRef Array2D, INI_File)  ; write 2D-array to INI-file 
 {	
 	VNI=1.0.0.12
 	;m(Array2D["Original Settings StayHydratedBot"])
