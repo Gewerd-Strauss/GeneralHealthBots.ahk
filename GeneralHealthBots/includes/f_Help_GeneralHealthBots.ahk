@@ -1,5 +1,7 @@
 f_Help_GeneralHealthBots(AU,VN)
 {
+	global GitPageURLComponents
+	global LocalValues
 	VNI=1.0.0.7
 	f_ToggleOffAllGuiHotkeys()
 	;m("hi tehrer")
@@ -36,7 +38,7 @@ f_Help_GeneralHealthBots(AU,VN)
 	return
 	lLinkCheckforUpdates:
 	{
-		m("insert github updater here.00")
+		f_UpdateRoutine(GitPageURLComponents,LocalValues,,1,1)
 		gui, destroy
 	}
 	return
