@@ -1,4 +1,4 @@
-﻿f_DestroyGuis()
+f_DestroyGuis()
 {
 	VNI=1.0.0.6
 	gui, GuiEscape_AboutStayHydratedBot: destroy, 
