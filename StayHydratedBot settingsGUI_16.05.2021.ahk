@@ -1,4 +1,4 @@
-#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.0
 #SingleInstance,Force
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
@@ -25,7 +25,7 @@ LocalValues:=[]
 GitPageURLComponents:=[]
 LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript]
 GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
-;FolderStructIncludesRelativeToMainScript ← needs to be packaged into another array, probably localvalues
+;FolderStructIncludesRelativeToMainScript ? needs to be packaged into another array, probably localvalues
 
 ;_____________________________________________________________________________________
 ;_____________________________________________________________________________________
@@ -45,9 +45,13 @@ WinSpyPath=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\AutoHotkey\Windo
 	2. refine readme.md to include swap, other settings 3. add subsetting to create verkn?pfung in startup menu, and to remove said verkn?pfung again 
 	3. implement updater routine to github, linked to Update in Help-gui: ask on reddit.
 */
+/*
+	Date: 25 Mai 2021 14:22:33:
+	edit the tray menu with
+	menu, tray, tip, text
 
-
-
+	to show the next time the timers will go off. only show timers that are active
+*/
 /*
 	GeneralHealthBots
 	repo: https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/
@@ -56,7 +60,6 @@ WinSpyPath=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\AutoHotkey\Windo
 	Code by others:	
 	WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
 	Notify | maestrith | https://github.com/maestrith/Notify
-	f_ConvertRelativeWavPath_StayHydratedBot | u/anonymous1184 | https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
 	f_ConvertRelativeWavPath_StayHydratedBot | u/anonymous1184 | https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
 	
 	Code may or may not be heavily edited, in that case the original code has been added as well.
@@ -121,7 +124,7 @@ gosub, Submit_StandUpBot
 
 /*
 	Date: 18 Mai 2021 16:05:10: todo:  wrap this into a function to call from
-	different sfcripts, inputs:  f_AddStartupToggleToTrayMenu(ScriptName,MenuNameName) 
+	different scripts, inputs:  f_AddStartupToggleToTrayMenu(ScriptName,MenuNameName) 
 	MenuName is the name of the tray-submenu to put the thingie into. if empty just
 	put to main menu. 
 */
@@ -162,7 +165,13 @@ Submit_StayHydratedBot: 				;**
 	gui, Submit
 	gui, destroy
 	vTimerPeriod_StayHydratedBot:=vMinutes_StayHydratedBot*60*1000
+	sTrayTipSHB:=A_Now
+	EnvAdd, sTrayTipSHB, vMinutes_StayHydratedBot ,Minutes ; add 15 minits
+	FormatTime, sTrayTipSHB, %sTrayTipSHB%, HH:mm:ss tt
+	strSHB:="SHB: " sTrayTipSHB " (" vMinutes_StayHydratedBot ") min|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot
+	outputStr:=strSHB "`n" strSUB
 	SetTimer,PlayTune_StayHydratedBot, %vTimerPeriod_StayHydratedBot% ; this does fully work, but the above (calling a function timer) does not. Why?
+	Menu,Tray,Tip,%outputStr%
 	if SoundStatus_StayHydratedBot
 		menu, StayHydratedBot, Check, Sound
 	if HUDStatus_StayHydratedBot
@@ -172,12 +181,19 @@ Submit_StayHydratedBot: 				;**
 }
 return
 
+
 Submit_StandUpBot: 					;**
 {
 	gui, Submit
 	gui, destroy
 	vTimerPeriod_StandUpBot:=vMinutes_StandUpBot*60*1000
+	sTrayTipSUB:=A_Now
+	EnvAdd, sTrayTipSUB, vMinutes_StandUpBot,Minutes ; add 15 minits
+	FormatTime, sTrayTipSUB, %sTrayTipSUB%, HH:mm:ss tt
+	strSUB:="SUB: " sTrayTipSUB " (" vMinutes_StandUpBot ") min|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot
+	outputStr:=strSHB "`n" strSUB
 	SetTimer,PlayTune_StandUpBot, %vTimerPeriod_StandUpBot% ; this does fully work, but the above (calling a function timer) does not. Why?
+	Menu,Tray,Tip,%outputStr%
 	; m(sPathToNotifyPicture_StandUpBot)
 	if SoundStatus_StandUpBot
 		menu, StandUpBot, Check, Sound
@@ -220,7 +236,7 @@ return
 
 
 
-Numpad0::
+;Numpad0::
 lHelp_StayHydratedBot:				;**
 f_Help_GeneralHealthBots(AU,VN)
 return
@@ -275,9 +291,12 @@ lToggleBotHUD_StayHydratedBot:		;***
 	sleep, 20
 	PathForNotify_StayHydratedBot=%A_ScriptDir%\Waterbottle.png
 	if HUDStatus_StayHydratedBot
-	 	Notify().AddWindow("HUD Alert toggled on , Period: " vDefaultTimeInMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	 	Notify().AddWindow("HUD Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
 	else
 		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	strSHB:="SHB: " sTrayTipSHB " (" vMinutes_StayHydratedBot ") min|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot
+	outputStr:=strSHB "`n" strSHB
+	Menu,Tray,Tip,%outputStr%
 }
 return
 
@@ -288,9 +307,12 @@ lToggleBotHUD_StandUpBot:			;***
 	sleep, 20
 	PathForNotify_StayHydratedBot=%A_ScriptDir%\Waterbottle.png
 	if HUDStatus_StandUpBot
-	 	Notify().AddWindow("HUD Alert toggled on , Period: "vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	 	Notify().AddWindow("HUD Alert toggled on, Period: "vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
 	else
 		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	strSUB:="SUB: " sTrayTipSUB " (" vMinutes_StandUpBot ") min|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
 }
 return
 
@@ -302,9 +324,12 @@ lToggleBotAudio_StayHydratedBot:		;***
 	sleep, 20
 	PathForNotify_StayHydratedBot=%A_ScriptDir%\Waterbottle.png
 	if SoundStatus_StayHydratedBot
-	 	Notify().AddWindow("Audio Alert toggled on, Period: " vDefaultTimeInMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	 	Notify().AddWindow("Audio Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
 	else
 		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	strSHB:="SHB: " sTrayTipSHB " (" vMinutes_StayHydratedBot ") min|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot
+	outputStr:=strSHB "`n" strSHB
+	Menu,Tray,Tip,%outputStr%
 }
 return
 
@@ -318,15 +343,23 @@ lToggleBotAudio_StandUpBot:			;***
 	 	Notify().AddWindow("Audio Alert toggled on, Period: "vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
 	else
 		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+	strSUB:="SUB: " sTrayTipSUB " (" vMinutes_StandUpBot ") min|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
 }
 return
 
 
 PlayTune_StayHydratedBot: 			;***
 {
+	sTrayTipSHB:=A_Now
+	EnvAdd, sTrayTipSHB, vMinutes_StayHydratedBot ,Minutes ; add 15 minits
+	FormatTime, sTrayTipSHB, %sTrayTipSHB%, HH:mm:ss tt
+	strSHB:="SHB: " sTrayTipSHB " (" vMinutes_StayHydratedBot ") min|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot
+	outputStr:=strSHB "`n" strSUB
+	
 	if HUDStatus_StayHydratedBot
 	{
-		sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
 		sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
 		if bRunNotify
 			Notify().AddWindow(sNotifyMessageRemember_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:PathForNotify_StayHydratedBot})
@@ -335,6 +368,7 @@ PlayTune_StayHydratedBot: 			;***
 		Throw, "The Pathlength of the absolute path to the .wav-audiofile is greater than 127 characters. For .wav-files, this is an error of SoundPlay."
 	if SoundStatus_StayHydratedBot
 		SoundPlay, % sFullFilePathToAudioFile_StayHydratedBot
+	Menu,Tray,Tip,%outputStr%
 	sleep, 500
 	tooltip, 
 }
@@ -342,9 +376,14 @@ return
 
 PlayTune_StandUpBot: 				;***
 {
+	sTrayTipSUB:=A_Now
+	EnvAdd, sTrayTipSUB, vMinutes_StandUpBot,Minutes ; add 15 minits
+	FormatTime, sTrayTipSUB, %sTrayTipSUB%, HH:mm:ss tt
+	strSUB:="SUB: " sTrayTipSUB " (" vMinutes_StandUpBot ") min|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
 	if HUDStatus_StandUpBot
 	{
-		sFullFilePathToAudioFile_StandUpBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StandUpBot)
 		sFullFilePathToAudioFile_StandUpBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StandUpBot)
 		if bRunNotify
 		{
@@ -365,6 +404,7 @@ PlayTune_StandUpBot: 				;***
 		Throw, "The Pathlength of the absolute path to the .wav-audiofile is greater than 127 characters. For .wav-files, this is an error of SoundPlay."
 	if SoundStatus_StandUpBot
 		SoundPlay, % sFullFilePathToAudioFile_StandUpBot
+	Menu,Tray,Tip,%outputStr%
 	sleep, 500
 	tooltip, 
 }
@@ -384,6 +424,7 @@ lPause_StayHydratedBot:				;***
 		menu, StayHydratedBot, ToggleEnable, HUD
 		SoundStatus_StayHydratedBot:=0
 		HUDStatus_StayHydratedBot:=0
+		strSHB:="SHB: " sTrayTipSHB " (" vMinutes_StayHydratedBot ") min|P|P"
 	}
 	Else
 	{
@@ -394,9 +435,11 @@ lPause_StayHydratedBot:				;***
 		menu, StayHydratedBot, Enable, HUD
 		SoundStatus_StayHydratedBot:=1
 		HUDStatus_StayHydratedBot:=1
+		strSHB:="SHB: " sTrayTipSHB " (" vMinutes_StayHydratedBot ") min|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot
 	}
 	sleep, 20
-	
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
 }
 return
 
@@ -414,6 +457,7 @@ lPause_StandUpBot:  				;***
 		menu, StandUpBot, ToggleEnable, HUD
 		SoundStatus_StandUpBot:=0
 		HUDStatus_StandUpBot:=0
+		strSUB:="SUB: " sTrayTipSUB " (" vMinutes_StandUpBot ") min|P|P"
 	}
 	Else
 	{
@@ -425,9 +469,11 @@ lPause_StandUpBot:  				;***
 		menu, StandUpBot, Enable, HUD
 		SoundStatus_StandUpBot:=1
 		HUDStatus_StandUpBot:=1
+		strSUB:="SUB: " sTrayTipSUB " (" vMinutes_StandUpBot ") min|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot
 	}
 	sleep, 20
-	
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
 }
 return
 
@@ -557,7 +603,7 @@ lSwapActiveBackup_StandUpBot:
 	vNotificationTimeInMilliSeconds_StandUpBot:=IniObj["Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot
 	HUDStatus_StandUpBot:=IniObj["Settings StandUpBot"].HUDStatus_StandUpBot
 	if bRunNotify
-		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0})
+		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	sleep, 1100
 	gosub, Submit_StandUpBot
 	
@@ -568,7 +614,6 @@ lSwapActiveBackup_StayHydratedBot:
 {
 	gui, destroy
 	f_UnstickModKeys()
-	;m(IniObj["Settings StayHydratedBot"])
 	vTempActiveINISettings_StayHydratedBot:=[]
 	vTempBackupINISettings_StayHydratedBot:=[]
 	vTempActiveINISettings_StayHydratedBot:=IniObj["Settings StayHydratedBot"].clone()
@@ -578,7 +623,6 @@ lSwapActiveBackup_StayHydratedBot:
 	SplitPath, A_ScriptName,,,, ScriptName
 	FileNameIniRead:=ScriptName . ".ini"
 	f_WriteINI_Bots(IniObj,ScriptName)
-	;m(IniObj["Original Settings StayHydratedBot"])
 	sFullFilePathToAudioFile_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot	; extract values for notify
 	sNotifyMessagePause_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyMessagePause_StayHydratedBot
 	sNotifyMessageRemember_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyMessageRemember_StayHydratedBot
@@ -590,7 +634,7 @@ lSwapActiveBackup_StayHydratedBot:
 	vNotificationTimeInMilliSeconds_StayHydratedBot:=IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot
 	HUDStatus_StayHydratedBot:=IniObj["Settings StayHydratedBot"].HUDStatus_StayHydratedBot
 	if bRunNotify
-		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
+		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
 	sleep, 1100
 	gosub, Submit_StayHydratedBot
 }
@@ -604,11 +648,9 @@ lRestoreActiveBackup_StandUpBot:				;**
 	
 	if answer="1"
 	{
-		IniObj["Backup Settings StandUpBot"]:=IniObj["Original Settings StandUpBot"].clone()
-		SplitPath, A_ScriptName,,,, ScriptName
-		FileNameIniRead:=ScriptName . ".ini"
-		f_WriteINI_Bots(IniObj,ScriptName)
-		Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StandUpBot})
+		f_ReadBackSettings_StayHydratedBot(0,1)
+		if bRunNotify
+			Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StandUpBot})
 		sleep, 1300
 		gosub, Submit_StayHydratedBot
 	}
@@ -620,37 +662,35 @@ lRestoreActiveBackup_StandUpBot:				;**
 	}
 }
 return
+
 lRestoreActiveBackup_StayHydratedBot:			;**
 {
 	gui, cQ: destroy
 	gui, destroy
 	answer:=f_Confirm_Question("Do you want to reset the settings?",AU,VN)
-	if answer="1"
+	if answer
 	{
-		IniObj["Settings StayHydratedBot"]:=IniObj["Original Settings StayHydratedBot"].clone()
-		SplitPath, A_ScriptName,,,, ScriptName
-		FileNameIniRead:=ScriptName . ".ini"
-		f_WriteINI_Bots(IniObj,ScriptName)
-		Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
+		f_ReadBackSettings_StayHydratedBot(1,0)
+		if bRunNotify
+			Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
 		sleep, 1300
 		gosub, Submit_StayHydratedBot
 	}
 	else
 	{
-		;m(false,"ylol"	)
 		gui, cQ: destroy
 		gui, destroy
 		gosub, lEditSettings_StayHydratedBot
-		;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-		;Hotkey, Esc, GuiEscape_StayHydratedBot,On
 	}
 }
 return
 
-
+Numpad6::
 lTriggerAdvancedSettingsGUI_StandUpBot:
 
 lTriggerAdvancedSettingsGUI_StayHydratedBot:
+gui, destroy
+m("add another edit gui like the normal edit settings gui with special operation on escape,`nbut same operation on res,swp,enter. On escape, we need a new hotkey conditional at the end of the script, `nas the name of the gui wil be different. ")
 m("add a shorthand of my own m()-function for simple information giving, with temporary esc/enter keys")
 return
 	;_____________________________________________________________________________________
@@ -750,7 +790,7 @@ return
 
 
 ; scrapped functions for archive in case I need to dig out these ideas again.
-/*
+/* ;*[StayHydratedBot settingsGUI_16.05.2021]
 	f_SubmitAndWriteChangedSettings_StayHydratedBot(IniObj,PathToNewFileNew,DefaultTimeInMinutesNew,NotificationTimeInMilliSecondsNew)
 	{
 	; rework this: (mind the order!)
@@ -783,33 +823,6 @@ return
 		}
 	}
 */ 
-
-
-
-
-
-
-
-
-
-
-
-;; Hotkeys:
-;#IfWinActive gui_EditSettings_StayHydratedBot
-;Escape:: gosub, GuiEscape_StayHydratedBot
-;Enter::  
-;m("hi there")
-;gosub, SubmitChangedSettings_StayHydratedBot
-
-;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-;Hotkey, Esc, GuiEscape_StayHydratedBot,On
-
-
-
-
-
-
-
 #IfWinactive, lHelp_StayHydratedBot
 Esc:: 
 gosub, GuiEscape_AboutStayHydratedBot
@@ -818,35 +831,33 @@ return
 Enter:: 
 gosub, GuiEscape_AboutStayHydratedBot
 return
-#IfWinActive, lEditSettings_StayHydratedBot
 
+#IfWinActive, ; other-tabs in settings missing
+#IfWinActive, ; other-tabs in settings missing
+#IfWinActive, lEditSettings_StayHydratedBot
 Enter:: 
 gosub, SubmitChangedSettings_StayHydratedBot
 return
-
 Esc:: 
 gosub, GuiEscape_StayHydratedBot
 return
+
+
 
 #IfWinActive, Numpad6
 Enter:: 
 gosub, SubmitChangedSettings_StayHydratedBot
 return
-
 Esc:: 
 gosub, GuiEscape_StayHydratedBot
 return
 
-;Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,On
-;Hotkey, Esc, GuiEscape_StayHydratedBot,On
 #IfWinActive, lRestoreActiveBackup_StayHydratedBot
 #IfWinActive, lSetCurrentDelay_StayHydratedBot
-
 Esc:: 
 gosub, GuiEscape_StayHydratedBot
 return
 
-;Hotkey, Esc, GuiEscape_StayHydratedBot,On
 #IfWinActive, 
 #IfWinActive, 
 
@@ -857,22 +868,10 @@ return
 Enter:: 
 gosub,SubmitChangedSettings_StandUpBot
 return
-
 Esc:: 
 gosub, GuiEscape_StandUpBot
 return
 
-#IfWinActive, Numpad7
-Enter:: 
-gosub,SubmitChangedSettings_StandUpBot
-return
-
-Esc:: 
-gosub, GuiEscape_StandUpBot
-return
-
-;Hotkey, Enter, SubmitChangedSettings_StandUpBot,On
-;Hotkey, Esc, GuiEscape_StandUpBot,On
 #IfWinActive, lRestoreActiveBackup_StandUpBot
 #IfWinActive, lSetCurrentDelay_StandUpBot
 Esc:: 
@@ -909,19 +908,19 @@ return
 ;{ INCLUDE_____________________________________________________________________________
 
 
-#Include GeneralHealthBots\includes\f_Confirm_Question.ahk
-#Include GeneralHealthBots\includes\f_AddStartupToggleToTrayMenu.ahk
-#Include GeneralHealthBots\includes\f_CreateTrayMenu_Bots.ahk
-#Include GeneralHealthBots\includes\f_ConvertRelativePath.ahk
-#Include GeneralHealthBots\includes\f_ConvertRelativeWavPath_StayHydratedBot.ahk
-#Include GeneralHealthBots\includes\f_Help_GeneralHealthBots.ahk
-#Include GeneralHealthBots\includes\notify.ahk
-#Include GeneralHealthBots\includes\f_OnExit_StayHydratedBot.ahk
-#Include GeneralHealthBots\includes\f_ReadINI_Bots.ahk
-#Include GeneralHealthBots\includes\f_ReadBackSettings_StayHydratedBot.ahk
-#Include GeneralHealthBots\includes\f_ToggleOffAllGuiHotkeys.ahk 	; not used right now, as is obsolete
-#Include GeneralHealthBots\includes\f_UnstickModKeys.ahk
-#Include GeneralHealthBots\includes\f_WriteINI_Bots.ahk
-#Include GeneralHealthBots\includes\f_DestroyGuis.ahk
-#Include GeneralHealthBots\includes\m.ahk
-#Include Updater.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_Confirm_Question.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_AddStartupToggleToTrayMenu.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_CreateTrayMenu_Bots.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_ConvertRelativePath.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_ConvertRelativeWavPath_StayHydratedBot.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_Help_GeneralHealthBots.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\notify.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_OnExit_StayHydratedBot.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_ReadINI_Bots.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_ReadBackSettings_StayHydratedBot.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_ToggleOffAllGuiHotkeys.ahk 	; not used right now, as is obsolete
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_UnstickModKeys.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_WriteINI_Bots.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_DestroyGuis.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\m.ahk
+#Include %A_ScriptDir%\Updater.ahk
