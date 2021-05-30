@@ -34,7 +34,10 @@ Create or remove a shortcut in the Autostart-folder. Note that this is currently
 The sections "Active" and "Backup" can be edited, the section "Original" can not be edited and only serves as a simple way of retrieving the factory-default settings. 
 Only the "Active" settings are used. 
 Pressing _Swp_ will interchange all settings between the active and backup set for that respective bot, and restarts said timer. 
-Pressing _Res_ will reset all settings to factory default. Note that factory-default is not the same as the "Original"-settings in the third set. Those are reserved for restoring by hand. 
+Pressing _Res_ will reset all settings to [factory default]. Note that factory-default is not the same as the "Original"-settings in the third set. Those are reserved for restoring by hand. 
+Pressing _Res_ will reset all settings to [factory default](#Overview over factory default settings). Note that factory-default is not the same as the "Original"-settings in the third set. Those are reserved for restoring by hand. 
+Overview over factory default settings 
+[Settings](#settings).
 ___
 1. Insert (full) File Path of Audiofile
    
@@ -67,9 +70,9 @@ ___
    
 8. Show Icons on Notify 1/0
    
-   Decide wether or not the respective notify-messages should contain an image as icon or not. Default: True
+   Decide wether or not the respective notify-messages should contain an image as icon or not. The image shown if true is the one set under _5. Set a new Path (Notify-Image)_ Default: True
    
-### Overview over default settings 
+### Overview over factory default settings 
 The following settings are set by default at first initiation. These are also the settings a respective bot reverts to when one presses the _Reset_-button:
 
 #### Basic Settings
@@ -89,29 +92,25 @@ The following settings are set by default at first initiation. These are also th
    
    | StayHydratedBot| Settings | Backup |
    | :-----------------|:-------------:|:-----:|
-   | Default HUD Status|On|On
-   | Default Sound Status|On|On
-   | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG
-   | Notify-Title|StayHydratedBot|StayHydratedBot
-   | Display Icon On notify-message|1|1
+   | Default HUD Status|On|see "Settings"
+   | Default Sound Status|On|see "Settings"
+   | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|see "Settings"
+   | Notify-Title|StayHydratedBot|see "Settings"
+   | Display Icon On notify-message|1|see "Settings"
    
    
    | StandUpBot| Settings | Backup |
    | :-----------------|:-------------:|:-----:|
-   | Default HUD Status|On|On
-   | Default Sound Status|On|On
-   | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG
-   | Notify-Title|StandUpBot|StandUpBot
-   | Starting Position|0/Sitting|0/Sitting
-   | Display Icon On notify-message|1|1
-
-
-
-
+   | Default HUD Status|On|see "Settings"
+   | Default Sound Status|On|see "Settings"
+   | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|see "Settings"
+   | Notify-Title|StandUpBot|see "Settings"
+   | Starting Position|0/Sitting|see "Settings"
+   | Display Icon On notify-message|1|see "Settings"
+   
+As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings.
 The "Original" Settings are never edited, ever.
 
-
-dada
 ## Set Timer
 
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
