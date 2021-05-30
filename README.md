@@ -97,7 +97,7 @@ The following settings are set by default at first initiation. These are also th
    | Default Sound Status|On|see "Settings"
    | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|see "Settings"
    | Notify-Title|StayHydratedBot|see "Settings"
-   | Display Icon On notify-message|1|see "Settings"
+   | Display Icon on notify-message|1|see "Settings"
    
    
    | StandUpBot| Settings | Backup |
@@ -107,7 +107,7 @@ The following settings are set by default at first initiation. These are also th
    | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|see "Settings"
    | Notify-Title|StandUpBot|see "Settings"
    | Starting Position|0/Sitting|see "Settings"
-   | Display Icon On notify-message|1|see "Settings"
+   | Display Icon on notify-message|1|see "Settings"
    
 As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings.
 The "Original" Settings are never edited, ever.
