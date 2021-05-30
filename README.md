@@ -109,8 +109,8 @@ The following settings are set by default at first initiation. These are also th
    | Starting Position|0/Sitting|see "Settings"
    | Display Icon on notify-message|1|see "Settings"
    
-As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings.
-The "Original" Settings are never edited, ever.
+As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings. However, feel free to edit them to your heart's content.
+The "Original" Settings are never edited, ever. 
 
 ## Set Timer
 
@@ -159,4 +159,4 @@ Autohotkey-code used within this script:
 Other mentions:
 * anonymous1184's [help for solving the .wav-file bug in soundplay for me](https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3)
 * maestrith's [messageboxfunction](https://www.autohotkey.com/boards/viewtopic.php?t=60522) 
-    (I could not find an original link on github for it specifically. The code itself is not used in the project, but it was a tremendous help when creating it.)
+    (I could not find an original link on github for it specifically.) The code itself is not used in the project, but it was a tremendous help when creating it.
