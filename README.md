@@ -42,16 +42,16 @@ ___
 
 2. Set default reminder time in minutes
    
-   This is the time between each reminder, given in minutes.
+   This is the time between each reminder, given in minutes. Default: Active/Backup: (SHB 45/90), (SUB 90/20)
 
 3. Set default notification time in milliseconds
    
-   This is the time each notification remains visible on screen, given in milliseconds. 1 second equals 1000 milliseconds.
+   This is the time each notification remains visible on screen, given in milliseconds. 1 second equals 1000 milliseconds. Default: 4000 (4s)
 ___
 4. Set Def. HUD/Sound Status
 
    Setting this to 1 ("on") or 0 ("off") will result in said feature to (not) be active when starting up. 
-Note that pressing enter in any edit field saves the current edits into Settings.
+   Note that pressing enter in any edit field saves the current edits into Settings. Default: True/True
 
 5. Set a new Path (Notify-Image)
    
@@ -59,14 +59,59 @@ Note that pressing enter in any edit field saves the current edits into Settings
    
 6. Set Notify-Title
 
-   Set the title of the notification
+   Set the title of the notification.
    
 7. Set Starting Position U/D: 1/0
 
-   This is exclusive to the StandUpBot, and decides which setting the bot assumes at start. After that, on each alert-cycle, the notification-messages alternates between "standing up" and "sitting down".
+   This is exclusive to the StandUpBot, and decides which setting the bot assumes at start. After that, on each alert-cycle, the notification-messages alternates between "standing up" and "sitting down". Default: (Down/0) assumes you start each setting sitting, and will ask you first to stand up hence.  
+   
+8. Show Icons on Notify 1/0
+   
+   Decide wether or not the respective notify-messages should contain an image as icon or not. Default: True
+   
+### Overview over default settings 
+The following settings are set by default at first initiation. These are also the settings a respective bot reverts to when one presses the _Reset_-button:
+
+#### Basic Settings
+   | StayHydratedBot| Settings | Backup |
+   | :-----------------|:-------------:|:-----:|
+   | AudioFile-Path    |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
+   | Default reminder Time (min)|45|90|
+   | Default Notification Time (ms)|4000 |see "Settings"|
+
+   | StandUpBot| Settings | Backup |
+   | :-----------------|:-------------:|:-----:|
+   | AudioFile-Path    |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
+   | Default reminder Time (min)|90|120|
+   | Default Notification Time (ms)|4000 |see "Settings"|
+   
+#### Advanced Settings
+   
+   | StayHydratedBot| Settings | Backup |
+   | :-----------------|:-------------:|:-----:|
+   | Default HUD Status|On|On
+   | Default Sound Status|On|On
+   | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG
+   | Notify-Title|StayHydratedBot|StayHydratedBot
+   | Display Icon On notify-message|1|1
    
    
-   
+   | StandUpBot| Settings | Backup |
+   | :-----------------|:-------------:|:-----:|
+   | Default HUD Status|On|On
+   | Default Sound Status|On|On
+   | Notify-Image Path|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG|A_ScriptDir\GeneralHealthBots\WatterBottle.PNG
+   | Notify-Title|StandUpBot|StandUpBot
+   | Starting Position|0/Sitting|0/Sitting
+   | Display Icon On notify-message|1|1
+
+
+
+
+The "Original" Settings are never edited, ever.
+
+
+dada
 ## Set Timer
 
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
