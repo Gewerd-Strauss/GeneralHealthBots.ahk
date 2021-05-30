@@ -85,9 +85,23 @@ Note that pausing the bot has the same effect as unchecking both "HUD" and "Soun
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
 Not available if the respective timer is officially [paused](#pause). 
 
+## Hovering the tray-symbol
+
+When hovering over the tray symbol, the following information is displayed:
+
+![Information on both bots](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_IconHover.jpeg)
+
+The Time signifies when the next reminder will be issued by the respective bot.
+
+The second number (here 45 and 90) displays the set delay between alerts
+
+The last two slots display the current alert settings of that respective bot: P for paused (no alerts whatsoever), 0 for off, 1 for on. 
+
+The second-to-last place (here P and 0 for SHB and SUB respectively) gives information on the sound-alert, and the last place (here P and 1) gives information on the notification-alert.
 
 
 ___
+
 # Credits
 All code except where noted otherwhise is mine, as bad as it is.
 Autohotkey-code used within this script:
