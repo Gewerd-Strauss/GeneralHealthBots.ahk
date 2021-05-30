@@ -107,7 +107,8 @@ All code except where noted otherwhise is mine, as bad as it is.
 Autohotkey-code used within this script:
 * maestrith's [Notify.ahk](https://github.com/maestrith/Notify)
 * wolf_II's [INI-file object maker functions](https://www.autohotkey.com/boards/viewtopic.php?p=256940#p256940)
-* Exaskryz' [solution to adding a startup-toggle to a menu](https://www.autohotkey.com/boards/viewtopic.php?p=176247#p176247) 
+* Exaskryz' [solution to adding a startup-toggle to a menu](https://www.autohotkey.com/boards/viewtopic.php?p=176247#p176247)
+* jNizM's [HasVal](https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173)
 
 
 Other mentions:
