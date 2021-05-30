@@ -71,7 +71,8 @@ ___
 8. Show Icons on Notify 1/0
    
    Decide wether or not the respective notify-messages should contain an image as icon or not. The image shown if true is the one set under _5. Set a new Path (Notify-Image)_ Default: True
-   
+
+___
 ### Overview over factory default settings 
 The following settings are set by default at first initiation. These are also the settings a respective bot reverts to when one presses the _Reset_-button:
 
