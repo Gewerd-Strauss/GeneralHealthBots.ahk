@@ -1,12 +1,10 @@
-f_Confirm_Question(Question,AU,VN)
+﻿f_Confirm_Question(Question,AU,VN)
 {
 	VNI=1.0.0.2
-	;m("this is triggerrd")
-	;f_ToggleOffAllGuiHotkeys()
-	gui, cQ: new
+	Gui, cQ: new
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-	gui, cQ: Margin, 16, 16
-	gui, cQ: +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
+	Gui, cQ: Margin, 16, 16
+	Gui, cQ: +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
 	cBackground := "c" . "1d1f21"
 	cCurrentLine := "c" . "282a2e"
 	cSelection := "c" . "373b41"
@@ -21,35 +19,41 @@ f_Confirm_Question(Question,AU,VN)
 	cPurple := "c" . "b294bb"
 	Gui, cQ: Color, 1d1f21, 373b41, 
 	Gui, cQ: Font, s11 cWhite, Segoe UI 
-	gui, cQ: add, text,xm ym, %Question%
-	gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion, Yes
-	gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion, No
+	Gui, cQ: add, text,xm ym, %Question%
+	Gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion, &Yes
+	Gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion, &No
 	Gui, cQ: Font, s7 cWhite, Verdana
 	Gui, cQ: Add, Text,x25, Version: %VN%	Author: %AU% 
-	gui, cQ: show,autosize, CQ%A_ThisLabel%
+	yc:=0
+	xc:=0
+	yc:=A_ScreenHeight-200
+	xc:=A_ScreenWidth-300
+	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
+	WinGetPos,,,Width,Height,CQ%A_ThisLabel%
+	NewXGui:=A_ScreenWidth-Width
+	NewYGui:=A_ScreenHeight-Height
+	Gui, cQ: show,autosize  x%NewXGui% y%NewYGui%, CQ%A_ThisLabel%
+	Gui, cQ: show,autosize, CQ%A_ThisLabel%
 	winactivate, CQ
-	;loop, 5
-	;{
 	sleep, 200
-	;}
 	WinWaitClose, CQ%A_ThisLabel%
 	return answer
 	
 	GuiEscape_ConfirmQuestion_f_ConfirmQuestion:
-	gui, cQ: destroy
+	Gui, cQ: destroy
 	pause, off
 	return
 	
 	ConfirmQuestion_f_ConfirmQuestion:
 	pause off
-	gui, cQ: submit
-	gui, cQ: destroy
+	Gui, cQ: submit
+	Gui, cQ: destroy
 	return answer:=true
 	
 	DenyQuestion_f_ConfirmQuestion:
 	pause off
-	gui, cQ: submit
-	gui, cQ: destroy
+	Gui, cQ: submit
+	Gui, cQ: destroy
 	return answer:=false
 	
 }

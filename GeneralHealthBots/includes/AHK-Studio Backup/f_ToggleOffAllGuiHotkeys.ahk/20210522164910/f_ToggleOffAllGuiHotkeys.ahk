@@ -1,7 +1,11 @@
-f_ToggleOffAllGuiHotkeys()
+﻿f_ToggleOffAllGuiHotkeys()
 {
-	VNI:=1.0.1.15
+	VNF:=1.0.0.15
+	Hotkey, ^S, lTriggerAdvancedSettingsGUI_StandUpBot,Off
+	Hotkey, ^S, lTriggerAdvancedSettingsGUI_StayHydratedBot,Off
+	Hotkey, Esc, GuiEscape_AboutStandUpBot,Off
 	Hotkey, Esc, GuiEscape_AboutStayHydratedBot,Off
+	Hotkey, Enter, GuiEscape_AboutStandUpBot, Off
 	Hotkey, Enter, GuiEscape_AboutStayHydratedBot, Off
 	
 	Hotkey, Enter, SubmitChangedSettings_StayHydratedBot,Off

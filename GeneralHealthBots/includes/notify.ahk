@@ -1,11 +1,9 @@
-
-
-;{ Notify
+﻿;{ Notify
 ;#SingleInstance,Force
 
 Count:=0
 Notify:=Notify(20)
-VNI=1.0.1.14
+VNI=1.0.0.14
 /*
 	Usage:
 	Notify:=Notify()

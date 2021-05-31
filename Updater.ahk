@@ -2,9 +2,8 @@
 {
 	; facilitates all subfunctions for pulling updates from a public github repo.
 	; before calling this function, make sure you have the following 
-
-
-	; m(GitPageURLComponents,"`n",LocalValues)
+	
+	global vFullRoutineCheck:=false
 	; add input verification: 
 	; does gitpage connect successfully, 
 	; does gitpage4 contain a valid path on the harddrive
@@ -19,20 +18,24 @@
 		;error,  but in theory possible.
 	Gui, destroy
 	vFileCountToUpdate:=0
-
+	
 	; ReturnPackage[1] contains wether or not the mainfile has an update.
 	; ReturnPackage[2] contains the filenames of all include-files that have updates
 	; ReturnPackage[3] contains the version numbers of all the files within the github directory - that means all the 
 	; files already in the local version, as well as any that are missing so far. This array will be used to rewrite
-	; the ini-file again.
+	; the ini-file again, as well as to navigate and download any files missing currently. 
 	ReturnPackage:=f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,VersionNumberDefMainScript)
 	vFileCountToUpdate:=ReturnPackage[2].Count()
 	if ReturnPackage[1]!=0
 		vFileCountToUpdate++
-		;tooltip, updating 	; insert f_PerformUpdate here
 	if vFileCountToUpdate!=0 			; MainFile's VN doesn't match → update (insert assume-all function? Not necessary, as each file with unique name is also loggged by vn.)
-		if f_Confirm_Question_Updater("Do you want to update?`nNew Version is available",LocalValues[1],LocalValues[2])
+	{
+		lUpdateAsked:=f_Confirm_Question_Updater("Do you want to update?`nNew Version is available",LocalValues[1],LocalValues[2])
+		if lUpdateAsked and vFullRoutineCheck
 			f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,vNumberOfBackups)
+		else
+			f_PerformManualUpdate(GitPageURLComponents)
+	}
 	else if (lIsDifferent=-1) 	; vn-identifier string not found
 	{
 		if !vsdb
@@ -62,7 +65,6 @@ f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringInclude
 	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	; https://raw.githubusercontent.com/Gewerd-Strauss/GeneralHealthBots.ahk/main/StayHydratedBot%20settingsGUI_16.05.2021.ahk
 	url:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[3]""
-	;m(url)
 	whr.Open("GET",url, true)
 	whr.Send()
 	; Using 'true' above and the call below allows the script to remain responsive.
@@ -75,7 +77,7 @@ f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringInclude
 			vVNOnline:=ReadLine[A_Index]
 			vVNOnline:=StrReplace(vVNOnline," ")
 			vVNOnline:=StrReplace(vVNOnline,VersionNumberDefMainScript,"")
-			if (vVNOnline != LocalValues[2])		; vVNOnline is the github version, GitpageURLComponents1 is the local version, this needs to be switched
+			if (vVNOnline != LocalValues[2])		; The online version of the mainscript is wrong, hence set that true by default. This is the only file that is compared directly to its instance on github, all other files are compared after getting the VN's from the online-"versions"-file
 				VersionDifference_MainScript:=true
 			Else
 				VersionDifference_MainScript:=false
@@ -94,7 +96,7 @@ f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringInclude
  	OfflineVNs["local"]:=f_PullLocalVersionsFromIncludeFiles("GeneralHealthBots\includes",VersionNumberDefStringIncludeScripts)
 	OfflineVNs["local"][A_ScriptName]:=LocalValues[2]	; integrate the mainscript vn into the offline-vn 
 	OfflineVNs["localend"]:=[]
-	FolderOfVersioningFile:="FileVersions"
+	FolderOfVersioningFile:=LocalValues[4]
 	SplitPath, A_ScriptName, A_ScriptNameNoExt
 	f_WriteINI_FileVersions(OfflineVNs,"FileVersions " A_ScriptNameNoExt ,FolderOfVersioningFile)		; figure out how to write this array to the ini-file
 	INiObj:=f_ReadINI_FileVersions("FileVersions " A_ScriptNameNoExt,FolderOfVersioningFile) ;; replace this with FileNameIniRead later once this is written out fully. 
@@ -156,13 +158,22 @@ f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
 		}
 		Else		; if HV=0, the file doesn't exist locally, hence add it. 
 		{
-			;m(HV,"doesn't exist, hence download directly")
-			;m(k,"very much news","`nLocal:",a,LocalVN_current,"`nOnline:",b,VN_kOn)
 			FilesToDownload[Ind]:=k
 			Ind++
 		}	
 	}
 	return FilesToDownload
+}
+
+f_PerformManualUpdate(GitPageURLComponents)
+{
+	global LocalValues
+	lUpdateAsked:=f_Confirm_Question_Updater("Update-Script not fully tested.`nIf you want to take the chance and perform an automatic update,`npress 'Yes', else 'No'.`nYou can then go to the GitHub-page of this script`n(accessible via Miscellaneous->Help->Documentation`n and perform a manual update.`nRemember to reenter your settings via the right gui.)",LocalValues[1],LocalValues[2],0,0)
+	if lUpdateAsked
+		f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,1)
+	else
+		run, % "https://github.com/" GitpageURLComponents[1] "/" GitpageURLComponents[2]
+	return
 }
 
 f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,vNumberOfBackups:=0)
@@ -197,7 +208,7 @@ f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefS
 	
 	;ReturnPackage[2].Push(A_ScriptName)
 	f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumberDefStringIncludeScripts,LocalValues)
-	f_UpdateFileVersions_File(ReturnPackage)
+	;f_UpdateFileVersions_File(ReturnPackage)
 	f_NotifyUserOfUpdates()
 	return ; VersionDifference_MainScript
 } 
@@ -217,9 +228,6 @@ f_NotifyUserOfUpdates()
 f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumberDefStringIncludeScripts,LocalValues)
 {
 	global vsdb
-	; m(FileNames)
-	; m(GitPageURLComponents[5])
-	; m(FileTexts)
 	FileNames:=ReturnPackage[2]
 	FilePathsLocal:=f_AssembleLocalFilePaths(FileNames,GitPageURLComponents[5]) ; this function assembles the local file path for the main script onto the filepath of m.ahk
 	ErrorMsg:=[]
@@ -236,11 +244,14 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 				If !FileExist(v)
 					ErrorMsg.push(0)
 				Else
-					ErrorMsg.push(1)
-				CurrFile:=FileOpen(v,"w") 	; this is a beatiful one-liner that wipes the entire file clean. This is necessary because we need to make sure our replacement isn't destroyed by left-over text from the file before.
-				CurrFile:=FileOpen(v,"rw") 	; actually open the file to write the update to it.
-				CurrFile.Write(FileTexts[k])
-				CurrFile.Close()
+					ErrorMsg.push(1)				; File exists, this emsg should honestly not exist.
+					if !vsdb						; safety against overwriting files while debugging, so that I can work on this in a controlled environment. I know the four lines below work, so as longs as my inputs are correct here everything is fine
+					{
+						CurrFile:=FileOpen(v,"w") 	; this is a beatiful one-liner that wipes the entire file clean. This is necessary because we need to make sure our replacement isn't destroyed by left-over text from the file before.
+						CurrFile:=FileOpen(v,"rw") 	; actually open the file to write the update to it.
+						CurrFile.Write(FileTexts[k])
+						CurrFile.Close()
+					}
 			}
 			;Files.push(FileExist)
 		}
@@ -258,8 +269,9 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 	OfflineVNs["localend"]:=[]
 	
 	SplitPath, A_ScriptName, A_ScriptNameNoExt
-	FolderOfVersioningFile:="FileVersions"
-	f_WriteINI_FileVersions(OfflineVNs,"FileVersions " A_ScriptNameNoExt ,FolderOfVersioningFile)		; figure out how to write this array to the ini-file
+	FolderOfVersioningFile:=LocalValues[4]
+	if !vsdb
+		f_WriteINI_FileVersions(OfflineVNs,"FileVersions " A_ScriptNameNoExt ,FolderOfVersioningFile)		; figure out how to write this array to the ini-file
 
 
 
@@ -272,16 +284,15 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 	; IniObj:=f_ReadINI_FileVersions("FileVersions " A_ScriptNameNoExt,FolderVersioningFile)
 	; IniObj["local"]:=ReturnPackage[3]
 	; and now we only have to write the files to the files, duh.
-	if !vsdb
+	if !vsdb000
 		m("f_writeFilesFromArray:`nremember to finish thee notify-msgs")
 		
-		f_FinishUp(GitPageURLComponents,Files)
+	f_FinishUp(GitPageURLComponents,Files)
 }
 
 f_FinishUp(GitpageURLComponents,Files)
 {
 	ErrorMessageString:=f_AssembleErrorMessages(GitPageURLComponents,Files)
-	;m(EMString)
 	if !Instr(ErrorMessageString,"Error Messages:`n`n`nCreated Files:`n")	; if there was an error, that string will be interrupted, hence we can check against fatal error codes in that way.
 	{
 		f_InformOfNextSteps(ErrorMessageString,XtOffset:=300,YtOffset:=1080)
@@ -362,8 +373,15 @@ f_DownloadFilesFromGitPage(FilesReadFromGitPage,GitPageURLComponents,ReturnPacka
 f_AssembleDownloadURLs(GitPageURLComponents,ReturnPackage)
 {
 	DownloadURLs:=[]
+	LastChar:=SubStr(GitPageURLComponents[5], 0)
 	for k,v in ReturnPackage[2]
-		DownloadURLs[A_Index]:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[5] ReturnPackage[2][A_Index]
+	{
+		if Instr(LastChar,"/")
+			DownloadURLs[A_Index]:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[5] ReturnPackage[2][A_Index]
+		Else
+			DownloadURLs[A_Index]:="https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[5] "/" ReturnPackage[2][A_Index]
+
+	}
 	if ReturnPackage[1]
 		DownloadURLs.push("https://raw.githubusercontent.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2] "/main/" GitPageURLComponents[3]"")		; figure out if the %20 is valid or f_InformOfNextSteps(
  
@@ -392,7 +410,6 @@ f_PullOnlineVersionsFromIniFile(GitPageURLComponents)
 			; if (substr(vNumel))
 			LineReadInd:=A_INdex
 			vVNOnline:=ReadLine[LineReadInd]
-			; m(vVNOnline,VN)
 		 	;d:=SubStr(vVNOnline,1,1)
 			;if (d="") 	; this doesn't work, how do I get the fucking string of the thing? ffs. 
 			;	MsgBox, hi
@@ -473,7 +490,6 @@ f_ListFiles(Directory)
 
 f_WriteINI_FileVersions(ByRef Array2D, INI_File,FolderOfVersioningFile)  ; write 2D-array to INI-file
 {
-	m(INI_File)
 	VNI=1.0.0.12
 	
 	if !FileExist(FolderOfVersioningFile) ; check for ini-files directory
@@ -510,7 +526,7 @@ f_WriteINI_FileVersions(ByRef Array2D, INI_File,FolderOfVersioningFile)  ; write
 
 f_ReadINI_FileVersions(INI_File,FolderOfVersioningFile) ; return 2D-array from INI-file
 {
-	VNI=1.0.0.10
+ 	VNI=1.0.0.10
 	Result := []
 	OrigWorkDir:=A_WorkingDir
 	SetWorkingDir, %FolderOfVersioningFile%
@@ -542,7 +558,7 @@ f_ReadINI_FileVersions(INI_File,FolderOfVersioningFile) ; return 2D-array from I
 	;	
 }
 
-f_Confirm_Question_Updater(Question,AU,VN)
+f_Confirm_Question_Updater(Question,AU,VN,HKY:=1,HKN:=1)
 {
 	; returns:
 	;  0 - answered no
@@ -567,16 +583,23 @@ f_Confirm_Question_Updater(Question,AU,VN)
 	Gui, cQ: Color, 1d1f21, 373b41, 
 	Gui, cQ: Font, s11 cWhite, Segoe UI 
 	Gui, cQ: add, text,xm ym, %Question%
-	Gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion_Updater, &Yes
-	Gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion_Updater, &No
+	if HKY
+		Gui, cQ: add, button, xm+20  w30 gConfirmQuestion_f_ConfirmQuestion_Updater, &Yes
+	else
+		Gui, cQ: add, button, xm+20  w30 gConfirmQuestion_f_ConfirmQuestion_Updater, Yes
+	if HKN
+		Gui, cQ: add, button, xm+170 yp w30 gDenyQuestion_f_ConfirmQuestion_Updater, &No
+	else
+		Gui, cQ: add, button, xm+170 yp w30 gDenyQuestion_f_ConfirmQuestion_Updater, No
 	Gui, cQ: Font, s7 cWhite, Verdana
 	if VN!="" and AU!=""
-		Gui, cQ: Add, Text,x25, Version: %VN%
+		Gui, cQ: Add, Text, x25, Version: %VN%   Author: %AU%
 	else if VN!="" and AU=""
 		Gui, cQ: Add, Text,x25, Version: %VN%
 	else if VN="" and AU!=""
 		Gui, cQ: Add, Text,x25, Author: %AU% 
-	else if VN="" and AU=""
+	else 
+		
 	yc:=0
 	xc:=0
 	yc:=A_ScreenHeight-200
@@ -603,8 +626,6 @@ f_Confirm_Question_Updater(Question,AU,VN)
 	Gui, cQ: submit
 	Gui, cQ: destroy
 	return answer:=false
-	
-	
 }
 
 f_InformOfNextSteps(H,XtOffset:=300,YtOffset:=400)

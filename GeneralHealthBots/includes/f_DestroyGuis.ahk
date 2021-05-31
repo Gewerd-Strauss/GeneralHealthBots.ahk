@@ -1,20 +1,19 @@
-f_DestroyGuis()
+﻿f_DestroyGuis()
 {
 	VNI=1.0.0.6
-	gui, GuiEscape_AboutStayHydratedBot: destroy, 
-	gui, lEditSettings_StayHydratedBot: destroy,
-	gui, Numpad6: destroy,
-	gui, lRestoreActiveBackup_StayHydratedBot: destroy,
-	gui, lSetCurrentDelay_StayHydratedBot: destroy,
+	Gui, GuiEscape_AboutStayHydratedBot: destroy, 
+	Gui, lEditSettings_StayHydratedBot: destroy,
+	Gui, Numpad6: destroy,
+	Gui, lRestoreActiveBackup_StayHydratedBot: destroy,
+	Gui, lSetCurrentDelay_StayHydratedBot: destroy,
 	
-	gui, lEditSettings_StandUpBot: destroy,
-	gui, Numpad7: destroy,
-	gui, lRestoreActiveBackup_StandUpBot: destroy,
-	gui, lSetCurrentDelay_StandUpBot: destroy,
+	Gui, lEditSettings_StandUpBot: destroy,
+	Gui, Numpad7: destroy,
+	Gui, lRestoreActiveBackup_StandUpBot: destroy,
+	Gui, lSetCurrentDelay_StandUpBot: destroy,
 	
-	gui, CQlRestoreActiveBackup_StayHydratedBot: destroy,
-	gui, CQlRestoreActiveBackup_StandUpBot: destroy,
-	gui, cQ: destroy
-	
+	Gui, CQlRestoreActiveBackup_StayHydratedBot: destroy,
+	Gui, CQlRestoreActiveBackup_StandUpBot: destroy,
+	Gui, cQ: destroy
 }
 return

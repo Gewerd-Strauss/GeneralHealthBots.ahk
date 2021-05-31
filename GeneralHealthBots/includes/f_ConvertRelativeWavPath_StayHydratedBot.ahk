@@ -1,4 +1,4 @@
-f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile) ; A solution to .wav-files
+﻿f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile) ; A solution to .wav-files
 {
 	VNI=1.0.0.4
 	sFullFilePathToAudioFile=%sFullFilePathToAudioFile%

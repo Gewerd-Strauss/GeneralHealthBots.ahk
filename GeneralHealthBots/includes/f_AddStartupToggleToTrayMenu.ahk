@@ -5,13 +5,12 @@ f_AddStartupToggleToTrayMenu(ScriptName,MenuNameToInsertAt:="Tray")
 	global MenuNameToInsertAt2
 	global bBootSetting
 	MenuNameToInsertAt2:=MenuNameToInsertAt
-	startUpDir:=("C:\Users\" A_UserName "\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\" A_ScriptName " - Shortcut.lnk")
+	startUpDir:=(A_Startup "\" A_ScriptName " - Shortcut.lnk")
 	Menu, %MenuNameToInsertAt%, add, Start at Boot, lStartUpToggle
 	If FileExist(startUpDir)
 	{
 		Menu, %MenuNameToInsertAt%, Check, Start at Boot
 		bBootSetting:=1
-		
 	}
 	else
 	{
