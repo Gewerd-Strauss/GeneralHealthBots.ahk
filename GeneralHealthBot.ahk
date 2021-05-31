@@ -512,13 +512,13 @@ lSwapActiveBackup_StandUpBot:
 	Gui, destroy
 	Gui, submit
 	f_UnstickModKeys()
-			; this is the code for partial swaps, instead of swapping entire settings. I am currently not setting this, as long as I am not having a settings-setting to control it. 
-			; In that case, all switches switching those would have to to the same thing. 
-			; Alternatively, I could create a general settings-menu to act upon general settings stuff 
-			; 
-			; which, at this point  would only be this one setting (toggling the swp-button behaviour, for this specific code.)
-			; I have not yet decided what I want to do. 
-	
+	/*
+		; this is the code-idea for partial swaps, instead of swapping entire settings. I am currently not setting this, as long as I am not having a settings-setting to control it. 
+		; In that case, all switches switching those would have to to the same thing. 
+		; Alternatively, I could create a general settings-menu to act upon general settings stuff 
+		; 
+		; which, at this point  would only be this one setting (toggling the swp-button behaviour, for this specific code.)
+		; I have not yet decided what I want to do. 
 		;sFullFilePathToAudioFile_StandUpBot_Active:=IniObj["Settings StandUpBot"].sFullFilePathToAudioFile_StandUpBot
 		;vDefaultTimeInMinutes_StandUpBot_Active:=IniObj["Settings StandUpBot"].vDefaultTimeInMinutes_StandUpBot
 		;vNotificationTimeInMilliSeconds_StandUpBot_Active:=IniObj["Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot
@@ -534,6 +534,7 @@ lSwapActiveBackup_StandUpBot:
 		;IniObj["Backup Settings StandUpBot"].sFullFilePathToAudioFile_StandUpBot:=sFullFilePathToAudioFile_StandUpBot_Active
 		;IniObj["Backup Settings StandUpBot"].vDefaultTimeInMinutes_StandUpBot:=vDefaultTimeInMinutes_StandUpBot_Active
 		;IniObj["Backup Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot:=vNotificationTimeInMilliSeconds_StandUpBot_Active
+	*/
 	vTempActiveINISettings_StandUpBot:=[]
 	vTempBackupINISettings_StandUpBot:=[]
 	vTempActiveINISettings_StandUpBot:=IniObj["Settings StandUpBot"].clone()
