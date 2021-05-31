@@ -17,7 +17,9 @@ Note 1:
 For the upates to be installed properly, one cannot change any of the files and filestructure within the folder this script resides in, neither the subfolders _FileVersions_ and _GeneralHealthBots_. As a rule of thumb, don't edit, move, remove any include- or _FileVersions_-file, and you should be good to go. Pre-update backups are not implemented yet, and that will depend on wether or not I find the time to implement it. In addition, the file _updater.ahk_ shouldn't be changed/moved/etc either.
 
 Note 2: 
-Warning: I tested _updater.ahk_ as best as I could, but I am not 100% sure it works completely flawlessly. In addition, there are a few textboxes that will pop up that are clearly not directed at the normal user - you can just skip those. If you want to perform an update through this addon, I suggest backing up the script and all related files once. The code for the backup should be updated in the coming weeks, and this documentation will be edited accordingly. If you do go forward with installing updates through this addon, please open an issue on github if something breaks. 
+Warning: I tested _updater.ahk_ as best as I could, but I am not 100% sure it works completely flawlessly. In addition, there are a few textboxes that will pop up that are clearly not directed at the normal user - you can just skip those. If you want to perform an update through this addon, I suggest backing up the script and all related files before confirming to update. The code for the backup should be updated in the coming weeks, and this documentation will be edited accordingly. If you do go forward with installing updates through this addon, please open an issue on github if something breaks. 
+
+If you want to take the safer route, visit this repository and download the new version yourself. Note however that settings cannot be automatically updated this way, so you will have to set up your customised settings again yourself.
 
 
 ## Reload
