@@ -43,7 +43,7 @@ LE=29 Mai 2021 17:04:38
 ; Initialise 
 vUserName:="Gewerd-Strauss"
 vProjectName:="GeneralHealthBots.ahk"
-vFileName:="StayHydratedBot%20settingsGUI_16.05.2021.ahk"	; added testing stuff so I don't have to use this 
+vFileName:="GeneralHealthBot.ahk"	; added testing stuff so I don't have to use this 
 FolderStructIncludesRelativeToMainScript:="GeneralHealthBots/includes/"
 FolderStructIniFileRelativeToMainScript:="GeneralHealthBots/StayHydratedBot settingsGUI_16.05.2021.ini"
 LocalValues:=[]
