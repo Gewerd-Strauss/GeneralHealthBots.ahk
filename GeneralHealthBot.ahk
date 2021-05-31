@@ -1,4 +1,4 @@
-﻿/*
+/*
 	GeneralHealthBots
 	repo: https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/
 	author: Gewerd Strauss, https://github.com/Gewerd-Strauss
@@ -35,10 +35,10 @@ SetTitleMatchMode, 2
 ;SetKeyDelay -1
 ;{ General Information for file management_____________________________________________
 ScriptName=StayHydratedBot  
-AU=Gewerd Strauss
+AU=Gewerd Strauss 
 VN=2.3.2.4                                                                     
 PublicVersionNumber=1.0.0.1
-LE=29 Mai 2021 17:04:38                                
+LE=31 Mai 2021 14:05:27                                
 ;}_____________________________________________________________________________________
 ; Initialise 
 vUserName:="Gewerd-Strauss"
@@ -69,12 +69,11 @@ else
 }
 ;strLegend=Bot|Time|min     |S|H "`n"
 ;}_____________________________________________________________________________________
-;{ Tray Menu___________________________________________________________________________
-f_CreateTrayMenu_Bots()
-;}_____________________________________________________________________________________
 ;{ Load Settings from Ini-File_________________________________________________________
 IniObj:=f_ReadBackSettings_StayHydratedBot()
-;m(IniObj)
+;}_____________________________________________________________________________________
+;{ Tray Menu___________________________________________________________________________
+f_CreateTrayMenu_Bots(IniObj)
 if bRunNotify
 {
 	notify().AddWindow("Startup",{Title:"General Health Bots",TitleColor:"0xFFFFFF",Time:1000,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15}) ; 
@@ -94,7 +93,7 @@ GuiEscape_AboutStayHydratedBot:		;**
 {
 	f_UnstickModKeys()
 	f_DestroyGuis()
-	Gui, destroy, 
+	Gui, destroy 
 }
 return 
 
@@ -106,8 +105,14 @@ Submit_StayHydratedBot: 				;**
 	sNotifyMessageResume_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyMessageResume_StayHydratedBot
 	sNotifyTitle_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot
 	SoundStatus_StayHydratedBot:=IniObj["Settings StayHydratedBot"].SoundStatus_StayHydratedBot
-	if IniObj["Settings StayHydratedBot"].bNotifyIcons
-		sPathToNotifyPicture_StayHydratedBot:=f_ConvertRelativePath(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
+	if IniObj["Settings StayHydratedBot"].bNotifyIcons											; check if we want to load icons to the notifies
+		if Instr(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot,"A_ScriptDir")	; replace relative paths by absolute ones
+		{
+			if FileExist(A_ScriptDir strreplace(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot,"A_ScriptDir",""))
+				sPathToNotifyPicture_StayHydratedBot:=f_ConvertRelativePath(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
+		}
+		else if FileExist(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
+			sPathToNotifyPicture_StayHydratedBot:=f_ConvertRelativePath(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
 	vMinutes_StayHydratedBot:=IniObj["Settings StayHydratedBot"].vDefaultTimeInMinutes_StayHydratedBot*1 ; get rid of those pesky quotes. Need to remember this trick ._.
 	vNotificationTimeInMilliSeconds_StayHydratedBot:=IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot
 	HUDStatus_StayHydratedBot:=IniObj["Settings StayHydratedBot"].HUDStatus_StayHydratedBot
@@ -120,7 +125,7 @@ Submit_StayHydratedBot: 				;**
 	strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot
 	outputStr:=strLegend strSHB "`n" strSUB
 	SetTimer,PlayTune_StayHydratedBot, %vTimerPeriod_StayHydratedBot%
-	Menu,Tray,Tip,%outputStr%
+	Menu,Tray,Tip, %outputStr%
 	if SoundStatus_StayHydratedBot
 		menu, StayHydratedBot, Check, Sound
 	if HUDStatus_StayHydratedBot
@@ -141,7 +146,13 @@ Submit_StandUpBot: 					;**
 	sNotifyTitle_StandUpBot:=IniObj["Settings StandUpBot"].sNotifyTitle_StandUpBot
 	SoundStatus_StandUpBot:=IniObj["Settings StandUpBot"].SoundStatus_StandUpBot
 	if IniObj["Settings StandUpBot"].bNotifyIcons
-		sPathToNotifyPicture_StandUpBot:=f_ConvertRelativePath(IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot)
+		if Instr(IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot,"A_ScriptDir")
+		{
+			if FileExist(A_ScriptDir strreplace(IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot,"A_ScriptDir",""))
+				sPathToNotifyPicture_StandUpBot:=f_ConvertRelativePath(IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot)
+		}
+		else if FileExist(IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot)
+			sPathToNotifyPicture_StandUpBot:=f_ConvertRelativePath(IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot)
 	vMinutes_StandUpBot:=IniObj["Settings StandUpBot"].vDefaultTimeInMinutes_StandUpBot
 	vNotificationTimeInMilliSeconds_StandUpBot:=IniObj["Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot
 	HUDStatus_StandUpBot:=IniObj["Settings StandUpBot"].HUDStatus_StandUpBot
@@ -343,6 +354,7 @@ return
 
 lPause_StayHydratedBot:				;*** 
 {
+	m(sPathToNotifyPicture_StayHydratedBot,sPathToNotifyPicture_StandUpBot)
 	PauseStatus_StayHydratedBot:=!PauseStatus_StayHydratedBot
 	menu, StayHydratedBot, ToggleCheck, Pause
 	if PauseStatus_StayHydratedBot
@@ -506,7 +518,7 @@ lSwapActiveBackup_StandUpBot:
 			; 
 			; which, at this point  would only be this one setting (toggling the swp-button behaviour, for this specific code.)
 			; I have not yet decided what I want to do. 
-			
+	
 		;sFullFilePathToAudioFile_StandUpBot_Active:=IniObj["Settings StandUpBot"].sFullFilePathToAudioFile_StandUpBot
 		;vDefaultTimeInMinutes_StandUpBot_Active:=IniObj["Settings StandUpBot"].vDefaultTimeInMinutes_StandUpBot
 		;vNotificationTimeInMilliSeconds_StandUpBot_Active:=IniObj["Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot
