@@ -46,6 +46,8 @@ ___
 1. Insert (full) File Path of Audiofile
    
    Mp3- and WAV-files are possible, although wav-files may not work depending on path length. If the full path to the .wav-file is greater than 127 characters, the script cannot use that file. However, that is checked for the path, so the user is notified if that is the case. In that case, either move the audiofile and possibly script to a different location to ensure a shorter pathlength or choose a different file. 
+   
+   For StandUpBot, there are two paths to be set, to give different sounds on "standing up" and "sitting down". By default, two different sounds are played.
 
 2. Set default reminder time in minutes
    
@@ -83,7 +85,8 @@ The following settings are set by default at first initiation. These are also th
 #### Basic Settings
    | StayHydratedBot| Settings | Backup |
    | :-----------------|:-------------:|:-----:|
-   | AudioFile-Path    |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
+   | AudioFile-Path Up |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
+   | AudioFile-Path dwn|A_ScriptDir\GeneralHealthBots\beep-02.mp3|see "Settings"
    | Default reminder Time (min)|45|90|
    | Default Notification Time (ms)|4000 |see "Settings"|
 
