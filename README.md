@@ -85,14 +85,14 @@ The following settings are set by default at first initiation. These are also th
 #### Basic Settings
    | StayHydratedBot| Settings | Backup |
    | :-----------------|:-------------:|:-----:|
-   | AudioFile-Path Up |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
-   | AudioFile-Path dwn|A_ScriptDir\GeneralHealthBots\beep-02.mp3|see "Settings"
+   | AudioFile-Path    |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
    | Default reminder Time (min)|45|90|
    | Default Notification Time (ms)|4000 |see "Settings"|
 
    | StandUpBot| Settings | Backup |
    | :-----------------|:-------------:|:-----:|
-   | AudioFile-Path    |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
+   | AudioFile-Path Up |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
+   | AudioFile-Path dwn|A_ScriptDir\GeneralHealthBots\beep-02.mp3|see "Settings"
    | Default reminder Time (min)|90|120|
    | Default Notification Time (ms)|4000 |see "Settings"|
    
