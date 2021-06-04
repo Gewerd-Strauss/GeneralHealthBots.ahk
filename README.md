@@ -31,7 +31,7 @@ Create or remove a shortcut in the Autostart-folder. Note that this is currently
 
 
 ## Overview 2
-![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Overview1.jpeg?raw=true)
+![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Overview.jpeg?raw=true)
 
 ## Settings
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_ActiveBackup.jpg?raw=true)
@@ -78,6 +78,10 @@ ___
 8. Show Icons on Notify 1/0
    
    Decide wether or not the respective notify-messages should contain an image as icon or not. The image shown if true is the one set under _5. Set a new Path (Notify-Image)_ Default: True
+   
+9. Set default intrusivity-status 1/0
+
+   Decide wether or not a bot is set to be intrusive by default. Look here for more information on the intrusive mode.
 
 ___
 ### Overview over factory default settings 
@@ -148,9 +152,9 @@ The Time signifies when the next reminder will be issued by the respective bot.
 
 The second number (here 45 and 90) displays the set delay between alerts
 
-The last two slots display the current alert settings of that respective bot: P for paused (no alerts whatsoever), 0 for off, 1 for on. 
+The next two slots display the current alert settings of that respective bot: P for paused (no alerts whatsoever), 0 for off, 1 for on. 
 
-The second-to-last place (here P and 0 for SHB and SUB respectively) gives information on the sound-alert, and the last place (here P and 1) gives information on the notification-alert.
+The third place (here 1 and P for SHB and SUB respectively) gives information on the sound-alert, and the fourth place (here 0 and P) gives information on the notification-alert. The last place (1 and 0) gives information on wether or not a bot is configured as "intrusive" or not.
 
 
 ___
