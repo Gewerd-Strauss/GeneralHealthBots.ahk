@@ -13,6 +13,7 @@ Pretty self-explanatory, this opens the folder containing all files related to t
 
 ## Help
 Go to this documentation, report a bug directly on GitHub or check for updates. 
+
 Note 1:
 For the upates to be installed properly, one cannot change any of the files and filestructure within the folder this script resides in, neither the subfolders _FileVersions_ and _GeneralHealthBots_. As a rule of thumb, don't edit, move, remove any include- or _FileVersions_-file, and you should be good to go. Pre-update backups are not implemented yet, and that will depend on wether or not I find the time to implement it. In addition, the file _updater.ahk_ shouldn't be changed/moved/etc either.
 
