@@ -81,7 +81,7 @@ ___
    
 9. Set default intrusivity-status 1/0
 
-   Decide wether or not a bot is set to be intrusive by default. Look here for more information on the intrusive mode.
+   Decide wether or not a bot is set to be intrusive by default. Look here for more information on the [intrusive mode](#intrusive).
 
 ___
 ### Overview over factory default settings 
@@ -125,16 +125,20 @@ The following settings are set by default at first initiation. These are also th
 As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings. However, feel free to edit them to your heart's content.
 The "Original" Settings are never edited, ever. 
 
+## Pause
+
+Deactivate the notification and sound played whenever the timer goes off. Note that the timer itself continues running, however it will not execute any code when it triggers.
+
 ## Set Timer
 
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
 
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
-## Pause
-Deactivate the notification and sound played whenever the timer goes off. Note that the timer itself continues running, however it will not execute any code when it triggers.
 
+## Intrusive
 
+Insert this shit now.
 
 
 ## HUD & Sound
