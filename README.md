@@ -138,7 +138,7 @@ Set the respective time inbetween reminders, in minutes. This time will not be r
 
 ## Intrusive
 
-Insert this shit now.
+Documentation coming soon.
 
 
 ## HUD & Sound
