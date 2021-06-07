@@ -138,7 +138,7 @@ Set the respective time inbetween reminders, in minutes. This time will not be r
 
 ## Intrusive
 
-By default, the bot will use _notify_ by maestrith to inform users. By checking or setting the _Intrusive_-setting, a gui will be created to notify the user. Press Enter to close the gui.
+By default, the bot will use _notify_ by maestrith to inform users. By checking or setting the _Intrusive_-setting, a gui will be created to notify the user. Press Enter to close the gui. While active, the next iteration  of the respective timer will not be started. 
 
 
 ## HUD & Sound
