@@ -1,21 +1,48 @@
 ﻿f_UpdateRoutine(VersionNumberDefStringIncludeScripts:="VNI=",VersionNumberDefMainScript:="VN=",vNumberOfBackups:=0)
 {
 	; facilitates all subfunctions for pulling updates from a public github repo.
-	; before calling this function, make sure you have the following 
-	
-	global vFullRoutineCheck:=false
+	; before calling this function, make sure you have the following structure:
+	/*
+		vUserName:="UserNameHere" 																	| UserName of the github-repo. Needs to be part of the url 
+		vProjectName:="GeneralHealthBots.ahk" 															| Name of the repository. This is not the same as vFileName
+		vFileName:="GeneralHealthBot.ahk"																| Filename of the Mainscript when written to local drive | * Mind the difference between vFileName and vProjectName
+		FolderStructIncludesRelativeToMainScript:="GeneralHealthBots/includes/" 								| Folder Structure to the folder in which all includes of the mainscript reside
+		FolderStructIniFileRelativeToMainScript:="GeneralHealthBots/FileVersions/FileVersions GeneralHealthBot.ini" 	| Folder Structure to the Ini-file which contains the fileversions of the project. This is always written to A_ScriptDir/FileVersions/FileVersions A_ScriptName.ini 
+		AU:="Author of the script. Displayed in various dialogues and userqueries."
+		; afterwards, create the following arrays when calling the function: (Note the peculiarities with FolderOfVersioningFile)
+		LocalValues:=[]
+		GitPageURLComponents:=[]
+		LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile]
+		GitPageURLComponents:=[vUserName,vProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
+		FolderOfVersioningFile:="GeneralHealthBots/FileVersions" | this is obsolete. For now, insert anything, this value is overwritten with LocalValues[4]
+		
+		; DO NOT CHANGE vNumberOfBackups, that is not implemented yet. In fact, don't use this instance of the function at all, it was originally build for this repo. The generalisation is neither complete nor tested
+		
+		the function is called as 
+		f_UpdateRoutine() <- default behaviour, Version numbers of include files are found by Instr(line, "VNI="), the main scripts' version number is found by Instr(VN=)
+		
+		f_UpdateRoutine("InsertStringToIdentifyTheMainScriptByHere","InsertStringToIdentifyTheIncludeScriptsByHere",0) <- when using different convention for identifying the right lines, add a proper snippet here. Know that the first instance found within each file is used, without further checking against more matches.
+		[]
+		
+		
+		
+		f_UpdateRoutine() is fully written* by Gewerd Strauss: https://github.com/Gewerd-Strauss
+		
+		
+	*/
+	global vFullRoutineCheck:=false ; DO NOT change. This is the toggle to give a more detailed warning explanation about what is going on when updating, and that it is instable. Until I have fully tested this (or let someone else test it), I'd much rather have one additional warning and a second confirmation, instead of a potential, unknown catastrophic failure.
 	; add input verification: 
 	; does gitpage connect successfully, 
 	; does gitpage4 contain a valid path on the harddrive
 	; 
 	global GitPageURLComponents 
 	global LocalValues
-		;Date: 22 Mai 2021 10:57:45: an alternative way would be to use the ini-file
-		;only for fetching file-urls, then check for missing files. all other files are
-		;compared on a line-by-line basis to check if they match everywhere. you could
-		;make this a "cutting edge"-feature (possibly search another git branch for this?
-		;) and ask the user if they want to use experimental versions. Much more prone to
-		;error,  but in theory possible.
+	;Date: 22 Mai 2021 10:57:45: an alternative way would be to use the ini-file
+	;only for fetching file-urls, then check for missing files. all other files are
+	;compared on a line-by-line basis to check if they match everywhere. you could
+	;make this a "cutting edge"-feature (possibly search another git branch for this?
+	;) and ask the user if they want to use experimental versions. Much more prone to
+	;error,  but in theory possible.
 	Gui, destroy
 	vFileCountToUpdate:=0
 	
@@ -32,19 +59,20 @@
 	{
 		lUpdateAsked:=f_Confirm_Question_Updater("Do you want to update?`nNew Version is available",LocalValues[1],LocalValues[2])
 		if lUpdateAsked and vFullRoutineCheck
-			f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,vNumberOfBackups)
-		else
 			f_PerformManualUpdate(GitPageURLComponents)
+		else
+			return UpdateCheck:=0 ; user declined
+			;f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,vNumberOfBackups)
 	}
 	else if (lIsDifferent=-1) 	; vn-identifier string not found
 	{
 		if !vsdb
 			Notify().AddWindow("No update available",{Title:"Checking for updates.",TitleColor:"0xFFFFFF",Time:1200,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1200,FlashColor:0x5555})
-		
 		return UpdateCheck:=-1 ; insert notify guis to tell no update is available
 	}
 	else if (lIsDifferent=0) 	; vn's match
 		return UpdateCheck:=-2
+	return
 }
 
 f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,VersionNumberDefMainScript:="VN=")
@@ -220,7 +248,7 @@ f_UpdateFileVersions_File(ReturnPackage)
 
 f_NotifyUserOfUpdates()
 {
-	m("remember to create the notifyuserofupdates_fn")
+	;m("remember to create the notifyuserofupdates_fn")
 	;Date: 22 Mai 2021 13:34:03: todo: notify what has changed, where the old files
 	;are, etc etc  1. Old files are dropped to 
 }
@@ -685,3 +713,4 @@ st_wordwrap_Updater(string, column=56, indentChar="")
 	
 	Return SubStr(out, 1, -1)
 }
+
