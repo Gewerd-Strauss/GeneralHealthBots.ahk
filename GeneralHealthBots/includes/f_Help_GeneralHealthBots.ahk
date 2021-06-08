@@ -1,8 +1,8 @@
 f_Help_GeneralHealthBots(AU,VN)
 {
+	VNI=1.0.0.8
 	global GitPageURLComponents
 	global LocalValues
-	VNI=1.0.0.7
 	f_ToggleOffAllGuiHotkeys()
 	Gui, destroy
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field

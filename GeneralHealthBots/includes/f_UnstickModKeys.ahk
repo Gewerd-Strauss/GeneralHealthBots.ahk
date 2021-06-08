@@ -1,6 +1,6 @@
 f_UnstickModKeys()
 {
-	VNI=1.0.0.11
+	VNI=1.0.0.13
 	BlockInput,On
 	SendInput, {Ctrl Up}
 	SendInput, {V Up}
@@ -8,3 +8,4 @@ f_UnstickModKeys()
 	SendInput, {Alt Up}
 	BlockInput,Off
 }
+

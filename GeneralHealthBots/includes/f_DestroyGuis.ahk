@@ -1,6 +1,6 @@
 ﻿f_DestroyGuis()
 {
-	VNI=1.0.0.6
+	VNI=1.0.0.7
 	Gui, GuiEscape_AboutStayHydratedBot: destroy, 
 	Gui, lEditSettings_StayHydratedBot: destroy,
 	Gui, Numpad6: destroy,
@@ -17,3 +17,4 @@
 	Gui, cQ: destroy
 }
 return
+

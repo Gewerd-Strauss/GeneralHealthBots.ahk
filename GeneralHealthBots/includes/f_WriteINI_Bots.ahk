@@ -1,6 +1,6 @@
 ﻿f_WriteINI_Bots(ByRef Array2D, INI_File)  ; write 2D-array to INI-file 
 {	
-	VNI=1.0.0.12
+	VNI=1.0.0.14
 	if !FileExist("GeneralHealthBots") ; check for StayHydratedBot directory
 	{
 		MsgBox, "Creating ""GeneralHealthBots"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
@@ -15,7 +15,10 @@
 			Pairs := ""
 			for Key, Value in Entry
 				Pairs .= Key "=" Value "`n"
-			IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
+			if InStr(SubStr(INI_File, -3),".ini")
+				IniWrite, %Pairs%, %INI_File%, %SectionName%	
+			Else
+				IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
 		}
 		if A_WorkingDir!=OrigWorkDir
 			SetWorkingDir, %OrigWorkDir%
@@ -29,7 +32,10 @@
 			Pairs := ""
 			for Key, Value in Entry
 				Pairs .= Key "=" Value "`n"
-			IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
+			if InStr(SubStr(INI_File, -3),".ini")
+				IniWrite, %Pairs%, %INI_File%, %SectionName%	
+			Else
+				IniWrite, %Pairs%, %INI_File%.ini, %SectionName%
 		}
 		if A_WorkingDir!=OrigWorkDir
 			SetWorkingDir, %OrigWorkDir%
@@ -49,3 +55,4 @@
 		}
 	*/
 }
+

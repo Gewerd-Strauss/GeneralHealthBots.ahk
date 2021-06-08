@@ -1,5 +1,5 @@
 m(x*){
-	VNI=1.0.0.13
+	VNI=1.0.0.15
 	static List:={BTN:{OC:1,ARI:2,YNC:3,YN:4,RC:5,CTC:6},ico:{X:16,"?":32,"!":48,I:64}},Msg:=[]
 	static Title
 	List.Title:="AutoHotkey",List.Def:=0,List.Time:=0,Value:=0,TXT:="",Bottom:=0
@@ -65,3 +65,4 @@ Obj2String(Obj,FullPath:=1,BottomBlank:=0){
 	}}
 	return String Blank
 }
+

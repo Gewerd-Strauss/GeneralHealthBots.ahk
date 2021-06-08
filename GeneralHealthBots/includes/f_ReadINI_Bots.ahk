@@ -1,6 +1,6 @@
 ﻿f_ReadINI_Bots(INI_File) ; return 2D-array from INI-file
 {
-	VNI=1.0.0.10
+	VNI=1.0.0.11
 	Result := [] 
 	OrigWorkDir:=A_WorkingDir
 	SetWorkingDir, GeneralHealthBots

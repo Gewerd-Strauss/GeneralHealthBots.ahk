@@ -1,6 +1,6 @@
 ﻿f_ReadBackSettings_StayHydratedBot(ResetSHB:=0,ResetSUB:=0)
 {
-	VNI=1.0.0.9
+	VNI=1.0.0.10
 	SplitPath, A_ScriptName,,,, ScriptName
 	FileNameIniRead:=ScriptName . ".ini"
 	IniSections:=[]
@@ -14,6 +14,7 @@
 				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
 				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
 				, 	bNotifyIcons: 1
+				, 	lIsIntrusive_StayHydratedBot: 0
 				, 	HUDStatus_StayHydratedBot: 1
 				, 	SoundStatus_StayHydratedBot: 1}
 	IniSections ["Backup Settings StayHydratedBot"]
@@ -26,6 +27,7 @@
 				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
 				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
 				, 	bNotifyIcons: 1
+				, 	lIsIntrusive_StayHydratedBot: 0
 				, 	HUDStatus_StayHydratedBot: 1
 				, 	SoundStatus_StayHydratedBot: 1}
 	IniSections ["Original Settings StayHydratedBot"]
@@ -38,12 +40,14 @@
 				,	sNotifyMessagePause_StayHydratedBot: "Pausing StayHydratedBot"
 				,	sNotifyMessageResume_StayHydratedBot: "Resuming StayHydratedBot"
 				, 	bNotifyIcons: 1
+				, 	lIsIntrusive_StayHydratedBot: 0
 				, 	HUDStatus_StayHydratedBot: 1
 				, 	SoundStatus_StayHydratedBot: 1}
 	
 	
 	IniSections ["Settings StandUpBot"]
-			:= {  	sFullFilePathToAudioFile_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
+			:= {  	sFullFilePathToAudioFileUp_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
+				, 	sFullFilePathToAudioFileDown_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-02.mp3"
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	90
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
@@ -54,10 +58,12 @@
 				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
 				, 	bNotifyIcons: 1
+				, 	lIsIntrusive_StandUpBot: 0
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	IniSections ["Backup Settings StandUpBot"]
-			:= {  	sFullFilePathToAudioFile_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
+			:= {  	sFullFilePathToAudioFileUp_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
+				, 	sFullFilePathToAudioFileDown_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-02.mp3"
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	120
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
@@ -68,10 +74,12 @@
 				,	sNotifyMessageResumet_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
 				, 	bNotifyIcons: 1
+				, 	lIsIntrusive_StandUpBot: 0
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	IniSections ["Original Settings StandUpBot"]
-			:= {  	sFullFilePathToAudioFile_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
+			:= {  	sFullFilePathToAudioFileUp_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
+				, 	sFullFilePathToAudioFileDown_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-02.mp3"
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
 				,    vDefaultTimeInMinutes_StandUpBot: 	90
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
@@ -82,6 +90,7 @@
 				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
 				, 	bNotifyIcons: 1
+				, 	lIsIntrusive_StandUpBot: 0
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%
@@ -89,21 +98,21 @@
 	{
 		if ResetSHB
 		{
-			IniObj := f_ReadINI_Bots(FileNameIniRead) ; this does work
+			IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
 			IniObj["Settings StayHydratedBot"]:=IniSections["Settings StayHydratedBot"]
 			IniObj["Backup Settings StayHydratedBot"]:=IniSections["Backup Settings StayHydratedBot"]
 			IniObj["Original Settings StayHydratedBot"]:=IniSections["Original Settings StayHydratedBot"]
 			f_WriteINI_Bots(IniObj,ScriptName)
 		}
-		if ResetSUP
+		if ResetSUB
 		{
-			IniObj := f_ReadINI_Bots(FileNameIniRead) ; this does work
+			IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
 			IniObj["Settings StandUpBot"]:=IniSections["Settings StandUpBot"]
 			IniObj["Backup Settings StandUpBot"]:=IniSections["Backup Settings StandUpBot"]
 			IniObj["Original Settings StandUpBot"]:=IniSections["Original Settings StandUpBot"]
-			IniObj := f_ReadINI_Bots(FileNameIniRead) ; this does work
+			f_WriteIni_Bots(IniObj,FileNameIniRead) ; this does work
 		}
-		IniObj := f_ReadINI_Bots(FileNameIniRead) ; this does work
+		IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
 	}
 	Else 							; set default-settings in case ini-file doesn't exist
 	{

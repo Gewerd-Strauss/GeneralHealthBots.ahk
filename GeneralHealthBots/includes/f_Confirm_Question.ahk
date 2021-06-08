@@ -1,6 +1,6 @@
 ﻿f_Confirm_Question(Question,AU,VN)
 {
-	VNI=1.0.0.2
+	VNI=1.0.0.3
 	Gui, cQ: new
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, cQ: Margin, 16, 16
@@ -57,3 +57,4 @@
 	return answer:=false
 	
 }
+

@@ -1,6 +1,6 @@
 ﻿f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile) ; A solution to .wav-files
 {
-	VNI=1.0.0.4
+	VNI=1.0.0.5
 	sFullFilePathToAudioFile=%sFullFilePathToAudioFile%
 	sFullFilePathToAudioFile:=Trim(sFullFilePathToAudioFile, """ ")
 	sFullFilePathToAudioFile:=StrReplace(sFullFilePathToAudioFile, "A_ScriptDir", A_ScriptDir)
@@ -28,3 +28,4 @@
 		
 	*/
 }
+
