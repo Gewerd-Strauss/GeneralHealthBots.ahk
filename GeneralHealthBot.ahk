@@ -32,9 +32,9 @@ SetTitleMatchMode, 2
 ;{ General Information for file management_____________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss 
-VN=2.3.3.4                                                                     
-PublicVersionNumber=1.0.0.1
-LE=02 Juni 2021 08:37:30                               
+VN=2.3.4.4                                                                     
+PublicVersionNumber=1.0.4.1
+LE=19 Juni 2021 13:45:29                               
 ;}_____________________________________________________________________________________
 ; Initialise 
 vUserName:="Gewerd-Strauss"
@@ -176,6 +176,10 @@ Submit_StandUpBot: 					;**
 	vNotificationTimeInMilliSeconds_StandUpBot:=IniObj["Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot
 	HUDStatus_StandUpBot:=IniObj["Settings StandUpBot"].HUDStatus_StandUpBot
 	bStandingposition:=IniObj["Settings StandUpBot"].bStandingposition
+	if bStandingposition
+		sCurrentPosition:="↓"
+	else
+		sCurrentPosition:="↑"
 	Gui, Submit
 	Gui, destroy
 	if (vMinutes_StandUpBot_Temp!="empty")
@@ -188,10 +192,10 @@ Submit_StandUpBot: 					;**
 	EnvAdd, sTrayTipSUB, vMinutes_StandUpBot,Minutes
 	FormatTime, sTrayTipSUB, %sTrayTipSUB%, HH:mm:ss tt
 	if PauseStatus_StandUpBot
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	Else
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot
-
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
+	
 	outputStr:=strLegend strSHB "`n" strSUB
 	SetTimer,PlayTune_StandUpBot, %vTimerPeriod_StandUpBot%
 	Menu,Tray,Tip,%outputStr%
@@ -287,9 +291,9 @@ lToggleBotHUD_StandUpBot:			;***
 	else
 		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	if PauseStatus_StandUpBot
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	else
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	outputStr:=strLegend strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
@@ -332,9 +336,9 @@ lToggleBotAudio_StandUpBot:			;***
 		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	}
 	if PauseStatus_StandUpBot
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	Else
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	outputStr:=strLegend strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
@@ -383,9 +387,9 @@ lToggleBotIntrusive_StandUpBot:
 			Notify().AddWindow("Bot behaves normal now.",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	}
 	if PauseStatus_StandUpBot
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	Else
-		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot
+		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	outputStr:=strLegend strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
@@ -440,6 +444,7 @@ PlayTune_StandUpBot: 				;***
 			if HUDStatus_StandUpBot  and lIsIntrusive_StandUpBot ; if HUDStatus_StandUpBot and bRunNotify and lIsIntrusive_StandUpBot
 				f_AlertUserIntrusive(sNotifyMessageDown_StandUpBot,AU,VN)
 			bStandingposition:=0
+			sCurrentPosition:="↓" ;"Sitting"
 		}
 		else 					; if 0/sitting, notify to stand up
 		{
@@ -450,14 +455,15 @@ PlayTune_StandUpBot: 				;***
 			if HUDStatus_StandUpBot  and lIsIntrusive_StandUpBot ; if HUDStatus_StandUpBot and bRunNotify and lIsIntrusive_StandUpBot
 				f_AlertUserIntrusive(sNotifyMessageUp_StandUpBot,AU,VN)
 			bStandingposition:=1
+			sCurrentPosition:="↑" ;"Standing"
 		}
 		sTrayTipSUB:=A_Now
 		EnvAdd, sTrayTipSUB, vMinutes_StandUpBot,Minutes ; add 15 minits
 		FormatTime, sTrayTipSUB, %sTrayTipSUB%, HH:mm:ss tt
 		if PauseStatus_StandUpBot
-			strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot
+			strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 		else
-			strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot
+			strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 		outputStr:=strLegend strSHB "`n" strSUB
 		Menu,Tray,Tip,%outputStr%
 		Settimer, RemoveToolTip,-500 
