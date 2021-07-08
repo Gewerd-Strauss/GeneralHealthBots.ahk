@@ -32,9 +32,9 @@ SetTitleMatchMode, 2
 ;{ General Information for file management_____________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss 
-VN=2.3.4.4                                                                     
+VN=2.3.5.4                                                                     
 PublicVersionNumber=1.0.4.1
-LE=19 Juni 2021 13:45:29                               
+LE=08 Juli 2021 09:10:04                               
 ;}_____________________________________________________________________________________
 ; Initialise 
 vUserName:="Gewerd-Strauss"
@@ -974,6 +974,7 @@ SubmitChangedAdvancedSettings_StayHydratedBot: ;__
 	Gui, submit
 	Gui, destroy
 	f_UnstickModKeys()
+	m(lIsIntrusive_StandUpBot_Active,lIsIntrusive_StayHydratedBot_Active)
 	bNotifyIcons_StayHydratedBot_Active:=bNotifyIcons_StayHydratedBot_Active+0
 	HUDStatus_StayHydratedBot_Active:=HUDStatus_StayHydratedBot_Active+0
 	SoundStatus_StayHydratedBot_Active:=SoundStatus_StayHydratedBot_Active+0
@@ -1028,6 +1029,7 @@ SubmitChangedAdvancedSettings_StandUpBot: ;__
 	bStandingPosition_StandUpBot_Backup:=bStandingPosition_StandUpBot_Backup+0
 	bNotifyIcons_StandUpBot_Backup:=bNotifyIcons_StandUpBot_Backup+0
 	lIsIntrusive_StandUpBot_Backup:=lIsIntrusive_StandUpBot_Backup+0
+	m(lIsIntrusive_StandUpBot_Active,lIsIntrusive_StayHydratedBot_Active)
 		; active
 	if (HUDStatus_StandUpBot_Active=0) || (HUDStatus_StandUpBot_Active=1) 
 		IniObj["Settings StandUpBot"].HUDStatus_StandUpBot:=HUDStatus_StandUpBot_Active
@@ -1037,13 +1039,15 @@ SubmitChangedAdvancedSettings_StandUpBot: ;__
 		IniObj["Settings StandUpBot"].bStandingPosition:=bStandingPosition_StandUpBot_Active
 	if (bNotifyIcons_StandUpBot_Active=0) || (bNotifyIcons_StandUpBot_Active=1)
 		IniObj["Settings StandUpBot"].bNotifyIcons:=bNotifyIcons_StandUpBot_Active
+	if (lIsIntrusive_StandUpBot_Active=0) || (lIsIntrusive_StandUpBot_Active=1)
+		IniObj["Settings StandUpBot"].lIsIntrusive_StandUpBot:=lIsIntrusive_StandUpBot_Active
 	if sPathToNotifyPicture_StandUpBot_Active
 		IniObj["Settings StandUpBot"].sPathToNotifyPicture_StandUpBot:=sPathToNotifyPicture_StandUpBot_Active
 	if sNotifyTitle_StandUpBot_StandUpBot_Active
 		IniObj["Settings StandUpBot"].sNotifyTitle_StandUpBot:=sNotifyTitle_StandUpBot_StandUpBot_Active
 		; backup 
-	if (SoundStatus_StandUpBot_Backup=0) || (SoundStatus_StandUpBot_Backup=1)
-		IniObj["Backup Settings StandUpBot"].HUDStatus_StandUpBot:=SoundStatus_StandUpBot_Backup
+	if (HUDStatus_StandUpBot_Backup=0) || (HUDStatus_StandUpBot_Backup=1)
+		IniObj["Backup Settings StandUpBot"].HUDStatus_StandUpBot:=HUDStatus_StandUpBot_Backup
 	if (SoundStatus_StandUpBot_Backup=0) || (SoundStatus_StandUpBot_Backup=1)
 		IniObj["Backup Settings StandUpBot"].SoundStatus_StandUpBot:=SoundStatus_StandUpBot_Backup
 	If (bStandingPosition_StandUpBot_Backup=0) || (bStandingPosition_StandUpBot_Backup=1)
