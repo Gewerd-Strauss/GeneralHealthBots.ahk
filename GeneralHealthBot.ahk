@@ -14,9 +14,6 @@
 */
 ; Default sounds queried from: 
 ; https://freesound.org/people/puneet222/sounds/349174/
-; 
-; TODO: add documentation on the "Intrusive"-mode
-
 
 
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.0
@@ -32,9 +29,9 @@ SetTitleMatchMode, 2
 ;{ General Information for file management_____________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss 
-VN=2.3.5.4                                                                     
-PublicVersionNumber=1.0.4.1
-LE=08 Juli 2021 09:10:04                               
+VN=2.3.6.4                                                                     
+PublicVersionNumber=1.0.6.1
+LE=12 Juli 2021 11:24:40                               
 ;}_____________________________________________________________________________________
 ; Initialise 
 vUserName:="Gewerd-Strauss"
@@ -203,7 +200,7 @@ Submit_StandUpBot: 					;**
 		menu, StandUpBot, Check, Sound
 	if HUDStatus_StandUpBot
 		menu, StandUpBot, Check, HUD
-	if IsIntrusive_StandUpBot
+	if lIsIntrusive_StandUpBot
 		menu, StandUpBot, Check, Intrusive
 	if bRunNotify		
 		Notify().AddWindow("Setting Timer to " vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
@@ -974,7 +971,6 @@ SubmitChangedAdvancedSettings_StayHydratedBot: ;__
 	Gui, submit
 	Gui, destroy
 	f_UnstickModKeys()
-	m(lIsIntrusive_StandUpBot_Active,lIsIntrusive_StayHydratedBot_Active)
 	bNotifyIcons_StayHydratedBot_Active:=bNotifyIcons_StayHydratedBot_Active+0
 	HUDStatus_StayHydratedBot_Active:=HUDStatus_StayHydratedBot_Active+0
 	SoundStatus_StayHydratedBot_Active:=SoundStatus_StayHydratedBot_Active+0
@@ -1029,7 +1025,6 @@ SubmitChangedAdvancedSettings_StandUpBot: ;__
 	bStandingPosition_StandUpBot_Backup:=bStandingPosition_StandUpBot_Backup+0
 	bNotifyIcons_StandUpBot_Backup:=bNotifyIcons_StandUpBot_Backup+0
 	lIsIntrusive_StandUpBot_Backup:=lIsIntrusive_StandUpBot_Backup+0
-	m(lIsIntrusive_StandUpBot_Active,lIsIntrusive_StayHydratedBot_Active)
 		; active
 	if (HUDStatus_StandUpBot_Active=0) || (HUDStatus_StandUpBot_Active=1) 
 		IniObj["Settings StandUpBot"].HUDStatus_StandUpBot:=HUDStatus_StandUpBot_Active
