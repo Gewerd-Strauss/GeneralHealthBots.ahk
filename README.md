@@ -47,7 +47,7 @@ Create or remove a shortcut in the Autostart-folder. Note that this is currently
 dd
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Overview.jpeg?raw=true)
 
-## Settings
+## 1. Settings
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_ActiveBackup.jpg?raw=true)
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Settings_Othr_StandUpBot.jpeg)
 
@@ -139,17 +139,17 @@ The following settings are set by default at first initiation. The settings in t
 As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings. However, feel free to edit them to your heart's content.
 The "Original" Settings are never edited, ever. 
 
-## Pause
+## 2. Pause
 
 Deactivate the notification and sound played whenever the timer goes off. Note that the timer itself continues running, however it will not execute any code when it triggers.
 
-## Set Timer
+## 3. Set Timer
 
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
 
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
-## Toggle Position - X
+## 4. Toggle Position - X
 
 This button is exclusive to StandUpBot, and is best explained by an example.
 
@@ -164,12 +164,12 @@ Within said file, edit the setting `vAllowDirectEditOfStateToggles_StandUpBot` t
 After that is changed, you can access the gui-edit fields under the "Advanced"-settings of StandUpBot.
 
 
-## Intrusive
+## 5. Intrusive
 
 By default, the bot will use _notify_ by maestrith to inform users. By checking or setting the _Intrusive_-setting, a gui will be created to notify the user. Press Enter to close the gui. While active, the next iteration  of the respective timer will not be started. 
 
 
-## HUD & Sound
+## 6. HUD & Sound
 Toggle wether or not a HUD or Sound is used to notify the user when the timer goes off.
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
