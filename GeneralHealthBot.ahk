@@ -66,6 +66,8 @@ else
 ;}_____________________________________________________________________________________
 ;{ Load Settings from Ini-File_________________________________________________________
 IniObj:=f_ReadBackSettings_StayHydratedBot()
+; m(Iniobj)
+
 ;}_____________________________________________________________________________________
 ;{ Tray Menu___________________________________________________________________________
 f_CreateTrayMenu_Bots(IniObj)
@@ -161,6 +163,7 @@ Submit_StandUpBot: 					;**
 	sNotifyMessageUp_StandUpBot:=IniObj["Settings StandUpBot"].sNotifyMessageUp_StandUpBot
 	sNotifyTitle_StandUpBot:=IniObj["Settings StandUpBot"].sNotifyTitle_StandUpBot
 	SoundStatus_StandUpBot:=IniObj["Settings StandUpBot"].SoundStatus_StandUpBot
+	vAllowDirectEditOfStateToggles_StandUpBot:=IniObj["metaSettings"].vAllowDirectEditOfStateToggles_StandUpBot
 	if (vAllowedTogglesCount="empty")
 		vAllowedTogglesCount:=IniObj["Settings StandUpBot"].vAllowedTogglesCount
 	if (lIsIntrusive_StandUpBot="empty")
@@ -810,8 +813,11 @@ lEditAdvancedSettings_StandUpBot:		;**
 	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1 vbNotifyIcons_StandUpBot_Active, % IniObj["Settings StandUpBot"]["bNotifyIcons"]
 	gui, add, text, xm+30 ym+430, Set default Intrusivity status
 	Gui, add, edit, xm+30 ym+450%gui_control_options% -VScroll r1  vlIsIntrusive_StandUpBot_Active, % IniObj["Settings StandUpBot"]["lIsIntrusive_StandUpBot"]
-	gui, add, text, xm+30 ym+490, Set # of allowed State Toggles
-	Gui, add, edit, xm+30 ym+510%gui_control_options% -VScroll r1  vAllowedTogglesCount_StandUpBot_Active, % IniObj["Settings StandUpBot"]["vAllowedTogglesCount"]
+	if vAllowDirectEditOfStateToggles_StandUpBot
+	{
+		gui, add, text, xm+30 ym+490, Set # of allowed State Toggles
+		Gui, add, edit, xm+30 ym+510%gui_control_options% -VScroll r1  vAllowedTogglesCount_StandUpBot_Active, % IniObj["Settings StandUpBot"]["vAllowedTogglesCount"]
+	}
 	Gui, tab, Backup
 	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
 	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll vHUDStatus_StandUpBot_Backup, % IniObj["Backup Settings StandUpBot"]["HUDStatus_StandUpBot"]
@@ -827,8 +833,11 @@ lEditAdvancedSettings_StandUpBot:		;**
 	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1 vbNotifyIcons_StandUpBot_Backup, % IniObj["Backup Settings StandUpBot"]["bNotifyIcons"]
 	gui, add, text, xm+30 ym+430, Set default Intrusivity status
 	Gui, add, edit, xm+30 ym+450%gui_control_options% -VScroll r1  vlIsIntrusive_StandUpBot_Backup, % IniObj["Backup Settings StandUpBot"]["lIsIntrusive_StandUpBot"]
-	gui, add, text, xm+30 ym+490, Set # of allowed State Toggles
-	Gui, add, edit, xm+30 ym+510%gui_control_options% -VScroll r1  vAllowedTogglesCount_StandUpBot_Backup, % IniObj["Backup Settings StandUpBot"]["vAllowedTogglesCount"]
+	if vAllowDirectEditOfStateToggles_StandUpBot
+	{
+		gui, add, text, xm+30 ym+490, Set # of allowed State Toggles
+		Gui, add, edit, xm+30 ym+510%gui_control_options% -VScroll r1  vAllowedTogglesCount_StandUpBot_Backup, % IniObj["Backup Settings StandUpBot"]["vAllowedTogglesCount"]
+	}
 	Gui, tab, Original
 	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
 	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll ReadOnly vHUDStatus_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["HUDStatus_StandUpBot"]
@@ -844,12 +853,25 @@ lEditAdvancedSettings_StandUpBot:		;**
 	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1 ReadOnly vbNotifyIcons_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["bNotifyIcons"]
 	gui, add, text, xm+30 ym+430, Set default Intrusivity status
 	Gui, add, edit, xm+30 ym+450%gui_control_options% -VScroll r1 ReadOnly vlIsIntrusive_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["lIsIntrusive_StandUpBot"]
-	gui, add, text, xm+30 ym+490, Set # of allowed State Toggles
-	Gui, add, edit, xm+30 ym+510%gui_control_options% -VScroll r1 ReadOnly vAllowedTogglesCount_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["vAllowedTogglesCount"]
+	if vAllowDirectEditOfStateToggles_StandUpBot
+	{
+		gui, add, text, xm+30 ym+490, Set # of allowed State Toggles
+		Gui, add, edit, xm+30 ym+510%gui_control_options% -VScroll r1 ReadOnly vAllowedTogglesCount_StandUpBot_Original, % IniObj["Original Settings StandUpBot"]["vAllowedTogglesCount"]
+	}
 	Gui, tab
 	Gui, font, s7 cWhite, Verdana
-	Gui, add, Text,x25 y572, StandUpBot v.%VN% Author: %AU%    ; offset to last edit field: 62 in y, 0 in x
-	Gui, add, Text,x25 y584, requires Restart     ; offset to previous text: 12 in y, 0 in x 
+	if vAllowDirectEditOfStateToggles_StandUpBot
+	{
+		Gui, add, Text,x25 y572, StandUpBot v.%VN% Author: %AU%    ; offset to last edit field: 62 in y, 0 in x
+		Gui, add, Text,x25 y584, requires Restart     ; offset to previous text: 12 in y, 0 in x 
+	}
+	Else
+	{
+		Gui, add, Text,x25 y512, StandUpBot v.%VN% Author: %AU%    ; offset to last edit field: 62 in y, 0 in x
+		Gui, add, Text,x25 y524, requires Restart     ; offset to previous text: 12 in y, 0 in x 
+	}
+	; Gui, add, Text,x25 yp+62, StandUpBot v.%VN% Author: %AU%    ; offset to last edit field: 62 in y, 0 in x
+	; Gui, add, Text,x25 y, requires Restart     ; offset to previous text: 12 in y, 0 in x 
 	Gui, show,autosize,%A_ThisLabel% 
 }
 return
