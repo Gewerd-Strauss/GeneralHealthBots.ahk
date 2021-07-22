@@ -32,6 +32,8 @@ Create or remove a shortcut in the Autostart-folder. Note that this is currently
 
 ## Overview 2
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Overview.jpeg?raw=true)
+dd
+![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Overview.jpeg?raw=true)
 
 ## Settings
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_ActiveBackup.jpg?raw=true)
@@ -85,7 +87,7 @@ ___
 
 ___
 ### Overview over factory default settings 
-The following settings are set by default at first initiation. These are also the settings a respective bot reverts to when one presses the _Reset_-button:
+The following settings are set by default at first initiation. The settings in the "Settings"-columns are also the settings a respective bot reverts to when one presses the _Reset_-button:
 
 #### Basic Settings
    | StayHydratedBot| Settings | Backup |
