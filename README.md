@@ -1,3 +1,11 @@
+Checklist v.2.3.9.4::
+- [x] code - uploaded
+- [ ] documentation 50%
+- [ ] supplementary files (Settings-files, FileVersions-Files)
+- [ ] proofing all
+- [ ] known bug: the arrows indicating which state `StandUpBot` is in do not survive the download from github. This is a formatting problem with UTF-8, can and will be changed once I am done with checking for other bugs. 
+
+
 # GeneralHealthBots.ahk v.2.3.3.4
 
 This is a small script for setting independent reminders to drink and switch from a sitting to a standing working position and back. Originally, this was only intended to be a locally run analogue of the [Stay_Hydrated_Bot](https://www.twitch.tv/stay_hydrated_bot/about) on twitch. 
@@ -6,7 +14,7 @@ However, as I am myself suffering from a bad posture as a result of way too much
 ## Overview 1
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Overview2.jpeg?raw=true)
 
-![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Overview.jpeg)
+
 
 ## Open Script Folder
 
@@ -138,6 +146,20 @@ Deactivate the notification and sound played whenever the timer goes off. Note t
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
 
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
+
+## Toggle Position - X
+
+This button is exclusive to StandUpBot, and is best explained by an example.
+
+Assume you have been asked to stand at 1100 sharp, your period is set to 50 minutes. After 15 minutes standing, you decide to switch back to sitting again. 
+Here, you can then "convert" the remainder of your standing-period to a sitting-period. 
+
+**However**, as it is currently implemented, this completely inverses the state assumed by the bot. As a result, after the 35 minutes you have spent sitting again, you will be asked to **stand up**. At this point, the bot will continue with the normal period as before you have used this feature.
+
+In order to not completely annul the point of this whole thing, usage of the feature is restricted to X uses, and editing the setting requires a little bit of work.
+In addition, the respective setting can't be directly edited. For doing so, open the Ini-file under A_ScriptDir/GeneralHealthBots/GeneralhealthBot.ini.
+Within said file, edit the setting `vAllowDirectEditOfStateToggles_StandUpBot` to true/1. It is found within the `metaSettings`-section.
+After that is changed, you can access the gui-edit fields under the "Advanced"-settings of StandUpBot.
 
 
 ## Intrusive
