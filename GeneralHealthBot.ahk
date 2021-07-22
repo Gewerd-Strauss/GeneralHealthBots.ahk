@@ -1240,8 +1240,17 @@ return
 
 
 /* Changelog
+
+
 	Changelog prior to v.2.3.9.4 not written.
 	Changelog
+	
+	v.2.1.20.4 || ?
+	- First Test autouptade
+	
+	v.2.3.3.4 || ??
+	- First fully finished instance, updating via the included means not recommended until the entire script-folder (or at least your custom files and the settings-file) is backed up. 
+	
 	v.2.3.9.4 || 22.07.2021
 	- added the ability to change the position assumed by StandUpBot for the reminder of the current period. 
 	
