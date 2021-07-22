@@ -5,6 +5,7 @@ However, as I am myself suffering from a bad posture as a result of way too much
 
 ## Overview 1
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Overview2.jpeg?raw=true)
+![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Overview2.jpeg?raw=true)
 
 ## Open Script Folder
 
