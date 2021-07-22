@@ -59,6 +59,7 @@
 				, 	bStandingPosition: 0
 				, 	bNotifyIcons: 1
 				, 	lIsIntrusive_StandUpBot: 0
+				, 	vAllowedTogglesCount: 3
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	IniSections ["Backup Settings StandUpBot"]
@@ -75,6 +76,7 @@
 				, 	bStandingPosition: 0
 				, 	bNotifyIcons: 1
 				, 	lIsIntrusive_StandUpBot: 0
+				, 	vAllowedTogglesCount: 3
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	IniSections ["Original Settings StandUpBot"]
@@ -91,6 +93,7 @@
 				, 	bStandingPosition: 0
 				, 	bNotifyIcons: 1
 				, 	lIsIntrusive_StandUpBot: 0
+				, 	vAllowedTogglesCount: 3
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%

@@ -1,5 +1,6 @@
 f_CreateTrayMenu_Bots(IniObj)
 {
+	global vAllowedTogglesCount
 	VNI=1.0.0.6
 	menu, tray, add,
 	Menu, Misc, add, Open Script-folder, lOpenScriptFolder
@@ -23,6 +24,7 @@ f_CreateTrayMenu_Bots(IniObj)
 		;menu, StandUpBot, add, Restart, lRestartBot_StandUpBot
 		menu, StandUpBot, add, Pause, lPause_StandUpBot
 		menu, StandUpBot, add, Set Timer, lSetCurrentDelay_StandUpBot
+		menu, StandUpBot, add, Toggle Position - , lToggleCurrentPosition_StandUpBot
 		menu, StandUpBot, add, Intrusive, lToggleBotIntrusive_StandUpBot
 		menu, StandUpBot, add, HUD, lToggleBotHUD_StandUpBot
 		menu, StandUpBot, add, Sound, lToggleBotAudio_StandUpBot

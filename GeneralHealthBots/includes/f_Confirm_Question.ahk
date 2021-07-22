@@ -1,4 +1,4 @@
-﻿f_Confirm_Question(Question,AU,VN)
+﻿f_Confirm_Question(Question,AU,VN,BttnYes:="Yes",BttnNo:="No")
 {
 	VNI=1.0.0.3
 	Gui, cQ: new
@@ -20,8 +20,8 @@
 	Gui, cQ: Color, 1d1f21, 373b41, 
 	Gui, cQ: Font, s11 cWhite, Segoe UI 
 	Gui, cQ: add, text,xm ym, %Question%
-	Gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion, &Yes
-	Gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion, &No
+	Gui, cQ: add, button, xm+20 ym+50 w30 gConfirmQuestion_f_ConfirmQuestion, &%BttnYes%
+	Gui, cQ: add, button, xm+170 ym+50 w30 gDenyQuestion_f_ConfirmQuestion, &%BttnNo%
 	Gui, cQ: Font, s7 cWhite, Verdana
 	Gui, cQ: Add, Text,x25, Version: %VN%	Author: %AU% 
 	yc:=0
@@ -35,7 +35,7 @@
 	Gui, cQ: show,autosize  x%NewXGui% y%NewYGui%, CQ%A_ThisLabel%
 	Gui, cQ: show,autosize, CQ%A_ThisLabel%
 	winactivate, CQ
-	sleep, 200
+	sleep, 200	
 	WinWaitClose, CQ%A_ThisLabel%
 	return answer
 	
