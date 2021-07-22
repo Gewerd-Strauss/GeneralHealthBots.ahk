@@ -6,6 +6,8 @@ Checklist v.2.3.9.4::
 - [ ] known bug: the arrows indicating which state `StandUpBot` is in do not survive the download from github. This is a formatting problem with UTF-8, can and will be changed once I am done with checking for other bugs. 
 
 
+Note that unless the version of the title below is updated to the version of the Checklist, you should not download an instance of this. There are a few bugs left to kill, and I foolishly didn't push this to a beta-branch first. Hence, the main branch is currently minimally buggy, and may not work entirely. 
+
 # GeneralHealthBots.ahk v.2.3.3.4
 
 This is a small script for setting independent reminders to drink and switch from a sitting to a standing working position and back. Originally, this was only intended to be a locally run analogue of the [Stay_Hydrated_Bot](https://www.twitch.tv/stay_hydrated_bot/about) on twitch. 
