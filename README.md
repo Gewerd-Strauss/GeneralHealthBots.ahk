@@ -199,3 +199,11 @@ Other mentions:
 * anonymous1184's [help for solving the .wav-file bug in soundplay for me](https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3)
 * maestrith's [messageboxfunction](https://www.autohotkey.com/boards/viewtopic.php?t=60522) 
     (I could not find an original link on github for it specifically.) The code itself is not used in the project, but it was a tremendous help when creating it.
+
+
+___
+
+# Known Bugs
+
+* Scaling of the confirm-reload-gui when editing settings is off. This is caused by no effective scaling on text size within f_Confirm_Question. Low priority
+* double-left-clicking the tray-icon still opens the script-inspector^[Or whatever the window showing the most recently executed lines is called.]
