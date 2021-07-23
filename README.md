@@ -110,7 +110,7 @@ The following settings are set by default at first initiation. The settings in t
    | :-----------------|:-------------:|:-----:|
    | AudioFile-Path Up |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
    | AudioFile-Path Down|A_ScriptDir\GeneralHealthBots\beep-02.mp3|see "Settings"
-   | Default reminder Time (min)|90|120|
+   | Default reminder Time (min)|30|60|
    | Default Notification Time (ms)|4000 |see "Settings"|
    
 #### Advanced Settings
