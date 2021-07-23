@@ -59,6 +59,9 @@ IniObj:=f_ReadBackSettings_StayHydratedBot()
 ;}_____________________________________________________________________________________
 ;{ Tray Menu___________________________________________________________________________
 f_CreateTrayMenu_Bots(IniObj)
+menu, tray, disable, StayHydratedBot
+menu, tray, disable, StandUpBot
+menu, tray, disable, Miscellaneous
 OnMessage(0x404, "f_TrayIconSingleClickCallBack")
 if bRunNotify
 {
@@ -69,9 +72,6 @@ vAllowedTogglesCount:=lIsIntrusive_StandUpBot:=lIsIntrusive_StayHydratedBot:=vMi
 PauseStatus_StandUpBot:=0
 PauseStatus_StayHydratedBot:=0
 gosub, Submit_StayHydratedBot
-menu, tray, disable, StayHydratedBot
-menu, tray, disable, StandUpBot
-menu, tray, disable, Miscellaneous
 gosub, Submit_StayHydratedBot
 sleep, 3000
 gosub, Submit_StandUpBot
