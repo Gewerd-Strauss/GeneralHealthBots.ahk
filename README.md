@@ -133,17 +133,17 @@ The "Original" Settings are never edited, ever.
 
 **Note that this option is only available in the gui according to the steps outlined under ["Toggle Position"](#toggle-position---x)
 
-## 2. Pause
+## Pause
 
 Deactivate the notification and sound played whenever the timer goes off. Note that the timer itself continues running, however it will not execute any code when it triggers.
 
-## 3. Set Timer
+## Set Timer
 
 Set the respective time inbetween reminders, in minutes. This time will not be reused after restarting the bot again. For that, look at [Settings](#settings).
 
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Set_Timer.jpeg?raw=true)
 
-## 4. Toggle Position - X
+## Toggle Position - X
 
 This button is exclusive to StandUpBot, and is best explained by an example.
 
@@ -158,12 +158,12 @@ Within said file, edit the setting `vAllowDirectEditOfStateToggles_StandUpBot` t
 After that is changed, you can access the gui-edit fields under the "Advanced"-settings of StandUpBot.
 
 
-## 5. Intrusive
+## Intrusive
 
 By default, the bot will use _notify_ by maestrith to inform users. By checking or setting the _Intrusive_-setting, a gui will be created to notify the user. Press Enter to close the gui. While active, the next iteration  of the respective timer will not be started. 
 
 
-## 6. HUD & Sound
+## HUD & Sound
 Toggle wether or not a HUD or Sound is used to notify the user when the timer goes off.
 Note that pausing the bot has the same effect as unchecking both "HUD" and "Sound" for the respective bot. 
 Functionally this also just prohibits the respective aspect from triggering, the timer itself doesn't stop.
