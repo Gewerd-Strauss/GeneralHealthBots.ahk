@@ -1,5 +1,5 @@
 Checklist v.2.3.9.4::
-- [ ] code - uploaded
+- [x] code - uploaded
 - [ ] documentation 50% (missing: left-click trayicon stuff)
 - [ ] supplementary files (Settings-files, FileVersions-Files)
 - [ ] proofing all
