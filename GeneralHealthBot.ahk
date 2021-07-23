@@ -11,7 +11,7 @@
 	Code may or may not be heavily edited, in that case the original code has been added as well.
 	______
 */
-	
+
 ; Default sounds queried from: 
 ; https://freesound.org/people/puneet222/sounds/349174/
 
@@ -1220,8 +1220,8 @@ return
 
 
 /* Changelog
-
-
+	
+	
 	Changelog prior to v.2.3.9.4 not written.
 	Changelog
 	
