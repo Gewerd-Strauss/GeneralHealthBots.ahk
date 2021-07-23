@@ -43,8 +43,8 @@
 				, 	lIsIntrusive_StayHydratedBot: 0
 				, 	HUDStatus_StayHydratedBot: 1
 				, 	SoundStatus_StayHydratedBot: 1}
-				
-				
+	
+	
 	IniSections ["Settings StandUpBot"]
 			:= {  	sFullFilePathToAudioFileUp_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
 				, 	sFullFilePathToAudioFileDown_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-02.mp3"
@@ -96,32 +96,35 @@
 				, 	lIsIntrusive_StandUpBot: 0
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
-	CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%
-	if FileExist(CheckFilePathIniRead) ; read back settings from IniFile
+	
+	IniSections ["metaSettings"]
+			:= {		vAllowDirectEditOfStateToggles_StandUpBot: "0" }
+CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%
+if FileExist(CheckFilePathIniRead) ; read back settings from IniFile
+{
+	if ResetSHB
 	{
-		if ResetSHB
-		{
-			IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
-			IniObj["Settings StayHydratedBot"]:=IniSections["Settings StayHydratedBot"]
-			IniObj["Backup Settings StayHydratedBot"]:=IniSections["Backup Settings StayHydratedBot"]
-			IniObj["Original Settings StayHydratedBot"]:=IniSections["Original Settings StayHydratedBot"]
-			f_WriteINI_Bots(IniObj,ScriptName)
-		}
-		if ResetSUB
-		{
-			IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
-			IniObj["Settings StandUpBot"]:=IniSections["Settings StandUpBot"]
-			IniObj["Backup Settings StandUpBot"]:=IniSections["Backup Settings StandUpBot"]
-			IniObj["Original Settings StandUpBot"]:=IniSections["Original Settings StandUpBot"]
-			f_WriteIni_Bots(IniObj,FileNameIniRead) ; this does work
-		}
 		IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
+		IniObj["Settings StayHydratedBot"]:=IniSections["Settings StayHydratedBot"]
+		IniObj["Backup Settings StayHydratedBot"]:=IniSections["Backup Settings StayHydratedBot"]
+		IniObj["Original Settings StayHydratedBot"]:=IniSections["Original Settings StayHydratedBot"]
+		f_WriteINI_Bots(IniObj,ScriptName)
 	}
-	Else 							; set default-settings in case ini-file doesn't exist
+	if ResetSUB
 	{
-		f_WriteINI_Bots(IniSections, ScriptName)
-		IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this works
+		IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
+		IniObj["Settings StandUpBot"]:=IniSections["Settings StandUpBot"]
+		IniObj["Backup Settings StandUpBot"]:=IniSections["Backup Settings StandUpBot"]
+		IniObj["Original Settings StandUpBot"]:=IniSections["Original Settings StandUpBot"]
+		f_WriteIni_Bots(IniObj,FileNameIniRead) ; this does work
 	}
-	return IniObj
+	IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this does work
+}
+Else 							; set default-settings in case ini-file doesn't exist
+{
+	f_WriteINI_Bots(IniSections, ScriptName)
+	IniObj:=f_ReadINI_Bots(FileNameIniRead) ; this works
+}
+return IniObj
 }
 
