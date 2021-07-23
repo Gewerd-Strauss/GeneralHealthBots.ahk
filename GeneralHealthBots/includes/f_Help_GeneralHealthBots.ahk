@@ -3,8 +3,7 @@ f_Help_GeneralHealthBots(AU,VN)
 	VNI=1.0.0.8
 	global GitPageURLComponents
 	global LocalValues
-	f_ToggleOffAllGuiHotkeys()
-	Gui, destroy
+	f_DestroyGuis()
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
@@ -34,19 +33,19 @@ f_Help_GeneralHealthBots(AU,VN)
 	lLinkCheckforUpdates:
 	{
 		f_UpdateRoutine()
-		Gui, destroy
+		f_DestroyGuis()
 	}
 	return
 	lLinkDocumentation:					;**
 	{
 		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk
-		Gui, destroy
+		f_DestroyGuis()
 	}
 	return
 	lLinkReportABug:					;**
 	{
 		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/issues/new
-		Gui, destroy
+		f_DestroyGuis()
 	}
 	return
 }

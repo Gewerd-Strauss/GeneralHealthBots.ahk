@@ -10,8 +10,8 @@
 	
 	Code may or may not be heavily edited, in that case the original code has been added as well.
 	______
-	
 */
+	
 ; Default sounds queried from: 
 ; https://freesound.org/people/puneet222/sounds/349174/
 
@@ -26,14 +26,15 @@ SetTitleMatchMode, 2
 ;#Warn All ; Enable warnings to assist with detecting common errors.
 ;DetectHiddenWindows, On
 ;SetKeyDelay -1
-;{ General Information for file management_____________________________________________
+
+;{General Information for file management______________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss 
 VN=2.3.9.4                                                                     
 LE=22 Juli 2021 10:07:49                               
 PublicVersionNumber=1.0.7.1
-;}_____________________________________________________________________________________
-; Initialise 
+;}
+;{Initialise Updater-variables_________________________________________________________
 vUserName:="Gewerd-Strauss"
 vProjectName:="GeneralHealthBots.ahk"
 vFileName:="GeneralHealthBot.ahk"	; added testing stuff so I don't have to use this 
@@ -44,29 +45,16 @@ LocalValues:=[]
 GitPageURLComponents:=[]
 LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile]
 GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
-	;sFullFilePathToAudioFile_StayHydratedBotDown:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFileDown_StayHydratedBot	; extract values for notify
-	;sFullFilePathToAudioFile_StayHydratedBotUp:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFileUp_StayHydratedBot	; extract values for notify
-
+;}
+;{Autorun Section______________________________________________________________________
 OnMessage(0x404, "AHK_NOTIFYICON")
-; FolderStructIniFileRelativeToMainScript is the path of the versioning-file, NOT the ini-file storing the script settings.
-;______________________________________________________________________________________
-;______________________________________________________________________________________
-;{#[Autorun Section]
 if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
-{
-	bRunNotify:=0
-	vsdb:=1
-}
+	bRunNotify:=!vsdb:=1
 else
-{
-	bRunNotify:=1 	; otherwise 
-	vsdb:=0
-}
-;strLegend=Bot|Time|min     |S|H "`n"
+	bRunNotify:=!vsdb:=0
 ;}_____________________________________________________________________________________
 ;{ Load Settings from Ini-File_________________________________________________________
 IniObj:=f_ReadBackSettings_StayHydratedBot()
-; m(Iniobj)
 
 ;}_____________________________________________________________________________________
 ;{ Tray Menu___________________________________________________________________________
@@ -77,18 +65,20 @@ if bRunNotify
 	notify().AddWindow("Startup",{Title:"General Health Bots",TitleColor:"0xFFFFFF",Time:1000,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15}) ; 
 	sleep,1100
 }
-vMinutes_StandUpBot_Temp:="empty"
-vMinutes_StayHydratedBot_Temp:="empty"
-lIsIntrusive_StayHydratedBot:="empty"
-lIsIntrusive_StandUpBot:="empty"
+vAllowedTogglesCount:=lIsIntrusive_StandUpBot:=lIsIntrusive_StayHydratedBot:=vMinutes_StayHydratedBot_Temp:=vMinutes_StandUpBot_Temp:="empty"
 PauseStatus_StandUpBot:=0
 PauseStatus_StayHydratedBot:=0
-vAllowedTogglesCount:="empty"
+gosub, Submit_StayHydratedBot
+menu, tray, disable, StayHydratedBot
+menu, tray, disable, StandUpBot
+menu, tray, disable, Miscellaneous
 gosub, Submit_StayHydratedBot
 sleep, 3000
 gosub, Submit_StandUpBot
 sleep, 3000
-
+menu, tray, enable, StayHydratedBot
+menu, tray, enable, StandUpBot
+menu, tray, enable, Miscellaneous
 return
 ;}_____________________________________________________________________________________
 ;{ GuiEscape/GuiSubmit_________________________________________________________________
@@ -98,11 +88,10 @@ GuiEscape_AboutStayHydratedBot:		;**
 {
 	f_UnstickModKeys()
 	f_DestroyGuis()
-	Gui, destroy 
 }
 return 
 
-Submit_StayHydratedBot: 				;**
+Submit_StayHydratedBot: 					;**
 {
 	sFullFilePathToAudioFile_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot	; extract values for notify
 	sNotifyMessagePause_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sNotifyMessagePause_StayHydratedBot
@@ -124,7 +113,7 @@ Submit_StayHydratedBot: 				;**
 	vNotificationTimeInMilliSeconds_StayHydratedBot:=IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot
 	HUDStatus_StayHydratedBot:=IniObj["Settings StayHydratedBot"].HUDStatus_StayHydratedBot
 	Gui, Submit
-	Gui, destroy
+	f_DestroyGuis()
 	if (vMinutes_StayHydratedBot_Temp!="empty")
 	{
 		vMinutes_StayHydratedBot:=vMinutes_StayHydratedBot_Temp
@@ -138,7 +127,7 @@ Submit_StayHydratedBot: 				;**
 		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
 	Else
 		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	SetTimer,PlayTune_StayHydratedBot, %vTimerPeriod_StayHydratedBot%
 	Menu,Tray,Tip, %outputStr%
 	if SoundStatus_StayHydratedBot
@@ -153,7 +142,7 @@ Submit_StayHydratedBot: 				;**
 return
 
 
-Submit_StandUpBot: 					;**
+Submit_StandUpBot: 						;**
 {
 	sFullFilePathToAudioFileUp_StandUpBot:=IniObj["Settings StandUpBot"].sFullFilePathToAudioFileUp_StandUpBot ; extract values for notify
 	sFullFilePathToAudioFileDown_StandUpBot:=IniObj["Settings StandUpBot"].sFullFilePathToAudioFileDown_StandUpBot ; extract values for notify
@@ -186,7 +175,7 @@ Submit_StandUpBot: 					;**
 	else
 		sCurrentPosition:="↓"
 	Gui, Submit
-	Gui, destroy
+	f_DestroyGuis()
 	if (vMinutes_StandUpBot_Temp!="empty")
 	{
 		vMinutes_StandUpBot:=vMinutes_StandUpBot_Temp
@@ -201,7 +190,7 @@ Submit_StandUpBot: 					;**
 	Else
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	SetTimer,PlayTune_StandUpBot, %vTimerPeriod_StandUpBot%
 	Menu,Tray,Tip,%outputStr%
 	if SoundStatus_StandUpBot
@@ -222,7 +211,7 @@ f_Help_GeneralHealthBots(AU,VN)
 return
 
 lOpenScriptFolder:					;**
-run, %A_ScriptDir%
+run, % A_ScriptDir
 return
 
 lReload:							;**
@@ -232,7 +221,7 @@ Reload
 return
 
 
-lSetCurrentDelay_StayHydratedBot:		;**
+lSetCurrentDelay_StayHydratedBot:			;**
 { 
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
@@ -249,7 +238,7 @@ lSetCurrentDelay_StayHydratedBot:		;**
 } 
 return
 
-lSetCurrentDelay_StandUpBot:			;**
+lSetCurrentDelay_StandUpBot:				;**
 {
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
@@ -263,7 +252,6 @@ lSetCurrentDelay_StandUpBot:			;**
 	Gui, font, s7 cWhite, Verdana
 	Gui, add, Text,x25, Version: %VN%	Author: %AU% 
 	Gui, show,autosize, %A_ThisLabel% 
-	
 }
 return 
 
@@ -300,13 +288,13 @@ lToggleBotHUD_StandUpBot:			;***
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	else
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
 return
 
 
-lToggleBotAudio_StayHydratedBot:		;***
+lToggleBotAudio_StayHydratedBot:			;***
 {
 	SoundStatus_StayHydratedBot:=!SoundStatus_StayHydratedBot
 	menu, StayHydratedBot, ToggleCheck, Sound
@@ -325,7 +313,7 @@ lToggleBotAudio_StayHydratedBot:		;***
 }
 return
 
-lToggleBotAudio_StandUpBot:			;***
+lToggleBotAudio_StandUpBot:				;***
 {
 	SoundStatus_StandUpBot:=!SoundStatus_StandUpBot
 	menu, StandUpBot, ToggleCheck, Sound
@@ -345,7 +333,7 @@ lToggleBotAudio_StandUpBot:			;***
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	Else
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
 return
@@ -371,7 +359,7 @@ lToggleBotIntrusive_StayHydratedBot:	;***
 		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
 	Else
 		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
 return
@@ -396,24 +384,24 @@ lToggleBotIntrusive_StandUpBot:		;***
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	Else
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
 return
 
 
-lToggleCurrentPosition_StandUpBot:		;***
+lToggleCurrentPosition_StandUpBot:				;***
 {
 	global bStandingposition
 	d:=f_UpdateTrayMenu_Bots(vAllowedTogglesCount)
-	bstandold:=bStandingposition
+	;bstandold:=bStandingposition
 	ltoggleCurrentPositionFlag:=true
 	gosub, PlayTune_StandUpBot
 }
 return
 
 
-PlayTune_StayHydratedBot: 			;***
+PlayTune_StayHydratedBot: 				;***
 {
 	if !PauseStatus_StayHydratedBot
 	{
@@ -436,14 +424,14 @@ PlayTune_StayHydratedBot: 			;***
 			strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
 		Else
 			strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-		outputStr:=strLegend strSHB "`n" strSUB
+		outputStr:= strSHB "`n" strSUB
 		Menu,Tray,Tip,%outputStr%
 		Settimer, RemoveToolTip,-500 
 	}
 }
 return
 
-PlayTune_StandUpBot: 				;***
+PlayTune_StandUpBot: 					;***
 {
 	if !PauseStatus_StandUpBot
 	{
@@ -486,7 +474,7 @@ PlayTune_StandUpBot: 				;***
 			strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 		else
 			strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
-		outputStr:=strLegend strSHB "`n" strSUB
+		outputStr:= strSHB "`n" strSUB
 		Menu,Tray,Tip,%outputStr%
 		Settimer, RemoveToolTip,-500 
 	}
@@ -524,7 +512,7 @@ lPause_StayHydratedBot:				;***
 		Menu, StayHydratedBot, Uncheck, Pause
 		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
 	}
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 	sleep, 20
 	Menu,Tray,Tip,%outputStr%
@@ -538,13 +526,14 @@ return
 lPause_StandUpBot:  				;***
 {
 	PauseStatus_StandUpBot:=!PauseStatus_StandUpBot
-	
 	if PauseStatus_StandUpBot
 	{
 		if bRunNotify
 			Notify().AddWindow(sNotifyMessagePause_StandUpBot,{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 		menu, StandUpBot, UnCheck, Sound
 		menu, StandUpBot, UnCheck, HUD
+		menu, StandUpBot, UnCheck, Intrusive
+		menu, StandUpBot, Disable, Intrusive
 		menu, StandUpBot, Disable, Sound
 		menu, StandUpBot, Disable, HUD
 		menu, StandUpBot, Check, Pause
@@ -560,10 +549,13 @@ lPause_StandUpBot:  				;***
 		if HUDStatus_StandUpBot
 			menu, StandUpBot, Check, HUD
 		menu, StandUpBot, Enable, HUD
+		if lIsIntrusive_StandUpBot
+			menu, StandUpBot, Check, Intrusive
+		menu, StandUpBot, Enable, Intrusive
 		menu, StandUpBot, UnCheck, Pause
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot
 	}
-	outputStr:=strLegend strSHB "`n" strSUB
+	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 	sleep, 20
 	Menu,Tray,Tip,%outputStr%
@@ -574,9 +566,9 @@ lPause_StandUpBot:  				;***
 }
 return
 
-lEditSettings_StandUpBot:			;**
+lEditSettings_StandUpBot:				;**
 {
-	Gui, destroy
+	f_DestroyGuis()
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
@@ -625,9 +617,9 @@ lEditSettings_StandUpBot:			;**
 }
 return
 
-lEditSettings_StayHydratedBot:		;**
+lEditSettings_StayHydratedBot:			;**
 {
-	Gui, destroy
+	f_DestroyGuis()
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
@@ -670,11 +662,11 @@ lEditSettings_StayHydratedBot:		;**
 return
 
 
-lSwapActiveBackupAdvanced_StandUpBot:			;**
-lSwapActiveBackup_StandUpBot:					;**
+lSwapActiveBackupAdvanced_StandUpBot:				;**
+lSwapActiveBackup_StandUpBot:						;**
 {
-	Gui, destroy
 	Gui, submit
+	f_DestroyGuis()
 	f_UnstickModKeys()
 	/*
 				; this is the code-idea for partial swaps, instead of swapping entire settings. I am currently not setting this, as long as I am not having a settings-setting to control it. 
@@ -699,8 +691,7 @@ lSwapActiveBackup_StandUpBot:					;**
 				;IniObj["Backup Settings StandUpBot"].vDefaultTimeInMinutes_StandUpBot:=vDefaultTimeInMinutes_StandUpBot_Active
 				;IniObj["Backup Settings StandUpBot"].vNotificationTimeInMilliSeconds_StandUpBot:=vNotificationTimeInMilliSeconds_StandUpBot_Active
 	*/
-	vTempActiveINISettings_StandUpBot:=[]
-	vTempBackupINISettings_StandUpBot:=[]
+	vTempActiveINISettings_StandUpBot:=vTempBackupINISettings_StandUpBot:=[]
 	vTempActiveINISettings_StandUpBot:=IniObj["Settings StandUpBot"].clone()
 	vTempBackupINISettings_StandUpBot:=IniObj["Backup Settings StandUpBot"].clone()
 	IniObj["Settings StandUpBot"]:=vTempBackupINISettings_StandUpBot
@@ -715,14 +706,13 @@ lSwapActiveBackup_StandUpBot:					;**
 }
 return
 
-lSwapActiveBackupAdvanced_StayHydratedBot:		;**
-lSwapActiveBackup_StayHydratedBot:				;**
+lSwapActiveBackupAdvanced_StayHydratedBot:			;**
+lSwapActiveBackup_StayHydratedBot:					;**
 {
-	Gui, destroy
 	Gui, submit
+	f_DestroyGuis()
 	f_UnstickModKeys()
-	vTempActiveINISettings_StayHydratedBot:=[]
-	vTempBackupINISettings_StayHydratedBot:=[]
+	vTempActiveINISettings_StayHydratedBot:=vTempBackupINISettings_StayHydratedBot:=[]
 	vTempActiveINISettings_StayHydratedBot:=IniObj["Settings StayHydratedBot"].clone()
 	vTempBackupINISettings_StayHydratedBot:=IniObj["Backup Settings StayHydratedBot"].clone()
 	IniObj["Settings StayHydratedBot"]:=vTempBackupINISettings_StayHydratedBot
@@ -740,32 +730,25 @@ return
 
 lRestoreActiveBackup_StandUpBot:				;**
 {
-	Gui, cQ: destroy
-	Gui, destroy
-	answer:=f_Confirm_Question("Do you want to reset the settings?",AU,VN)
-	if (answer="1")
+	f_DestroyGuis()
+	if f_Confirm_Question("Do you want to reset the settings for this bot?",AU,VN)
 	{
 		IniObj:=f_ReadBackSettings_StayHydratedBot(0,1)
 		if bRunNotify
-			Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StandUpBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StandUpBot})
+			Notify().AddWindow("Resetting 'Active' and 'Passive' settings",{Title:sNotifyMessageDown_StandUpBot,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
+		Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:})
 		sleep, 1300
 		gosub, Submit_StandUpBot
 	}
 	else	; reactivate previous hotkeys.
-	{
-		Gui, cQ: destroy
-		Gui, destroy
 		gosub, lEditSettings_StandUpBot
-	}
 }
 return
 
 lRestoreActiveBackup_StayHydratedBot:			;**
 {
-	Gui, cQ: destroy
-	Gui, destroy
-	answer:=f_Confirm_Question("Do you want to reset the settings?",AU,VN)
-	if (answer="1")
+	f_DestroyGuis()
+	if f_Confirm_Question("Do you want to reset the settings for this bot?",AU,VN)
 	{
 		IniObj:=f_ReadBackSettings_StayHydratedBot(1,0)
 		if bRunNotify
@@ -774,18 +757,14 @@ lRestoreActiveBackup_StayHydratedBot:			;**
 		gosub, Submit_StayHydratedBot
 	}
 	else
-	{
-		Gui, cQ: destroy
-		Gui, destroy
 		gosub, lEditSettings_StayHydratedBot
-	}
 }
 return
 
 
 lEditAdvancedSettings_StandUpBot:		;**
 {
-	Gui, destroy
+	f_DestroyGuis()
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
@@ -870,14 +849,12 @@ lEditAdvancedSettings_StandUpBot:		;**
 		Gui, add, Text,x25 y512, StandUpBot v.%VN% Author: %AU%    ; offset to last edit field: 62 in y, 0 in x
 		Gui, add, Text,x25 y524, requires Restart     ; offset to previous text: 12 in y, 0 in x 
 	}
-	; Gui, add, Text,x25 yp+62, StandUpBot v.%VN% Author: %AU%    ; offset to last edit field: 62 in y, 0 in x
-	; Gui, add, Text,x25 y, requires Restart     ; offset to previous text: 12 in y, 0 in x 
 	Gui, show,autosize,%A_ThisLabel% 
 }
 return
 lEditAdvancedSettings_StayHydratedBot:	;**
 {
-	Gui, destroy
+	f_DestroyGuis()
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, Margin, 16, 16
 	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
@@ -938,10 +915,10 @@ lEditAdvancedSettings_StayHydratedBot:	;**
 return
 
 
-SubmitChangedSettings_StayHydratedBot: 	;**
+SubmitChangedSettings_StayHydratedBot: 		;**
 {
 	Gui, submit
-	Gui, destroy
+	f_DestroyGuis()
 	f_UnstickModKeys()
 		; active
 	if PathToNewFileNew_StayHydratedBot_Active
@@ -977,10 +954,10 @@ SubmitChangedSettings_StayHydratedBot: 	;**
 }
 return
 
-SubmitChangedSettings_StandUpBot:		;**
+SubmitChangedSettings_StandUpBot:			;**
 {
 	Gui, submit
-	Gui, destroy
+	f_DestroyGuis()
 	f_UnstickModKeys()
 		; active 
 	if PathToNewFileNew_StandUpBotUp_Active
@@ -1021,10 +998,10 @@ SubmitChangedSettings_StandUpBot:		;**
 return
 
 
-SubmitChangedAdvancedSettings_StayHydratedBot: ;__
+SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
 {
 	Gui, submit
-	Gui, destroy
+	f_DestroyGuis()
 	f_UnstickModKeys()
 	bNotifyIcons_StayHydratedBot_Active:=bNotifyIcons_StayHydratedBot_Active+0
 	HUDStatus_StayHydratedBot_Active:=HUDStatus_StayHydratedBot_Active+0
@@ -1067,10 +1044,10 @@ SubmitChangedAdvancedSettings_StayHydratedBot: ;__
 		Reload
 }
 
-SubmitChangedAdvancedSettings_StandUpBot: ;__
+SubmitChangedAdvancedSettings_StandUpBot: 		;**
 {
 	Gui, submit
-	Gui, destroy
+	f_DestroyGuis()
 	f_UnstickModKeys()
 	HUDStatus_StandUpBot_Active:=HUDStatus_StandUpBot_Active+0
 	SoundStatus_StandUpBot_Active:=SoundStatus_StandUpBot_Active+0
@@ -1132,6 +1109,10 @@ RemoveToolTip_StayHydratedBot: 		;**
 Tooltip,
 return
 ;}______________________________________________________________________________________
+;{ Hotkeys_____________________________________________________________________________
+
+
+
 #IfWinactive, lHelp_StayHydratedBot
 Esc:: 
 gosub, GuiEscape_AboutStayHydratedBot
@@ -1216,8 +1197,8 @@ return
 Enter:: 
 gosub, SubmitChangedSettings_StandUpBot
 return
-
-;{ INCLUDE_____________________________________________________________________________
+;}
+;{ Includes____________________________________________________________________________
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_AddStartupToggleToTrayMenu.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_AlertUserIntrusive.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_Confirm_Question.ahk
@@ -1229,7 +1210,6 @@ return
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_OnExit_StayHydratedBot.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_ReadBackSettings_StayHydratedBot.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_ReadINI_Bots.ahk
-#Include %A_ScriptDir%\GeneralHealthBots\includes\f_ToggleOffAllGuiHotkeys.ahk 	; not used right now, as is obsolete
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_TrayIconSingleClickCallBack.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_UnstickModKeys.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_UpdateTrayMenu_Bots.ahk
@@ -1261,3 +1241,5 @@ return
 	further before being observed. Only that the timer is not updated. Your new position of "standing" 
 	will only be assumed for the rest of the initial period, after which the opposite position is assumed 
 	again for an entire period.
+	
+	- all submenus are disabled if until bots are activated to prevent weird preemptive user behaviour to fuck stuff up.

@@ -1,5 +1,6 @@
 ﻿f_UpdateTrayMenu_Bots(vAllowedTogglesCount)
 {
+	VNI:=1.0.0.14
 	static Callnum
 	static Count
 	Count:=vAllowedTogglesCount-Callnum
