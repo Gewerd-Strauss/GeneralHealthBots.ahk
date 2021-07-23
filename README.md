@@ -133,9 +133,13 @@ The following settings are set by default at first initiation. The settings in t
    | Notify-Title|StandUpBot|see "Settings"
    | Starting Position|0/Sitting|see "Settings"
    | Intrusive|0|see "Settings"
+   | State Toggles**|3|See "Settings"
+
    
 As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings. However, feel free to edit them to your heart's content.
-The "Original" Settings are never edited, ever. 
+The "Original" Settings are never edited, ever.
+
+**Note that this option is only available in the gui according to the steps outlined under ["Toggle Position"](#toggle-position---x)
 
 ## Pause
 
