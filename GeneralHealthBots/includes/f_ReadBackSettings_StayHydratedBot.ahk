@@ -43,13 +43,13 @@
 				, 	lIsIntrusive_StayHydratedBot: 0
 				, 	HUDStatus_StayHydratedBot: 1
 				, 	SoundStatus_StayHydratedBot: 1}
-	
-	
+				
+				
 	IniSections ["Settings StandUpBot"]
 			:= {  	sFullFilePathToAudioFileUp_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
 				, 	sFullFilePathToAudioFileDown_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-02.mp3"
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
-				,    vDefaultTimeInMinutes_StandUpBot: 	90
+				,    vDefaultTimeInMinutes_StandUpBot: 	30
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
 				, 	sNotifyTitle_StandUpBot: "StandUpBot"
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
@@ -57,16 +57,16 @@
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
 				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
+				, 	vAllowedTogglesCount: 3
 				, 	bNotifyIcons: 1
 				, 	lIsIntrusive_StandUpBot: 0
-				, 	vAllowedTogglesCount: 3
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	IniSections ["Backup Settings StandUpBot"]
 			:= {  	sFullFilePathToAudioFileUp_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
 				, 	sFullFilePathToAudioFileDown_StandUpBot: 	"A_ScriptDir\GeneralHealthBots\beep-02.mp3"
 				, 	sPathToNotifyPicture_StandUpBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
-				,    vDefaultTimeInMinutes_StandUpBot: 	120
+				,    vDefaultTimeInMinutes_StandUpBot: 	60
 				, 	vNotificationTimeInMilliSeconds_StandUpBot: 4000
 				, 	sNotifyTitle_StandUpBot: "StandUpBot"
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
@@ -74,9 +74,9 @@
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
 				,	sNotifyMessageResumet_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
+				, 	vAllowedTogglesCount: 3
 				, 	bNotifyIcons: 1
 				, 	lIsIntrusive_StandUpBot: 0
-				, 	vAllowedTogglesCount: 3
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	IniSections ["Original Settings StandUpBot"]
@@ -91,9 +91,9 @@
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
 				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
+				, 	vAllowedTogglesCount: 3
 				, 	bNotifyIcons: 1
 				, 	lIsIntrusive_StandUpBot: 0
-				, 	vAllowedTogglesCount: 3
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
 	CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%

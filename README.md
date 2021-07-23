@@ -1,14 +1,4 @@
-Checklist v.2.3.9.4::
-- [ ] code - uploaded
-- [ ] documentation 50% (missing: left-click trayicon stuff)
-- [ ] supplementary files (Settings-files, FileVersions-Files)
-- [ ] proofing all
-- [ ] known bug: the arrows indicating which state `StandUpBot` is in do not survive the download from github. This is a formatting problem with UTF-8, can and will be changed once I am done with checking for other bugs. 
-
-
-Note that unless the version of the title below is updated to the version of the Checklist, you should not download an instance of this. There are a few bugs left to kill, and I foolishly didn't push this to a beta-branch first. Hence, the main branch is currently minimally buggy, and may not work entirely. 
-
-# GeneralHealthBots.ahk v.2.3.3.4
+# GeneralHealthBots.ahk v.2.3.9.4
 
 This is a small script for setting independent reminders to drink and switch from a sitting to a standing working position and back. Originally, this was only intended to be a locally run analogue of the [Stay_Hydrated_Bot](https://www.twitch.tv/stay_hydrated_bot/about) on twitch. 
 However, as I am myself suffering from a bad posture as a result of way too much time hunched over in front of a pc, this script will double as a reminder to regularly stand up and sit down again as well. Both bots can be used completely independent of each other.
@@ -111,8 +101,8 @@ The following settings are set by default at first initiation. The settings in t
    | StandUpBot| Settings | Backup |
    | :-----------------|:-------------:|:-----:|
    | AudioFile-Path Up |A_ScriptDir\GeneralHealthBots\beep-01a.mp3|see "Settings"
-   | AudioFile-Path dwn|A_ScriptDir\GeneralHealthBots\beep-02.mp3|see "Settings"
-   | Default reminder Time (min)|90|120|
+   | AudioFile-Path Down|A_ScriptDir\GeneralHealthBots\beep-02.mp3|see "Settings"
+   | Default reminder Time (min)|30|60|
    | Default Notification Time (ms)|4000 |see "Settings"|
    
 #### Advanced Settings
@@ -135,9 +125,13 @@ The following settings are set by default at first initiation. The settings in t
    | Notify-Title|StandUpBot|see "Settings"
    | Starting Position|0/Sitting|see "Settings"
    | Intrusive|0|see "Settings"
+   | State Toggles**|3|See "Settings"
+
    
 As both the "normal" as well as the "advanced" settings are switched alongside one another when one presses _Swp_, I have decided against providing two different sets of advanced settings. In addition, they affect minor things, compared to the normal settings. However, feel free to edit them to your heart's content.
-The "Original" Settings are never edited, ever. 
+The "Original" Settings are never edited, ever.
+
+**Note that this option is only available in the gui according to the steps outlined under ["Toggle Position"](#toggle-position---x)
 
 ## 2. Pause
 
