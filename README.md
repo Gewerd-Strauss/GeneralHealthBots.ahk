@@ -1,6 +1,6 @@
 Checklist v.2.3.9.4::
 - [x] code - uploaded
-- [ ] documentation 50% (missing: left-click trayicon stuff)
+- [ ] documentation 50% (missing: left-click trayicon stuff, adjusting default settings)
 - [ ] supplementary files (Settings-files, FileVersions-Files)
 - [ ] proofing all
 - [ ] known bug: the arrows indicating which state `StandUpBot` is in do not survive the download from github. This is a formatting problem with UTF-8, can and will be changed once I am done with checking for other bugs. 
