@@ -200,9 +200,6 @@ Other mentions:
 * maestrith's [messageboxfunction](https://www.autohotkey.com/boards/viewtopic.php?t=60522) 
     (I could not find an original link on github for it specifically.) The code itself is not used in the project, but it was a tremendous help when creating it.
 
-
-___
-
 # Known Bugs
 
 * Scaling of the confirm-reload-gui when editing settings is off. This is caused by no effective scaling on text size within f_Confirm_Question. Low priority
