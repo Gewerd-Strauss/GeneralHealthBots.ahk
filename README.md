@@ -37,7 +37,7 @@ Create or remove a shortcut in the Autostart-folder. Note that this is currently
 dd
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Overview.jpeg?raw=true)
 
-## 1. Settings
+## Settings
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SHB_Submenu_Settings_ActiveBackup.jpg?raw=true)
 ![alt text](https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/blob/main/Github%20Help%20Pictures/SUB_Submenu_Settings_Othr_StandUpBot.jpeg)
 
