@@ -1,6 +1,6 @@
 f_Help_GeneralHealthBots(AU,VN)
 {
-	VNI=1.0.0.8
+	VNI=1.0.1.8
 	global GitPageURLComponents
 	global LocalValues
 	f_DestroyGuis()
@@ -38,14 +38,14 @@ f_Help_GeneralHealthBots(AU,VN)
 	return
 	lLinkDocumentation:					;**
 	{
-		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk
 		f_DestroyGuis()
+		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk
 	}
 	return
 	lLinkReportABug:					;**
 	{
-		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/issues/new
 		f_DestroyGuis()
+		run, https://github.com/Gewerd-Strauss/GeneralHealthBots.ahk/issues/new
 	}
 	return
 }
