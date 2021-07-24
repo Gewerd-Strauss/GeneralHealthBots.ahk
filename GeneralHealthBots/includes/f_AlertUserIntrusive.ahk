@@ -1,6 +1,6 @@
 ﻿f_AlertUserIntrusive(AlertText,AU,VN)
 {
-	VNI=1.0.0.2
+	VNI=1.0.1.2
 	Gui, AlUs: new
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 	Gui, AlUs: Margin, 16, 16
