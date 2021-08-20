@@ -193,7 +193,7 @@ Autohotkey-code used within this script:
 * wolf_II's [INI-file object maker functions](https://www.autohotkey.com/boards/viewtopic.php?p=256940#p256940)
 * Exaskryz' [solution to adding a startup-toggle to a menu](https://www.autohotkey.com/boards/viewtopic.php?p=176247#p176247)
 * jNizM's [HasVal](https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173)
-
+* SKAN's [NotifyTrayClick](https://www.autohotkey.com/boards/viewtopic.php?t=81157)
 
 Other mentions:
 * anonymous1184's [help for solving the .wav-file bug in soundplay for me](https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3)
@@ -204,3 +204,8 @@ Other mentions:
 
 * Scaling of the confirm-reload-gui when editing settings is off. This is caused by no effective scaling on text size within f_Confirm_Question. Low priority
 * double-left-clicking the tray-icon still opens the script-inspector^[Or whatever the window showing the most recently executed lines is called.]
+
+
+___
+
+# Changelog
