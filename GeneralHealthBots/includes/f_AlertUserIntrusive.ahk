@@ -12,6 +12,8 @@
 	Gui, AlUs: Add, Text,x25, Version: %VN%	Author: %AU% 
 	Gui, AlUs: show,autosize ,AU%A_ThisFunc%
 	winactivate, AlUs
+	sleep, 20
+	winactivate, AlUs
 	WinWaitClose, AU%A_ThisFunc%
 	return
 }

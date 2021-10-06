@@ -4,10 +4,12 @@
 	author: Gewerd Strauss, https://github.com/Gewerd-Strauss
 	
 	Code by others:	
-	WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
 	Notify | maestrith | https://github.com/maestrith/Notify
+	WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+	Startup-Toggle | Exaskryz | https://www.autohotkey.com/boards/viewtopic.php?p=176247#p176247
+	HasVal | jNizM | https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
+	NotifyTrayClick | SKAN | https://www.autohotkey.com/boards/viewtopic.php?t=81157
 	f_ConvertRelativeWavPath_StayHydratedBot | u/anonymous1184 | https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
-	
 	Code may or may not be heavily edited, in that case the original code has been added as well.
 	______
 */
@@ -27,40 +29,61 @@ SetTitleMatchMode, 2
 ;DetectHiddenWindows, On
 ;SetKeyDelay -1
 
-;{General Information for file management______________________________________________
+;{ 01. General Information for file management_________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss 
-VN=2.3.10.4                                                                    
-LE=24 Juli 2021 12:18:29                               
+VN=2.3.11.4                                                                    
+LE=14 August 2021 11:59:04                              
 PublicVersionNumber=1.0.7.1
 ;}
-;{Initialise Updater-variables_________________________________________________________
+;{ 02. Initialise Updater-variables____________________________________________________
 vUserName:="Gewerd-Strauss"
 vProjectName:="GeneralHealthBots.ahk"
 vFileName:="GeneralHealthBot.ahk"	; added testing stuff so I don't have to use this 
 FolderStructIncludesRelativeToMainScript:="GeneralHealthBots/includes/"
 FolderStructIniFileRelativeToMainScript:="GeneralHealthBots/FileVersions/FileVersions GeneralHealthBot.ini"
 FolderOfVersioningFile:="GeneralHealthBots/FileVersions"
+ExcludedFolders:=[]
+ExcludedFolders:=["AHK-Studio Backup","PrivateMusic"]
 LocalValues:=[]
 GitPageURLComponents:=[]
-LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile]
+LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile,ExcludedFolders]
 GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
 ;}
-;{Autorun Section______________________________________________________________________
+;{ 03. Autorun Section_________________________________________________________________
 if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
-	bRunNotify:=!vsdb:=1
+	global bRunNotify:=!vsdb:=1
 else
-	bRunNotify:=!vsdb:=0
-;}_____________________________________________________________________________________
-;{ Load Settings from Ini-File_________________________________________________________
-IniObj:=f_ReadBackSettings_StayHydratedBot()
-;}_____________________________________________________________________________________
-;{ Tray Menu___________________________________________________________________________
-f_CreateTrayMenu_Bots(IniObj)
-menu, tray, disable, StayHydratedBot
-menu, tray, disable, StandUpBot
-menu, tray, disable, Miscellaneous
+	global bRunNotify:=!vsdb:=0
+global sAdmin_PC:="DESKTOP-FH4RU5C"
+global lDevelopmentFlag:=0
+NotifyTrayClick(DllCall("GetDoubleClickTime")) ; Handle double left click on tray events and prevent them to open the script history
 OnMessage(0x404, "f_TrayIconSingleClickCallBack")
+;}____________________________________________________________________________________
+;{ 04. Load Settings from Ini-File_____________________________________________________
+SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	FileNameIniRead2:=ScriptName . "_new Structure.ini"
+IniObj:=f_ReadINI_Bots(FileNameIniRead)
+IniObj2:=f_ReadINI_Bots(FileNameIniRead2)
+
+; IniObj:=f_ReadBackSettings_StayHydratedBot()	
+
+;}_____________________________________________________________________________________
+;{ 05. Tray Menu_______________________________________________________________________
+f_CreateTrayMenu_Bots(IniObj)
+sPathToStartupPicture_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(IniObj["Settings StayHydratedBot"].sPathToStartupPicture_StayHydratedBot)
+if FileExist(sPathToStartupPicture_StayHydratedBot)
+	menu, tray, icon, %sPathToStartupPicture_StayHydratedBot%
+; - code: can't make GUI resizable, since this is only possible with hard
+;  
+if (A_ComputerName==sAdmin_PC) and !lDevelopmentFlag ; toggle to add development buttons easier. 
+{
+	menu, tray, disable, StayHydratedBot ;function, ;hence inside the g-label subroutines. 
+	menu, tray, disable, StandUpBot
+	menu, tray, disable, Miscellaneous
+	
+}
 if bRunNotify
 {
 	notify().AddWindow("Startup",{Title:"General Health Bots",TitleColor:"0xFFFFFF",Time:1000,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15}) ; 
@@ -70,16 +93,27 @@ vAllowedTogglesCount:=lIsIntrusive_StandUpBot:=lIsIntrusive_StayHydratedBot:=vMi
 PauseStatus_StandUpBot:=0
 PauseStatus_StayHydratedBot:=0
 gosub, Submit_StayHydratedBot
-gosub, Submit_StayHydratedBot
-sleep, 3000
+if bRunNotify
+	sleep, % (vNotificationTimeInMilliSeconds_StayHydratedBot + 10) ; set the offset according to the set timer period.
 gosub, Submit_StandUpBot
-sleep, 3000
+if bRunNotify
+	sleep, % (vNotificationTimeInMilliSeconds_StandUpBot + 10)
 menu, tray, enable, StayHydratedBot
 menu, tray, enable, StandUpBot
 menu, tray, enable, Miscellaneous
+sPathToNotifyPicture_StayHydratedBot:=f_ConvertRelativePath(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
+if FileExist(sPathToNotifyPicture_StayHydratedBot)
+	menu, tray, icon, %sPathToNotifyPicture_StayHydratedBot%
+if lDevelopmentFlag
+	gosub, lSettingsOverall ; development Pst_wordwrap_Updater
+
+return
+
+NotifyTrayClick_203:
+menu, tray, show
 return
 ;}_____________________________________________________________________________________
-;{ GuiEscape___________________________________________________________________________
+;{ 06. GuiEscape_______________________________________________________________________
 GuiEscape_StandUpBot:				;**
 GuiEscape_StayHydratedBot:			;**
 GuiEscape_AboutStayHydratedBot:		;**
@@ -89,8 +123,9 @@ GuiEscape_AboutStayHydratedBot:		;**
 }
 return 
 ;}_____________________________________________________________________________________
-;{ Tray Menu linked Labels_____________________________________________________________
-;{ 1. General Labels___________________________________________________________________
+;{ 07. Tray Menu linked Labels_________________________________________________________
+;{ 07.1 General Labels_________________________________________________________________
+;Numpad0::
 lHelp_StayHydratedBot:				;**
 f_Help_GeneralHealthBots(AU,VN)
 return
@@ -109,8 +144,18 @@ RemoveToolTip_StandUpBot:			;**
 RemoveToolTip_StayHydratedBot: 		;**
 Tooltip,
 return
+
+lSettingsOverall:
+IniSettingsEditor("GeneralHealthBots","GeneralHealthBots\GeneralHealthBot_new Structure.ini",OwnedBy = 0,DisableGui = 0)
+
+return
+lEditSettingsOverall:
+lChooseFile:=false
+FedFile:= A_ScriptDir . "\GeneralHealthBots\GeneralHealthBot_new Structure.ini"
+#Include %A_MyDocuments%\AutoHotkey\Lib\IniFileCreator_v8.ahk
+return
 ;}
-;{ 2. SHB Labels_______________________________________________________________________
+;{ 07.2 SHB Labels_____________________________________________________________________
 Submit_StayHydratedBot: 					;**
 {
 	sFullFilePathToAudioFile_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot	; extract values for notify
@@ -380,6 +425,7 @@ lRestoreActiveBackup_StayHydratedBot:			;**
 		gosub, lEditSettings_StayHydratedBot
 }
 return
+;Numpad0::
 lEditAdvancedSettings_StayHydratedBot:	;**
 {
 	f_DestroyGuis()
@@ -402,25 +448,29 @@ lEditAdvancedSettings_StayHydratedBot:	;**
 	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  vSoundStatus_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
 	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
 	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNotifyPicture_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+250, Set Notify-Title
-	Gui, add, edit, xm+30 ym+270%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+310, Show Icons on notify: 1/0
-	Gui, add, edit, xm+30 ym+330%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["bNotifyIcons"]
-	gui, add, text, xm+30 ym+370, Set default Intrusivity status
-	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+250, Set a new Path (Startup-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+270%gui_control_options% -VScroll -Tab r3 vsPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sPathToStartupPicture_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+350, Set Notify-Title
+	Gui, add, edit, xm+30 ym+370%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+410, Show Icons on notify: 1/0
+	Gui, add, edit, xm+30 ym+430%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["bNotifyIcons"]
+	gui, add, text, xm+30 ym+470, Set default Intrusivity status
+	Gui, add, edit, xm+30 ym+490%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
 	Gui, tab, Backup
 	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
 	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll vHUDStatus_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
 	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
 	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  vSoundStatus_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
 	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32%
-	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNo tifyPicture_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+250, Set Notify-Title
-	Gui, add, edit, xm+30 ym+270%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+310, Show Icons on notify: 1/0
-	Gui, add, edit, xm+30 ym+330%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["bNotifyIcons"]
-	gui, add, text, xm+30 ym+370, Set default Intrusivity status
-	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
+	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNotifyPicture_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+250, Set a new Path (Startup-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+270%gui_control_options% -VScroll -Tab r3 vsPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sPathToStartupPicture_StayHydratedBot"]	
+	Gui, add, text, xm+30 ym+350, Set Notify-Title
+	Gui, add, edit, xm+30 ym+370%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+410, Show Icons on notify: 1/0
+	Gui, add, edit, xm+30 ym+430%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["bNotifyIcons"]
+	gui, add, text, xm+30 ym+470, Set default Intrusivity status
+	Gui, add, edit, xm+30 ym+490%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
 	Gui, tab, Original
 	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
 	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll ReadOnly vHUDStatus_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
@@ -428,16 +478,18 @@ lEditAdvancedSettings_StayHydratedBot:	;**
 	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  ReadOnly vSoundStatus_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
 	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32%
 	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 ReadOnly vsPathToNotifyPicture_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+250, Set Notify-Title
-	Gui, add, edit, xm+30 ym+270%gui_control_options% -VScroll r1 ReadOnly vsNotifyTitle_StayHydratedBot_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+310, Show Icons on notify: 1/0
-	Gui, add, edit, xm+30 ym+330%gui_control_options% -VScroll r1 ReadOnly vbNotifyIcons_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["bNotifyIcons"]
-	gui, add, text, xm+30 ym+370, Set default Intrusivity status
-	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1  ReadOnly vlIsIntrusive_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+250, Set a new Path (Startup-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+270%gui_control_options% -VScroll -Tab r3 ReadOnly vsPathToStartupPicture_StayHydratedBot_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sPathToStartupPicture_StayHydratedBot"]		
+	Gui, add, text, xm+30 ym+350, Set Notify-Title
+	Gui, add, edit, xm+30 ym+370%gui_control_options% -VScroll r1 ReadOnly vsNotifyTitle_StayHydratedBot_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+410, Show Icons on notify: 1/0
+	Gui, add, edit, xm+30 ym+430%gui_control_options% -VScroll r1 ReadOnly vbNotifyIcons_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["bNotifyIcons"]
+	gui, add, text, xm+30 ym+470, Set default Intrusivity status
+	Gui, add, edit, xm+30 ym+490%gui_control_options% -VScroll r1  ReadOnly vlIsIntrusive_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
 	Gui, tab
 	Gui, font, s7 cWhite, Verdana
-	Gui, add, Text,x25 y452, StayHydratedBot v.%VN% Author: %AU%     
-	Gui, add, Text,x25 y464, requires Restart     
+	Gui, add, Text,x25 y552, StayHydratedBot v.%VN% Author: %AU%     
+	Gui, add, Text,x25 y564, requires Restart     
 	Gui, show,autosize, %A_ThisLabel% 
 }
 return
@@ -481,6 +533,7 @@ SubmitChangedSettings_StayHydratedBot: 		;**
 return
 SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
 {
+	
 	Gui, submit
 	f_DestroyGuis()
 	f_UnstickModKeys()
@@ -503,6 +556,8 @@ SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
 		IniObj["Settings StayHydratedBot"].lIsIntrusive_StayHydratedBot:=lIsIntrusive_StayHydratedBot_Active
 	if sPathToNotifyPicture_StayHydratedBot_Active
 		IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot:=sPathToNotifyPicture_StayHydratedBot_Active
+	if sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active
+		IniObj["Settings StayHydratedBot"].sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active:=sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active
 	if sNotifyTitle_StayHydratedBot_StayHydratedBot_Active
 		IniObj["Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot:=sNotifyTitle_StayHydratedBot_StayHydratedBot_Active
 		; backup 
@@ -516,6 +571,8 @@ SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
 		IniObj["Backup Settings StayHydratedBot"].lIsIntrusive_StayHydratedBot:=lIsIntrusive_StayHydratedBot_Backup
 	if sPathToNotifyPicture_StayHydratedBot_Backup
 		IniObj["BackupSettings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot:=sPathToNotifyPicture_StayHydratedBot_Backup
+	if sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup
+		IniObj["Settings StayHydratedBot"].sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup:=sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup
 	if sNotifyTitle_StayHydratedBot_StayHydratedBot_Backup
 		IniObj["Backup Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot:=sNotifyTitle_StayHydratedBot_StayHydratedBot_Backup
 	SplitPath, A_ScriptName,,,, ScriptName
@@ -526,7 +583,7 @@ SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
 }
 
 ;}
-;{ 3. SUB Labels_______________________________________________________________________
+;{ 07.3 SUB Labels_____________________________________________________________________
 Submit_StandUpBot: 						;**
 {
 	sFullFilePathToAudioFileUp_StandUpBot:=IniObj["Settings StandUpBot"].sFullFilePathToAudioFileUp_StandUpBot ; extract values for notify
@@ -1072,12 +1129,19 @@ SubmitChangedAdvancedSettings_StandUpBot: 		;**
 return
 
 ;}
-;{ 4. LAB Labels_______________________________________________________________________
+;{ 07.4 LAB Labels_____________________________________________________________________
 	; preparation.
 ;}
 ;}_____________________________________________________________________________________
-;{ Hotkeys_____________________________________________________________________________
-;{ Hoteys SHB__________________________________________________________________________
+;{ 08. Hotkeys_________________________________________________________________________
+;{ 08.1 General Hoteys_________________________________________________________________
+#IfWinActive, AUf_AlertUserIntrusive
+Enter:: 
+^XButton2::
+Escape::
+Gui, AlUs: destroy
+return
+;{ 08.2 Hoteys SHB_____________________________________________________________________
 #IfWinactive, lHelp_StayHydratedBot
 Esc:: 
 gosub, GuiEscape_AboutStayHydratedBot
@@ -1119,7 +1183,7 @@ return
 
 #IfWinActive, 
 ;}
-;{ Hotkeys SUB_________________________________________________________________________
+;{ 08.3 Hotkeys SUB____________________________________________________________________
 #IfWinActive, lEditSettings_StandUpBot
 Enter:: 
 gosub,SubmitChangedSettings_StandUpBot
@@ -1139,15 +1203,8 @@ return
 #IfWinActive, lRestoreActiveBackup_StandUpBot
 #IfWinActive, lSetCurrentDelay_StandUpBot
 Esc:: 
-ttip()
 gosub, GuiEscape_StandUpBot
 return
-
-#IfWinActive, AUf_AlertUserIntrusive
-Enter:: 
-Gui, AlUs: destroy
-return
-
 
 #IfWinActive, CQlRestoreActiveBackup_StandUpBot
 Esc:: 
@@ -1158,12 +1215,13 @@ return
 Enter:: 
 gosub, SubmitChangedSettings_StandUpBot
 return
+
 ;}
-;{ Hotkeys LAB_________________________________________________________________________
+;{ 08.4 Hotkeys LAB____________________________________________________________________
 	; preparatiun.
 ;}
 ;}_____________________________________________________________________________________
-;{ Includes____________________________________________________________________________
+;{ 09. Includes________________________________________________________________________
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_AddStartupToggleToTrayMenu.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_AlertUserIntrusive.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_Confirm_Question.ahk
@@ -1180,13 +1238,16 @@ return
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_UpdateTrayMenu_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_WriteINI_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\notify.ahk
-
+#Include %A_ScriptDir%\GeneralHealthBots\includes\NotifyTrayClick.ahk
 #Include %A_ScriptDir%\Updater.ahk
+
+
+;#Include 	D:\DokumenteCSA\AutoHotkey\Lib\Func_IniSettingsEditor_v6.ahk
+
 ;}
-;{ Changelog___________________________________________________________________________
+;{ 10. Changelog_______________________________________________________________________
 
 /* Changelog
-	
 	
 	Changelog prior to v.2.3.9.4 not written.
 	Changelog
@@ -1210,3 +1271,20 @@ return
 	
 	- all submenus are disabled if until bots are activated to prevent weird preemptive user behaviour to fuck stuff up.
 	
+	v.2.3.10.4 || 28.07.2021
+	- added functionality to close intrusive notifications by pressing ctrl+Xbutton2
+	
+	v.2.3.11.4 || 20.08.2021
+	- added indicator for the time during which the program is booting up, indicated by the greyed-out tray icon
+	- added option to change said image path to the settings menu of StayHydratedBot, as that bot's notify-icon is used for the tray as well.
+	- double-clicking the tray icon does no longer open the script monitor window displaying recently run lines (whatever that's called)
+	
+	v.2.3.12.4 || 28.08.2021
+	
+	- started rework on moving on to new settings-overview
+	/*
+	
+*/
+;}
+#IfWinNotActive IniFileCreator 8 - Create Ini file for IniSettingsEditor
+;Numpad0:: reload
