@@ -283,6 +283,7 @@ lToggleBotIntrusive_StayHydratedBot:	;***
 return
 PlayTune_StayHydratedBot: 				;***
 {
+	SysGet, vMoncnt, MonitorCount
 	if !PauseStatus_StayHydratedBot
 	{
 		if (StrLen(sFullFilePathToAudioFile_StayHydratedBot) >= 127) and InStr(sFullFilePathToAudioFile_StayHydratedBot,".wav")
@@ -292,9 +293,9 @@ PlayTune_StayHydratedBot: 				;***
 		if HUDStatus_StayHydratedBot
 		{
 			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
-			if bRunNotify and !lIsIntrusive_StayHydratedBot
+			if bRunNotify and (!lIsIntrusive_StayHydratedBot || vMoncnt=1)
 				Notify().AddWindow(sNotifyMessageRemember_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathToNotifyPicture_StayHydratedBot})
-			if lIsIntrusive_StayHydratedBot
+			else if lIsIntrusive_StayHydratedBot
 				f_AlertUserIntrusive(sNotifyMessageRemember_StayHydratedBot,AU,VN)
 		}
 		sTrayTipSHB:=A_Now
@@ -739,6 +740,7 @@ lToggleCurrentPosition_StandUpBot:				;***
 return
 PlayTune_StandUpBot: 					;***
 {
+	SysGet, vMoncnt, MonitorCount
 	if !PauseStatus_StandUpBot
 	{
 		sFullFilePathToAudioFileUp_StandUpBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFileUp_StandUpBot)
@@ -749,7 +751,7 @@ PlayTune_StandUpBot: 					;***
 			Throw, "The Pathlength of the absolute path to the 'Standing-up'-.wav-audiofile is greater than 127 characters. For .wav-files, this is an error of SoundPlay."
 		if bStandingposition ;|| (ltoggleCurrentPositionFlag && !bStandingposition)	; if 1/standing, notify to sit down
 		{
-			if HUDStatus_StandUpBot and bRunNotify and !lIsIntrusive_StandUpBot
+			if HUDStatus_StandUpBot and bRunNotify and (!lIsIntrusive_StandUpBot || vMoncnt=1)
 				Notify().AddWindow(sNotifyMessageDown_StandUpBot,{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathToNotifyPicture_StandUpBot})
 			if SoundStatus_StandUpBot
 				SoundPlay, % sFullFilePathToAudioFileDown_StandUpBot
@@ -760,7 +762,7 @@ PlayTune_StandUpBot: 					;***
 		}
 		else 					; if 0/sitting, notify to stand up
 		{
-			if HUDStatus_StandUpBot and bRunNotify and !lIsIntrusive_StandUpBot
+			if HUDStatus_StandUpBot and bRunNotify and (!lIsIntrusive_StandUpBot || vMoncnt=1)
 				Notify().AddWindow(sNotifyMessageUp_StandUpBot,{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathForNotify_StayHydratedBot})
 			if SoundStatus_StandUpBot
 				SoundPlay, % sFullFilePathToAudioFileUp_StandUpBot
