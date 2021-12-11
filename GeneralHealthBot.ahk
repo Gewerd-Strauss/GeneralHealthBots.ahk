@@ -63,9 +63,23 @@ OnMessage(0x404, "f_TrayIconSingleClickCallBack")
 ;{ 04. Load Settings from Ini-File_____________________________________________________
 SplitPath, A_ScriptName,,,, ScriptName
 	FileNameIniRead:=ScriptName . ".ini"
-	FileNameIniRead2:=ScriptName . "_new Structure.ini"
+;{ 03. Autorun Section_________________________________________________________________
+if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
+	global bRunNotify:=!vsdb:=1
+else
+	global bRunNotify:=!vsdb:=0
+global sAdmin_PC:="DESKTOP-FH4RU5C"
+global lDevelopmentFlag:=0
+NotifyTrayClick(DllCall("GetDoubleClickTime")) ; Handle double left click on tray events and prevent them to open the script history
+OnMessage(0x404, "f_TrayIconSingleClickCallBack")
+OnError("f_RestartScript")
+;}____________________________________________________________________________________
+;{ 04. Load Settings from Ini-File_____________________________________________________
+SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	; FileNameIniRead2:=ScriptName . "_new Structure.ini"
+	if FileExist(FileNameIniRead)
 IniObj:=f_ReadINI_Bots(FileNameIniRead)
-IniObj2:=f_ReadINI_Bots(FileNameIniRead2)
 
 ; IniObj:=f_ReadBackSettings_StayHydratedBot()	
 
@@ -112,16 +126,6 @@ return
 NotifyTrayClick_203:
 menu, tray, show
 return
-;}_____________________________________________________________________________________
-;{ 06. GuiEscape_______________________________________________________________________
-GuiEscape_StandUpBot:				;**
-GuiEscape_StayHydratedBot:			;**
-GuiEscape_AboutStayHydratedBot:		;**
-{
-	f_UnstickModKeys()
-	f_DestroyGuis()
-}
-return 
 ;}_____________________________________________________________________________________
 ;{ 07. Tray Menu linked Labels_________________________________________________________
 ;{ 07.1 General Labels_________________________________________________________________
