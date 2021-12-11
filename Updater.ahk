@@ -1,5 +1,17 @@
 ﻿f_UpdateRoutine(VersionNumberDefStringIncludeScripts:="VNI=",VersionNumberDefMainScript:="VN=",vNumberOfBackups:=0)
 {
+	/*
+		Function in development:
+		TODO:
+		line 74: solve the stupid logical problem.
+		f_CreateBackup: why is this function not working as intended? Needs to: copy all files in directory - save some first-lvl children folders/files named in a str-array, into one subfolder. Don't copy that subfolder
+		
+		create an actually useful error-reporting function:
+		
+		
+		
+		
+	*/
 	; facilitates all subfunctions for pulling updates from a public github repo.
 	; before calling this function, make sure you have the following structure:
 	/*
@@ -12,7 +24,8 @@
 		; afterwards, create the following arrays when calling the function: (Note the peculiarities with FolderOfVersioningFile)
 		LocalValues:=[]
 		GitPageURLComponents:=[]
-		LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile]
+		ExcludedFolders:=[] ; contains strings of all folders that are not to be backed up, being located at the directory of the script this is included into.
+		LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile,ExcludedFolders]
 		GitPageURLComponents:=[vUserName,vProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
 		FolderOfVersioningFile:="GeneralHealthBots/FileVersions" | this is obsolete. For now, insert anything, this value is overwritten with LocalValues[4]
 		
@@ -28,9 +41,21 @@
 		
 		f_UpdateRoutine() is fully written* by Gewerd Strauss: https://github.com/Gewerd-Strauss
 		
-		
+		* except for the following functions:
+		Notify | maestrith | https://github.com/maestrith/Notify
+		WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+		HasVal | jNizM | https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
 	*/
-	global vFullRoutineCheck:=false ; DO NOT change. This is the toggle to give a more detailed warning explanation about what is going on when updating, and that it is instable. Until I have fully tested this (or let someone else test it), I'd much rather have one additional warning and a second confirmation, instead of a potential, unknown catastrophic failure.
+	global lFullRoutineCheck:=false ; DO NOT change. This is the toggle to give a more detailed warning explanation about what is going on when updating, and that it is instable. Until I have fully tested this (or let someone else test it), I'd much rather have one additional warning and a second confirmation, instead of a potential, unknown catastrophic failure.
+	global lManualTestOverride_ExceptWriteSteptsItself:=true ; DO NOT CHANGE. This is a debugging and development toggle to disable the final steps for blocking the filewrites themselves, without blocking any other steps in the entire process.
+	Gui, destroy
+	SetTitleMatchMode, 2
+	WinGetActiveTitle, acttit
+	m(acttit)
+	if WinActive("Visual Studio Code")
+		vsdb:=true ; activate 
+	else 
+		vsdb:=false
 	; add input verification: 
 	; does gitpage connect successfully, 
 	; does gitpage4 contain a valid path on the harddrive
@@ -42,27 +67,33 @@
 	;compared on a line-by-line basis to check if they match everywhere. you could
 	;make this a "cutting edge"-feature (possibly search another git branch for this?
 	;) and ask the user if they want to use experimental versions. Much more prone to
+	; files already in the local version, as well as any that are missing so far. This array will be used to rewrite
+	; the ini-file again, as well as to navigate and download any files missing currently. 
 	;error,  but in theory possible.
-	Gui, destroy
+	
 	vFileCountToUpdate:=0
 	
 	; ReturnPackage[1] contains wether or not the mainfile has an update.
 	; ReturnPackage[2] contains the filenames of all include-files that have updates
-	; ReturnPackage[3] contains the version numbers of all the files within the github directory - that means all the 
-	; files already in the local version, as well as any that are missing so far. This array will be used to rewrite
-	; the ini-file again, as well as to navigate and download any files missing currently. 
+	; ReturnPackage[3] contains the version numbers of all the files within the github directory online. The VN's of the local variants are in 
 	ReturnPackage:=f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,VersionNumberDefMainScript)
-	vFileCountToUpdate:=ReturnPackage[2].Count()
-	if ReturnPackage[1]!=0
-		vFileCountToUpdate++
-	if vFileCountToUpdate!=0 			; MainFile's VN doesn't match → update (insert assume-all function? Not necessary, as each file with unique name is also loggged by vn.)
+	vFileCountToUpdate:=ReturnPackage[2].Count() ; Get the number of all to-be-updated files - as this array will include the MainFile, this number doesn't have to be adjusted for the case the MainScript also has a different VN.
+	if vFileCountToUpdate!=0 			; The VN of at least one file (either MainFile or Include) doesn't match → update (insert assume-all function? Not necessary, as each file with unique name is also loggged by vn.)
 	{
 		lUpdateAsked:=f_Confirm_Question_Updater("Do you want to update?`nNew Version is available",LocalValues[1],LocalValues[2])
-		if lUpdateAsked and vFullRoutineCheck
-			f_PerformManualUpdate(GitPageURLComponents)
+		; MsgBox, % "Var:`n"
+        ; . "lUpdateAsked: " lUpdateAsked "`n"
+        ; . "lFullRoutineCheck: " lFullRoutineCheck "`n"
+        ; . "vsdb: " vsdb "`n"
+		
+		; if lUpdateAsked and (lFullRoutineCheck || vsdb) ; also tested with all kinds of &&,||,and,or...
+		; 	MsgBox, True
+		; else
+		; 	MsgBox, False
+		if lUpdateAsked and (lFullRoutineCheck || vsdb) 
+			f_PerformManualUpdate(ReturnPackage,GitPageURLComponents,VersionNumberDefStringIncludeScripts)
 		else
 			return UpdateCheck:=0 ; user declined
-			;f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,vNumberOfBackups)
 	}
 	else if (lIsDifferent=-1) 	; vn-identifier string not found
 	{
@@ -71,16 +102,23 @@
 		return UpdateCheck:=-1 ; insert notify guis to tell no update is available
 	}
 	else if (lIsDifferent=0) 	; vn's match
+	{
+		if !vsdb
+			Notify().AddWindow("No update available, everything is up to date.",{Title:"Checking for updates.",TitleColor:"0xFFFFFF",Time:1200,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1200,FlashColor:0x5555})
 		return UpdateCheck:=-2
+	}
 	return
 }
 
 f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,VersionNumberDefMainScript:="VN=")
 {
 	; returns:
-	;  0 - match
-	;  1 - don't match
-	; -1 - VersionNumberDefMainScript could not be found 
+	; ReturnPackage[1]:0  - MainScript's VN matches
+	; ReturnPackage[1]:1  - MainScripts's VN doesn't match
+	; ReturnPackage[1]:-1 - MainScripts's VN could not be found
+	; 
+	; ReturnPackage[2]: Array of all include-files (+ MainScript-file if necessary) names that need to be updated.
+	; ReturnPackage[3]: Array of all files OnlineVNs (including those that don't have to be updated)
 	;__________________________________________
 	
 	
@@ -100,6 +138,7 @@ f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringInclude
 	ReadLine := strsplit(whr.ResponseText,"`r`n")
 	vNumel:=ReadLine.length()
 	loop, %vNumel%
+	{
 		if Instr(ReadLine[A_Index],VersionNumberDefMainScript)
 		{
 			vVNOnline:=ReadLine[A_Index]
@@ -113,6 +152,7 @@ f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringInclude
 		}
 		Else
 			VersionDifference_MainScript:=-1
+	}
 	;________________________________________________
 	;________________________________________________
 	; Get Local include version Numbers (VNs)
@@ -139,20 +179,14 @@ f_CheckForUpdates(GitPageURLComponents,LocalValues,VersionNumberDefStringInclude
 	; sure we also catch the files that are new, but for those we cannot assemble the url-string yet, as we would be lacking the filenames. 
 	; Hence, we need to read back the ini-file to get the names of the functions existing on github
 	OnlineVNs:=f_PullOnlineVersionsFromIniFile(GitPageURLComponents)
-	
-	OnlineVNs.Remove("")
 	FilesToDownload:=f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
-	
-	
 	ReturnPackage:=[]
 	ReturnPackage:=[VersionDifference_MainScript,FilesToDownload,OnlineVNs]
 		;Date: 21 Mai 2021 23:00:37: todo tomorrow:  1. verify that my filtering
 		;function does indeed work correctly. 2. write the downloader-fn (which really is
 		;just a https-request linked to a FileOpen/FileClose to properly edit all. Make
 		;sure you have all necessary values passed.)
-	
 	return ReturnPackage
-	
 }
 
 f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
@@ -164,7 +198,6 @@ f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
 		; 2. Loop through the keys of ONLINE arr and check if they exist in the new offline-key-array
 		; 2.1 YES: compare the vn's of that key between both arrays and check if unequal → download
 		; 2.2 NO:  key of an online-fn doesn't exist in the offline-fn, hence the function doesn't exist either. → download to file
-		
 	FilesToDownload:=[]
 	Ind:=1
 	k:=""
@@ -193,12 +226,12 @@ f_CompareVersions(OnlineVNs,OfflineVNs,GitPageURLComponents)
 	return FilesToDownload
 }
 
-f_PerformManualUpdate(GitPageURLComponents)
+f_PerformManualUpdate(ReturnPackage,GitPageURLComponents,VersionNumberDefStringIncludeScripts)
 {
 	global LocalValues
 	lUpdateAsked:=f_Confirm_Question_Updater("Update-Script not fully tested.`nIf you want to take the chance and perform an automatic update,`npress 'Yes', else 'No'.`nYou can then go to the GitHub-page of this script`n(accessible via Miscellaneous->Help->Documentation`n and perform a manual update.`nRemember to reenter your settings via the right gui.)",LocalValues[1],LocalValues[2],0,0)
 	if lUpdateAsked
-		f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,1)
+ 		f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefStringIncludeScripts,1)
 	else
 		run, % "https://github.com/" GitpageURLComponents[1] "/" GitpageURLComponents[2]
 	return
@@ -223,9 +256,8 @@ f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefS
 	; 0. Create Backup
 	if vNumberOfBackups>0
 	{
-		ExcludedFolders:=[]
-		ExcludedFolders:=["AHK-Studio Backup","PrivateMusic"]
-		f_CreateBackup(vNumberOfBackups,ExcludedFolders)
+		m(LocalValues)
+		f_CreateBackup(vNumberOfBackups,LocalValues[5])
 	}
 	; 1. Parse throught ReturnPackage[2]
 	FilesReadFromGitPage:=[]
@@ -248,7 +280,7 @@ f_UpdateFileVersions_File(ReturnPackage)
 
 f_NotifyUserOfUpdates()
 {
-	;m("remember to create the notifyuserofupdates_fn")
+	msgbox, "remember to create the notifyuserofupdates_fn"
 	;Date: 22 Mai 2021 13:34:03: todo: notify what has changed, where the old files
 	;are, etc etc  1. Old files are dropped to 
 }
@@ -260,6 +292,7 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 	FilePathsLocal:=f_AssembleLocalFilePaths(FileNames,GitPageURLComponents[5]) ; this function assembles the local file path for the main script onto the filepath of m.ahk
 	ErrorMsg:=[]
 	Files:=[FileNames,FileTexts,FilePathsLocal,ErrorMsg]
+	
 	for k,v in FilePathsLocal
 	{
 		if FileTexts[k]!="404: Not Found" and FileTexts[k]!="" 
@@ -267,13 +300,13 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 			ThisFunDef=f_UpdateRoutine(VersionNumberDefStringIncludeScripts:="VNI=",VersionNumberDefMainScript:="VN=",vNumberOfBackups:=0)
 			if Instr(FileTexts[k],ThisFunDef) ; precaution to avoid this updater overwriting itself accidentally.
 				continue
-			if  vsdb ;!
+			if  (!vsdb) ;
 			{
 				If !FileExist(v)
 					ErrorMsg.push(0)
 				Else
 					ErrorMsg.push(1)				; File exists, this emsg should honestly not exist.
-					if !vsdb						; safety against overwriting files while debugging, so that I can work on this in a controlled environment. I know the four lines below work, so as longs as my inputs are correct here everything is fine
+					if (!vsdb or !lManualTestOverride_ExceptWriteSteptsItself)						; safety against overwriting files while debugging, so that I can work on this in a controlled environment. I know the four lines below work, so as longs as my inputs are correct here everything is fine
 					{
 						CurrFile:=FileOpen(v,"w") 	; this is a beatiful one-liner that wipes the entire file clean. This is necessary because we need to make sure our replacement isn't destroyed by left-over text from the file before.
 						CurrFile:=FileOpen(v,"rw") 	; actually open the file to write the update to it.
@@ -281,12 +314,11 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 						CurrFile.Close()
 					}
 			}
-			;Files.push(FileExist)
 		}
 		else
 		{
 			ErrorMsg.push(-1)
-			;m("File not found online: Reference exists, file itself does not")
+			msgbox, "File not found "online: Reference exists, file itself does not"
 		}
 	}
 	; write the ini-file new. 
@@ -312,8 +344,8 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 	; IniObj:=f_ReadINI_FileVersions("FileVersions " A_ScriptNameNoExt,FolderVersioningFile)
 	; IniObj["local"]:=ReturnPackage[3]
 	; and now we only have to write the files to the files, duh.
-	if !vsdb000
-		m("f_writeFilesFromArray:`nremember to finish thee notify-msgs")
+	if !vsdb
+		msgbox, "f_writeFilesFromArray:`nremember to finish thee notify-msgs"
 		
 	f_FinishUp(GitPageURLComponents,Files)
 }
@@ -324,12 +356,11 @@ f_FinishUp(GitpageURLComponents,Files)
 	if !Instr(ErrorMessageString,"Error Messages:`n`n`nCreated Files:`n")	; if there was an error, that string will be interrupted, hence we can check against fatal error codes in that way.
 	{
 		f_InformOfNextSteps(ErrorMessageString,XtOffset:=300,YtOffset:=1080)
-		f_Confirm_Question_Updater("Errors occured. Do you want to `nreport the issue on GitHub?",AU,VN)
+		if f_Confirm_Question_Updater("Errors occured. Do you want to `nreport the issue on GitHub?",AU,VN)
+			run, % "https://github.com/" GitPageURLComponents[1] "/" GitPageURLComponents[2]
 	}
 	Else
-	{
 		f_Confirm_Question_Updater("Update successfully installed. Backup created at the backup-folder.`nDo you want to restart the script now?",AU,VN)
-	}
 	
 }
 
@@ -436,7 +467,7 @@ f_PullOnlineVersionsFromIniFile(GitPageURLComponents)
 			lCatchLines:=2
 			RunCount++
 			; if (substr(vNumel))
-			LineReadInd:=A_INdex
+			LineReadInd:=A_Index
 			vVNOnline:=ReadLine[LineReadInd]
 		 	;d:=SubStr(vVNOnline,1,1)
 			;if (d="") 	; this doesn't work, how do I get the fucking string of the thing? ffs. 
@@ -447,14 +478,16 @@ f_PullOnlineVersionsFromIniFile(GitPageURLComponents)
 			; how do I get the contents of vFileName and vVersionNUmberOfFileName into an array?
 			OnlineVNs[vFileName]:=vVersionNumberOfFileName
 		}
-		if Instr(ReadLine[A_Index],"[local]") and ((lCatchLines=false) or (lCatchLines=true))
+		; I know the conditionals below are bogus, I can't figure out why they were designed the way they were. My dumb ass didn't comment on this peculiarity. I've tested it though, it does exactly what it is supposed to do.
+		if Instr(ReadLine[A_Index],"[local]")  and ((lCatchLines=false) or (lCatchLines=true))
 			lCatchLines:=true
-		else if Instr(ReadLine[A_Index] ,"[local end]") and lCatchLines and ((lCatchLines=false) or (lCatchLines=true))		;; remember to edit the ini-write function to add this section at the end as well to signify the end of the include-files-ini-section.
+		else if Instr(ReadLine[A_Index] ,"[local end]")  and lCatchLines and ((lCatchLines=false) or (lCatchLines=true))		;; remember to edit the ini-write function to add this section at the end as well to signify the end of the include-files-ini-section.
 			lCatchLines:=false
 		else
 			if lCatchLines!=2
 				lCatchLines:=false
 	}
+	OnlineVNs.Remove("") ; remove empty trailing entry
 	return OnlineVNs
 }
 
@@ -476,20 +509,25 @@ f_PullLocalVersionsFromIncludeFiles(DirectoryOfIncludeFilesRelativeFromMainFile_
 	return versions
 }
 
-f_CreateBackup(vNumberOfBackups,ExcludeFolders)
+f_CreateBackup(vNumberOfBackups,ExceptedFilesFolders)
 {
 	global vsdb 
 	if vNumberOfBackups>1
 	{
-		m("finish the multi-backup paths.")
+		msgbox, finish the multi-backup paths.
 	}
-	m("implement logic for number of backups")
+	msgbox, implement logic for number of backups
 	SourceCD:=A_ScriptDir ;"\"
-	DestCD:=A_ScriptDir "\UserBackup"
-	loop, files, %A_ScriptDir%
+	DestCD:=A_ScriptDir "\UpdateBackups"
+	; if !FileExist("UpdateBackups")
+	; 	FileCreateDir, UpdateBackups
+	If !InStr(FileExist("UpdateBackups"),"D")
+		FileCreateDir, UpdateBackups
+ 	
+	loop, files, %A_ScriptDir%\* ;"\*"
 	{
-		m(A_LoopFileName)
-		if !HasVal(ExcludeFolders,A_LoopFileName)
+		msgbox, % A_LoopFileName
+		if !HasVal(ExceptedFilesFolders,A_LoopFileName)
 			FileCopyDir, A_LoopFileFullPath, %DestCD%
 	}
 	if !vsdb
@@ -660,7 +698,7 @@ f_InformOfNextSteps(H,XtOffset:=300,YtOffset:=400)
 {
 	x:=A_ScreenWidth-XtOffset
 	y:=A_ScreenHeight-YtOffset
-	tooltip, % st_wordwrap_InformOfNextSteps(H), (A_ScreenWidth-XtOffset),(A_ScreenHeight-YtOffset)
+	tooltip, % st_wordwrap_InformOfNextSteps(H), x, y
 	; 1
 }
 

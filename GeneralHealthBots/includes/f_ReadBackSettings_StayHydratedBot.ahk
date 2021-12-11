@@ -7,6 +7,7 @@
 	IniSections ["Settings StayHydratedBot"]
 			:= {  	sFullFilePathToAudioFile_StayHydratedBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
 				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
+				, 	sPathToStartupPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle_setup.PNG"
 				,    vDefaultTimeInMinutes_StayHydratedBot: 	45
 				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
 				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot"
@@ -20,6 +21,7 @@
 	IniSections ["Backup Settings StayHydratedBot"]
 			:= {  	sFullFilePathToAudioFile_StayHydratedBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
 				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
+				, 	sPathToStartupPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle_setup.PNG"
 				,    vDefaultTimeInMinutes_StayHydratedBot: 	90
 				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
 				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot"
@@ -33,6 +35,7 @@
 	IniSections ["Original Settings StayHydratedBot"]
 			:= {  	sFullFilePathToAudioFile_StayHydratedBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
 				, 	sPathToNotifyPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle.PNG"
+				, 	sPathToStartupPicture_StayHydratedBot: "A_ScriptDir\GeneralHealthBots\WaterBottle_setup.PNG"
 				,    vDefaultTimeInMinutes_StayHydratedBot: 	45
 				, 	vNotificationTimeInMilliSeconds_StayHydratedBot: 4000
 				,	sNotifyTitle_StayHydratedBot: "StayHydratedBot"
@@ -72,7 +75,7 @@
 				,	sNotifyMessageUp_StandUpBot: "Remember to stand up."
 				,	sNotifyMessageDown_StandUpBot: "Remember to sit down."
 				,	sNotifyMessagePause_StandUpBot: "Pausing StandUpBot"
-				,	sNotifyMessageResumet_StandUpBot: "Resuming StandUpBot"
+				,	sNotifyMessageResume_StandUpBot: "Resuming StandUpBot"
 				, 	bStandingPosition: 0
 				, 	vAllowedTogglesCount: 3
 				, 	bNotifyIcons: 1

@@ -6,6 +6,11 @@ f_CreateTrayMenu_Bots(IniObj)
 	Menu, Misc, add, Open Script-folder, lOpenScriptFolder
 	menu, Misc, Add, Help, lHelp_StayHydratedBot
 	menu, Misc, Add, Reload, lReload
+	if (A_ComputerName==sAdmin_PC) and lDevelopmentFlag ; toggle to add development buttons easier. 
+	{
+		menu, Misc, Add, New Settings Dialogue (rename later), lSettingsOverall
+		menu, Misc, Add, Edit Settings File , lEditSettingsOverall
+	}
 	SplitPath, A_ScriptName,,,, ScriptName
 	f_AddStartupToggleToTrayMenu(ScriptName,"Misc")
 	Menu, tray, add, Miscellaneous, :Misc

@@ -4,10 +4,12 @@
 	author: Gewerd Strauss, https://github.com/Gewerd-Strauss
 	
 	Code by others:	
-	WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
 	Notify | maestrith | https://github.com/maestrith/Notify
+	WriteINI/ReadINI | wolf_II | adopted from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+	Startup-Toggle | Exaskryz | https://www.autohotkey.com/boards/viewtopic.php?p=176247#p176247
+	HasVal | jNizM | https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
+	NotifyTrayClick | SKAN | https://www.autohotkey.com/boards/viewtopic.php?t=81157
 	f_ConvertRelativeWavPath_StayHydratedBot | u/anonymous1184 | https://www.reddit.com/r/AutoHotkey/comments/myti1k/ihatesoundplay_how_do_i_get_the_string_converted/gvwtwlb?utm_source=share&utm_medium=web2x&context=3
-	
 	Code may or may not be heavily edited, in that case the original code has been added as well.
 	______
 */
@@ -27,42 +29,75 @@ SetTitleMatchMode, 2
 ;DetectHiddenWindows, On
 ;SetKeyDelay -1
 
-;{General Information for file management______________________________________________
+;{ 01. General Information for file management_________________________________________
 ScriptName=StayHydratedBot  
 AU=Gewerd Strauss 
-VN=2.3.9.4                                                                     
-LE=22 Juli 2021 10:07:49                               
+VN=2.3.11.4                                                                    
+LE=14 August 2021 11:59:04                              
 PublicVersionNumber=1.0.7.1
 ;}
-;{Initialise Updater-variables_________________________________________________________
+;{ 02. Initialise Updater-variables____________________________________________________
 vUserName:="Gewerd-Strauss"
 vProjectName:="GeneralHealthBots.ahk"
 vFileName:="GeneralHealthBot.ahk"	; added testing stuff so I don't have to use this 
 FolderStructIncludesRelativeToMainScript:="GeneralHealthBots/includes/"
 FolderStructIniFileRelativeToMainScript:="GeneralHealthBots/FileVersions/FileVersions GeneralHealthBot.ini"
 FolderOfVersioningFile:="GeneralHealthBots/FileVersions"
+ExcludedFolders:=[]
+ExcludedFolders:=["AHK-Studio Backup","PrivateMusic"]
 LocalValues:=[]
 GitPageURLComponents:=[]
-LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile]
+LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningFile,ExcludedFolders]
 GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
 ;}
-;{Autorun Section______________________________________________________________________
-OnMessage(0x404, "AHK_NOTIFYICON")
+;{ 03. Autorun Section_________________________________________________________________
 if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
-	bRunNotify:=!vsdb:=1
+	global bRunNotify:=!vsdb:=1
 else
-	bRunNotify:=!vsdb:=0
-;}_____________________________________________________________________________________
-;{ Load Settings from Ini-File_________________________________________________________
-IniObj:=f_ReadBackSettings_StayHydratedBot()
+	global bRunNotify:=!vsdb:=0
+global sAdmin_PC:="DESKTOP-FH4RU5C"
+global lDevelopmentFlag:=0
+NotifyTrayClick(DllCall("GetDoubleClickTime")) ; Handle double left click on tray events and prevent them to open the script history
+OnMessage(0x404, "f_TrayIconSingleClickCallBack")
+;}____________________________________________________________________________________
+;{ 04. Load Settings from Ini-File_____________________________________________________
+SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+;{ 03. Autorun Section_________________________________________________________________
+if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
+	global bRunNotify:=!vsdb:=1
+else
+	global bRunNotify:=!vsdb:=0
+global sAdmin_PC:="DESKTOP-FH4RU5C"
+global lDevelopmentFlag:=0
+NotifyTrayClick(DllCall("GetDoubleClickTime")) ; Handle double left click on tray events and prevent them to open the script history
+OnMessage(0x404, "f_TrayIconSingleClickCallBack")
+OnError("f_RestartScript")
+;}____________________________________________________________________________________
+;{ 04. Load Settings from Ini-File_____________________________________________________
+SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	; FileNameIniRead2:=ScriptName . "_new Structure.ini"
+	if FileExist(FileNameIniRead)
+IniObj:=f_ReadINI_Bots(FileNameIniRead)
+
+; IniObj:=f_ReadBackSettings_StayHydratedBot()	
 
 ;}_____________________________________________________________________________________
-;{ Tray Menu___________________________________________________________________________
+;{ 05. Tray Menu_______________________________________________________________________
 f_CreateTrayMenu_Bots(IniObj)
-menu, tray, disable, StayHydratedBot
-menu, tray, disable, StandUpBot
-menu, tray, disable, Miscellaneous
-OnMessage(0x404, "f_TrayIconSingleClickCallBack")
+sPathToStartupPicture_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(IniObj["Settings StayHydratedBot"].sPathToStartupPicture_StayHydratedBot)
+if FileExist(sPathToStartupPicture_StayHydratedBot)
+	menu, tray, icon, %sPathToStartupPicture_StayHydratedBot%
+; - code: can't make GUI resizable, since this is only possible with hard
+;  
+if (A_ComputerName==sAdmin_PC) and !lDevelopmentFlag ; toggle to add development buttons easier. 
+{
+	menu, tray, disable, StayHydratedBot ;function, ;hence inside the g-label subroutines. 
+	menu, tray, disable, StandUpBot
+	menu, tray, disable, Miscellaneous
+	
+}
 if bRunNotify
 {
 	notify().AddWindow("Startup",{Title:"General Health Bots",TitleColor:"0xFFFFFF",Time:1000,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15}) ; 
@@ -72,25 +107,59 @@ vAllowedTogglesCount:=lIsIntrusive_StandUpBot:=lIsIntrusive_StayHydratedBot:=vMi
 PauseStatus_StandUpBot:=0
 PauseStatus_StayHydratedBot:=0
 gosub, Submit_StayHydratedBot
-gosub, Submit_StayHydratedBot
-sleep, 3000
+if bRunNotify
+	sleep, % (vNotificationTimeInMilliSeconds_StayHydratedBot + 10) ; set the offset according to the set timer period.
 gosub, Submit_StandUpBot
-sleep, 3000
+if bRunNotify
+	sleep, % (vNotificationTimeInMilliSeconds_StandUpBot + 10)
 menu, tray, enable, StayHydratedBot
 menu, tray, enable, StandUpBot
 menu, tray, enable, Miscellaneous
+sPathToNotifyPicture_StayHydratedBot:=f_ConvertRelativePath(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
+if FileExist(sPathToNotifyPicture_StayHydratedBot)
+	menu, tray, icon, %sPathToNotifyPicture_StayHydratedBot%
+if lDevelopmentFlag
+	gosub, lSettingsOverall ; development Pst_wordwrap_Updater
+
+return
+
+NotifyTrayClick_203:
+menu, tray, show
 return
 ;}_____________________________________________________________________________________
-;{ GuiEscape/GuiSubmit_________________________________________________________________
-GuiEscape_StandUpBot:				;**
-GuiEscape_StayHydratedBot:			;**
-GuiEscape_AboutStayHydratedBot:		;**
-{
-	f_UnstickModKeys()
-	f_DestroyGuis()
-}
-return 
+;{ 07. Tray Menu linked Labels_________________________________________________________
+;{ 07.1 General Labels_________________________________________________________________
+;Numpad0::
+lHelp_StayHydratedBot:				;**
+f_Help_GeneralHealthBots(AU,VN)
+return
 
+lOpenScriptFolder:					;**
+run, % A_ScriptDir
+return
+
+lReload:							;**
+Notify().AddWindow("Reloading.",{Title:"",TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+sleep, 1300
+Reload
+return
+RemoveToolTip:
+RemoveToolTip_StandUpBot:			;**
+RemoveToolTip_StayHydratedBot: 		;**
+Tooltip,
+return
+
+lSettingsOverall:
+IniSettingsEditor("GeneralHealthBots","GeneralHealthBots\GeneralHealthBot_new Structure.ini",OwnedBy = 0,DisableGui = 0)
+
+return
+lEditSettingsOverall:
+lChooseFile:=false
+FedFile:= A_ScriptDir . "\GeneralHealthBots\GeneralHealthBot_new Structure.ini"
+#Include %A_MyDocuments%\AutoHotkey\Lib\IniFileCreator_v8.ahk
+return
+;}
+;{ 07.2 SHB Labels_____________________________________________________________________
 Submit_StayHydratedBot: 					;**
 {
 	sFullFilePathToAudioFile_StayHydratedBot:=IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot	; extract values for notify
@@ -140,8 +209,386 @@ Submit_StayHydratedBot: 					;**
 		Notify().AddWindow("Setting Timer to " vMinutes_StayHydratedBot  " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
 }
 return
+lSetCurrentDelay_StayHydratedBot:			;**
+{ 
+	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
+	Gui, Margin, 16, 16
+	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
+	Gui, Color, 1d1f21, 373b41, 
+	Gui, font, s7 cWhite, Verdana
+	Gui, font, s11 cWhite, Segoe UI 
+	Gui, add, text,xm ym+10,Set Time in minutes till the next`ndrinking reminder
+	Gui, add, Edit, %gui_control_options%  vvMinutes_StayHydratedBot_Temp -VScroll 
+	Gui, add, Button, x-10 y-10 w1 h1 +default gSubmit_StayHydratedBot ; hidden button
+	Gui, font, s7 cWhite, Verdana
+	Gui, add, Text,x25, Version: %VN%	Author: %AU% 
+	Gui, show,autosize, %A_ThisLabel% ; gui_
+} 
+return
+lToggleBotHUD_StayHydratedBot:		;***
+{
+	HUDStatus_StayHydratedBot:=!HUDStatus_StayHydratedBot
+	menu, StayHydratedBot, ToggleCheck, HUD
+	sleep, 20
+	
+	if HUDStatus_StayHydratedBot
+		Notify().AddWindow("HUD Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	else
+		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	if PauseStatus_StayHydratedBot
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
+	Else
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
+}
+return
+lToggleBotAudio_StayHydratedBot:			;***
+{
+	SoundStatus_StayHydratedBot:=!SoundStatus_StayHydratedBot
+	menu, StayHydratedBot, ToggleCheck, Sound
+	sleep, 20
+	if SoundStatus_StayHydratedBot
+		Notify().AddWindow("Audio Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	else
+		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	
+	if PauseStatus_StayHydratedBot
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
+	Else
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
+	outputStr:=strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
+}
+return
+lToggleBotIntrusive_StayHydratedBot:	;***
+{
+	lIsIntrusive_StayHydratedBot:=!lIsIntrusive_StayHydratedBot
+	sleep, 20
+	if lIsIntrusive_StayHydratedBot
+	{
+		menu, StayHydratedBot, Check, Intrusive
+		if bRunNotify
+			Notify().AddWindow("Bot is intrusive now.",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	}
+	else
+	{
+		menu, StayHydratedBot, UnCheck, Intrusive
+		if bRunNotify
+			Notify().AddWindow("Bot behaves normal now.",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	}
+	if PauseStatus_StayHydratedBot
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
+	Else
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
+	outputStr:= strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr%
+}
+return
+PlayTune_StayHydratedBot: 				;***
+{
+	SysGet, vMoncnt, MonitorCount
+	if !PauseStatus_StayHydratedBot
+	{
+		if (StrLen(sFullFilePathToAudioFile_StayHydratedBot) >= 127) and InStr(sFullFilePathToAudioFile_StayHydratedBot,".wav")
+			Throw, "The Pathlength of the absolute path to the .wav-audiofile is greater than 127 characters. For .wav-files, this is an error of SoundPlay."
+		if SoundStatus_StayHydratedBot
+			SoundPlay, % sFullFilePathToAudioFile_StayHydratedBot
+		if HUDStatus_StayHydratedBot
+		{
+			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
+			if bRunNotify and (!lIsIntrusive_StayHydratedBot || vMoncnt=1)
+				Notify().AddWindow(sNotifyMessageRemember_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathToNotifyPicture_StayHydratedBot})
+			else if lIsIntrusive_StayHydratedBot
+				f_AlertUserIntrusive(sNotifyMessageRemember_StayHydratedBot,AU,VN)
+		}
+		sTrayTipSHB:=A_Now
+		EnvAdd, sTrayTipSHB, vMinutes_StayHydratedBot ,Minutes ; add 15 minits
+		FormatTime, sTrayTipSHB, %sTrayTipSHB%, HH:mm:ss tt
+		if PauseStatus_StayHydratedBot
+			strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
+		Else
+			strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
+		outputStr:= strSHB "`n" strSUB
+		Menu,Tray,Tip,%outputStr%
+		Settimer, RemoveToolTip,-500 
+	}
+}
+return
+lPause_StayHydratedBot:				;*** 
+{
+	PauseStatus_StayHydratedBot:=!PauseStatus_StayHydratedBot
+	if PauseStatus_StayHydratedBot
+	{
+		if bRunNotify
+			Notify().AddWindow(sNotifyMessagePause_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+		menu, StayHydratedBot, UnCheck, Sound
+		menu, StayHydratedBot, UnCheck, HUD
+		menu, StayHydratedBot, Disable, Sound
+		menu, StayHydratedBot, Disable, HUD
+		menu, StayHydratedBot, Check, Pause
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
+	}
+	Else
+	{
+		if bRunNotify
+			Notify().AddWindow(sNotifyMessageResume_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+		if SoundStatus_StayHydratedBot
+			menu, StayHydratedBot, Check, Sound
+		menu, StayHydratedBot, Enable, Sound
+		if HUDStatus_StayHydratedBot
+			menu, StayHydratedBot, Check, HUD
+		menu, StayHydratedBot, Enable, HUD
+		Menu, StayHydratedBot, Uncheck, Pause
+		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
+	}
+	outputStr:= strSHB "`n" strSUB
+	Menu,Tray,Tip,%outputStr% ; for unknown reasons, the tray doesn't update if this is performed only once. I have no clue why, but three repeats seems to reliably do it on my system.
+	sleep, 20
+	Menu,Tray,Tip,%outputStr%
+	sleep, 20
+	Menu,Tray,Tip,%outputStr%
+	sleep, 20
+	Menu,Tray,Tip,%outputStr%
+}
+return
+lEditSettings_StayHydratedBot:			;**
+{
+	f_DestroyGuis()
+	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
+	Gui, Margin, 16, 16
+	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
+	Gui, Color, 1d1f21, 373b41, 
+	Gui, add, button, xm+190 w28 ym+1 glSwapActiveBackup_StayHydratedBot, Swp
+	Gui, add, button, xm+223 w28 ym+1 glEditAdvancedSettings_StayHydratedBot, Othr
+	Gui, add, button, xm+256 w28 ym+1 glRestoreActiveBackup_StayHydratedBot, Res
+	Gui, add, text, 
+	Gui, font, s11 cWhite, Segoe UI 
+	Gui, add, text, xm ym-17 w0 h0 ; reposition next elements
+	Gui, add, Tab3,, Active|Backup|Original
+	Gui, font, s11 cWhite, Verdana
+	Gui, tab, Active
+	Gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab r3 vPathToNewFileNew_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
+	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
+	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll  vDefaultTimeInMinutes_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
+	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll  vNotificationTimeInMilliSeconds_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
+	Gui, tab, Backup
+	Gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab r3 vPathToNewFileNew_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
+	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
+	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll  vDefaultTimeInMinutes_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
+	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll  vNotificationTimeInMilliSeconds_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
+	Gui, tab, Original
+	Gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab ReadOnly r3 vPathToNewFileNew_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
+	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
+	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll ReadOnly  vDefaultTimeInMinutes_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
+	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll ReadOnly  vNotificationTimeInMilliSeconds_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
+	Gui, tab
+	Gui, font, s7 cWhite, Verdana
+	Gui, add, Text,y280 x25, StayHydratedBot v.%VN%	Author: %AU% 
+		;Gui, add, Text,y292 x25, requires Restart   
+	Gui, show,autosize, %A_ThisLabel% 
+}
+return
+lSwapActiveBackupAdvanced_StayHydratedBot:			;**
+lSwapActiveBackup_StayHydratedBot:					;**
+{
+	Gui, submit
+	f_DestroyGuis()
+	f_UnstickModKeys()
+	vTempActiveINISettings_StayHydratedBot:=vTempBackupINISettings_StayHydratedBot:=[]
+	vTempActiveINISettings_StayHydratedBot:=IniObj["Settings StayHydratedBot"].clone()
+	vTempBackupINISettings_StayHydratedBot:=IniObj["Backup Settings StayHydratedBot"].clone()
+	IniObj["Settings StayHydratedBot"]:=vTempBackupINISettings_StayHydratedBot
+	IniObj["Backup Settings StayHydratedBot"]:=vTempActiveINISettings_StayHydratedBot
+	SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	f_WriteINI_Bots(IniObj,ScriptName)
+	if bRunNotify
+		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	sleep, 1100
+	gosub, Submit_StayHydratedBot
+}
+return
+lRestoreActiveBackup_StayHydratedBot:			;**
+{
+	f_DestroyGuis()
+	if f_Confirm_Question("Do you want to reset the settings for this bot?",AU,VN)
+	{
+		IniObj:=f_ReadBackSettings_StayHydratedBot(1,0)
+		if bRunNotify
+			Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
+		sleep, 1300
+		gosub, Submit_StayHydratedBot
+	}
+	else
+		gosub, lEditSettings_StayHydratedBot
+}
+return
+;Numpad0::
+lEditAdvancedSettings_StayHydratedBot:	;**
+{
+	f_DestroyGuis()
+	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
+	Gui, Margin, 16, 16
+	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
+	Gui, Color, 1d1f21, 373b41, 
+	Gui, add, button, xm+190 w28 ym+1 glSwapActiveBackupAdvanced_StayHydratedBot, Swp
+	Gui, add, button, xm+223 w28 ym+1 glEditSettings_StayHydratedBot, Bck 
+	Gui, add, button, xm+256 w28 ym+1 glRestoreActiveBackup_StayHydratedBot, Res
+	Gui, add, text, 
+	Gui, font, s11 cWhite, Segoe UI 
+	Gui, add, text, xm ym-17 w0 h0 ; reposition next elements
+	Gui, add, Tab3,, Active|Backup|Original
+	Gui, font, s11 cWhite, Verdana
+	Gui, tab, Active
+	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll vHUDStatus_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
+	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
+	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  vSoundStatus_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNotifyPicture_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+250, Set a new Path (Startup-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+270%gui_control_options% -VScroll -Tab r3 vsPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sPathToStartupPicture_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+350, Set Notify-Title
+	Gui, add, edit, xm+30 ym+370%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+410, Show Icons on notify: 1/0
+	Gui, add, edit, xm+30 ym+430%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["bNotifyIcons"]
+	gui, add, text, xm+30 ym+470, Set default Intrusivity status
+	Gui, add, edit, xm+30 ym+490%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
+	Gui, tab, Backup
+	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll vHUDStatus_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
+	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
+	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  vSoundStatus_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32%
+	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNotifyPicture_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+250, Set a new Path (Startup-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+270%gui_control_options% -VScroll -Tab r3 vsPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sPathToStartupPicture_StayHydratedBot"]	
+	Gui, add, text, xm+30 ym+350, Set Notify-Title
+	Gui, add, edit, xm+30 ym+370%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+410, Show Icons on notify: 1/0
+	Gui, add, edit, xm+30 ym+430%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["bNotifyIcons"]
+	gui, add, text, xm+30 ym+470, Set default Intrusivity status
+	Gui, add, edit, xm+30 ym+490%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
+	Gui, tab, Original
+	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
+	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll ReadOnly vHUDStatus_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
+	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
+	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  ReadOnly vSoundStatus_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32%
+	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 ReadOnly vsPathToNotifyPicture_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+250, Set a new Path (Startup-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
+	Gui, add, Edit, xm+30 ym+270%gui_control_options% -VScroll -Tab r3 ReadOnly vsPathToStartupPicture_StayHydratedBot_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sPathToStartupPicture_StayHydratedBot"]		
+	Gui, add, text, xm+30 ym+350, Set Notify-Title
+	Gui, add, edit, xm+30 ym+370%gui_control_options% -VScroll r1 ReadOnly vsNotifyTitle_StayHydratedBot_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
+	Gui, add, text, xm+30 ym+410, Show Icons on notify: 1/0
+	Gui, add, edit, xm+30 ym+430%gui_control_options% -VScroll r1 ReadOnly vbNotifyIcons_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["bNotifyIcons"]
+	gui, add, text, xm+30 ym+470, Set default Intrusivity status
+	Gui, add, edit, xm+30 ym+490%gui_control_options% -VScroll r1  ReadOnly vlIsIntrusive_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
+	Gui, tab
+	Gui, font, s7 cWhite, Verdana
+	Gui, add, Text,x25 y552, StayHydratedBot v.%VN% Author: %AU%     
+	Gui, add, Text,x25 y564, requires Restart     
+	Gui, show,autosize, %A_ThisLabel% 
+}
+return
+SubmitChangedSettings_StayHydratedBot: 		;**
+{
+	Gui, submit
+	f_DestroyGuis()
+	f_UnstickModKeys()
+		; active
+	if PathToNewFileNew_StayHydratedBot_Active
+		IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot:=PathToNewFileNew_StayHydratedBot_Active
+	DefaultTimeInMinutes_StayHydratedBot_Active:=DefaultTimeInMinutes_StayHydratedBot_Active+0
+	if DefaultTimeInMinutes_StayHydratedBot_Active and (DefaultTimeInMinutes_StayHydratedBot_Active is in [integer number digit float])
+		IniObj["Settings StayHydratedBot"].vDefaultTimeInMinutes_StayHydratedBot:=DefaultTimeInMinutes_StayHydratedBot_Active
+	else
+		throw,"Error occured: The default reminder time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
+	NotificationTimeInMilliSeconds_StayHydratedBot_Active:=NotificationTimeInMilliSeconds_StayHydratedBot_Active+0
+	if NotificationTimeInMilliSeconds_StayHydratedBot_Active and (NotificationTimeInMilliSeconds_StayHydratedBot_Active is in [integer number digit float])
+		IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot:=NotificationTimeInMilliSeconds_StayHydratedBot_Active
+	else
+		throw,"Error occured: The notification time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
+		; backup
+	if PathToNewFileNew_StayHydratedBot_Backup
+		IniObj["Backup Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot:=PathToNewFileNew_StayHydratedBot_Backup
+	DefaultTimeInMinutes_StayHydratedBot_Backup:=DefaultTimeInMinutes_StayHydratedBot_Backup+0
+	if DefaultTimeInMinutes_StayHydratedBot_Backup and (DefaultTimeInMinutes_StayHydratedBot_Backup is in [integer number digit float])
+		IniObj["Backup Settings StayHydratedBot"].vDefaultTimeInMinutes_StayHydratedBot:=DefaultTimeInMinutes_StayHydratedBot_Backup
+	else
+		throw,"Error occured: The default reminder time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
+	NotificationTimeInMilliSeconds_StayHydratedBot_Backup:=NotificationTimeInMilliSeconds_StayHydratedBot_Backup+0
+	if NotificationTimeInMilliSeconds_StayHydratedBot_Backup and (NotificationTimeInMilliSeconds_StayHydratedBot_Backup is in [integer number digit float])
+		IniObj["Backup Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot:=NotificationTimeInMilliSeconds_StayHydratedBot_Backup
+	else
+		throw,"Error occured: The notification time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
+	SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	f_WriteINI_Bots(IniObj,ScriptName)
+	if f_Confirm_Question("Application must be reloaded in`norder for the changes to take effect.`nDo you want to reload?",AU,VN)
+		Reload
+}
+return
+SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
+{
+	
+	Gui, submit
+	f_DestroyGuis()
+	f_UnstickModKeys()
+	bNotifyIcons_StayHydratedBot_Active:=bNotifyIcons_StayHydratedBot_Active+0
+	HUDStatus_StayHydratedBot_Active:=HUDStatus_StayHydratedBot_Active+0
+	SoundStatus_StayHydratedBot_Active:=SoundStatus_StayHydratedBot_Active+0
+	lIsIntrusive_StayHydratedBot_Active:=lIsIntrusive_StayHydratedBot_Active+0
+	bNotifyIcons_StayHydratedBot_Backup:=bNotifyIcons_StayHydratedBot_Backup+0
+	HUDStatus_StayHydratedBot_Backup:=HUDStatus_StayHydratedBot_Backup+0
+	SoundStatus_StayHydratedBot_Backup:=SoundStatus_StayHydratedBot_Backup+0
+	lIsIntrusive_StayHydratedBot_Backup:=lIsIntrusive_StayHydratedBot_Backup+0
+		; active
+	if (bNotifyIcons_StayHydratedBot_Active=0) || (bNotifyIcons_StayHydratedBot_Active=1)
+		IniObj["Settings StayHydratedBot"].bNotifyIcons:=bNotifyIcons_StayHydratedBot_Active	
+	if (HUDStatus_StayHydratedBot_Active=0) || (HUDStatus_StayHydratedBot_Active=1) 
+		IniObj["Settings StayHydratedBot"].HUDStatus_StayHydratedBot:=HUDStatus_StayHydratedBot_Active
+	if (SoundStatus_StayHydratedBot_Active=0) || (SoundStatus_StayHydratedBot_Active=1) 
+		IniObj["Settings StayHydratedBot"].SoundStatus_StayHydratedBot:=SoundStatus_StayHydratedBot_Active
+	if (lIsIntrusive_StayHydratedBot_Active=0) || (lIsIntrusive_StayHydratedBot_Active=1)
+		IniObj["Settings StayHydratedBot"].lIsIntrusive_StayHydratedBot:=lIsIntrusive_StayHydratedBot_Active
+	if sPathToNotifyPicture_StayHydratedBot_Active
+		IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot:=sPathToNotifyPicture_StayHydratedBot_Active
+	if sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active
+		IniObj["Settings StayHydratedBot"].sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active:=sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Active
+	if sNotifyTitle_StayHydratedBot_StayHydratedBot_Active
+		IniObj["Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot:=sNotifyTitle_StayHydratedBot_StayHydratedBot_Active
+		; backup 
+	if (bNotifyIcons_StayHydratedBot_Backup=0) || (bNotifyIcons_StayHydratedBot_Backup=1)
+		IniObj["Backup Settings StayHydratedBot"].bNotifyIcons:=bNotifyIcons_StayHydratedBot_Backup
+	if (HUDStatus_StayHydratedBot_Backup=0) || (HUDStatus_StayHydratedBot_Backup=1)
+		IniObj["Backup Settings StayHydratedBot"].HUDStatus_StayHydratedBot:=HUDStatus_StayHydratedBot_Backup
+	if (SoundStatus_StayHydratedBot_Backup=0) || (SoundStatus_StayHydratedBot_Backup=1) 
+		IniObj["Backup Settings StayHydratedBot"].SoundStatus_StayHydratedBot:=SoundStatus_StayHydratedBot_Backup
+	if (lIsIntrusive_StayHydratedBot_Backup=0) || (lIsIntrusive_StayHydratedBot_Backup=1)
+		IniObj["Backup Settings StayHydratedBot"].lIsIntrusive_StayHydratedBot:=lIsIntrusive_StayHydratedBot_Backup
+	if sPathToNotifyPicture_StayHydratedBot_Backup
+		IniObj["BackupSettings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot:=sPathToNotifyPicture_StayHydratedBot_Backup
+	if sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup
+		IniObj["Settings StayHydratedBot"].sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup:=sPathToStartupPicture_StayHydratedBot_StayHydratedBot_Backup
+	if sNotifyTitle_StayHydratedBot_StayHydratedBot_Backup
+		IniObj["Backup Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot:=sNotifyTitle_StayHydratedBot_StayHydratedBot_Backup
+	SplitPath, A_ScriptName,,,, ScriptName
+	FileNameIniRead:=ScriptName . ".ini"
+	f_WriteINI_Bots(IniObj,ScriptName)
+	if f_Confirm_Question("Application must be reloaded in`norder for the changes to take effect.`nDo you want to reload?",AU,VN)
+		Reload
+}
 
-
+;}
+;{ 07.3 SUB Labels_____________________________________________________________________
 Submit_StandUpBot: 						;**
 {
 	sFullFilePathToAudioFileUp_StandUpBot:=IniObj["Settings StandUpBot"].sFullFilePathToAudioFileUp_StandUpBot ; extract values for notify
@@ -204,40 +651,6 @@ Submit_StandUpBot: 						;**
 	f_UpdateTrayMenu_Bots(vAllowedTogglesCount)
 }
 return
-;}_____________________________________________________________________________________
-;{ Tray Menu linked Labels_____________________________________________________________
-lHelp_StayHydratedBot:				;**
-f_Help_GeneralHealthBots(AU,VN)
-return
-
-lOpenScriptFolder:					;**
-run, % A_ScriptDir
-return
-
-lReload:							;**
-Notify().AddWindow("Reloading.",{Title:"",TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
-sleep, 1300
-Reload
-return
-
-
-lSetCurrentDelay_StayHydratedBot:			;**
-{ 
-	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-	Gui, Margin, 16, 16
-	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
-	Gui, Color, 1d1f21, 373b41, 
-	Gui, font, s7 cWhite, Verdana
-	Gui, font, s11 cWhite, Segoe UI 
-	Gui, add, text,xm ym+10,Set Time in minutes till the next`ndrinking reminder
-	Gui, add, Edit, %gui_control_options%  vvMinutes_StayHydratedBot_Temp -VScroll 
-	Gui, add, Button, x-10 y-10 w1 h1 +default gSubmit_StayHydratedBot ; hidden button
-	Gui, font, s7 cWhite, Verdana
-	Gui, add, Text,x25, Version: %VN%	Author: %AU% 
-	Gui, show,autosize, %A_ThisLabel% ; gui_
-} 
-return
-
 lSetCurrentDelay_StandUpBot:				;**
 {
 	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
@@ -253,28 +666,7 @@ lSetCurrentDelay_StandUpBot:				;**
 	Gui, add, Text,x25, Version: %VN%	Author: %AU% 
 	Gui, show,autosize, %A_ThisLabel% 
 }
-return 
-
-
-lToggleBotHUD_StayHydratedBot:		;***
-{
-	HUDStatus_StayHydratedBot:=!HUDStatus_StayHydratedBot
-	menu, StayHydratedBot, ToggleCheck, HUD
-	sleep, 20
-	
-	if HUDStatus_StayHydratedBot
-		Notify().AddWindow("HUD Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	else
-		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	if PauseStatus_StayHydratedBot
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
-	Else
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-	outputStr:=strSHB "`n" strSUB
-	Menu,Tray,Tip,%outputStr%
-}
 return
-
 lToggleBotHUD_StandUpBot:			;***
 {
 	HUDStatus_StandUpBot:=!HUDStatus_StandUpBot
@@ -292,27 +684,6 @@ lToggleBotHUD_StandUpBot:			;***
 	Menu,Tray,Tip,%outputStr%
 }
 return
-
-
-lToggleBotAudio_StayHydratedBot:			;***
-{
-	SoundStatus_StayHydratedBot:=!SoundStatus_StayHydratedBot
-	menu, StayHydratedBot, ToggleCheck, Sound
-	sleep, 20
-	if SoundStatus_StayHydratedBot
-		Notify().AddWindow("Audio Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	else
-		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	
-	if PauseStatus_StayHydratedBot
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
-	Else
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-	outputStr:=strSHB "`n" strSUB
-	Menu,Tray,Tip,%outputStr%
-}
-return
-
 lToggleBotAudio_StandUpBot:				;***
 {
 	SoundStatus_StandUpBot:=!SoundStatus_StandUpBot
@@ -333,32 +704,6 @@ lToggleBotAudio_StandUpBot:				;***
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
 	Else
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|" SoundStatus_StandUpBot "|" HUDStatus_StandUpBot "|" lIsIntrusive_StandUpBot "|" sCurrentPosition
-	outputStr:= strSHB "`n" strSUB
-	Menu,Tray,Tip,%outputStr%
-}
-return
-
-
-lToggleBotIntrusive_StayHydratedBot:	;***
-{
-	lIsIntrusive_StayHydratedBot:=!lIsIntrusive_StayHydratedBot
-	sleep, 20
-	if lIsIntrusive_StayHydratedBot
-	{
-		menu, StayHydratedBot, Check, Intrusive
-		if bRunNotify
-			Notify().AddWindow("Bot is intrusive now.",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	}
-	else
-	{
-		menu, StayHydratedBot, UnCheck, Intrusive
-		if bRunNotify
-			Notify().AddWindow("Bot behaves normal now.",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	}
-	if PauseStatus_StayHydratedBot
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
-	Else
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
 	outputStr:= strSHB "`n" strSUB
 	Menu,Tray,Tip,%outputStr%
 }
@@ -388,8 +733,6 @@ lToggleBotIntrusive_StandUpBot:		;***
 	Menu,Tray,Tip,%outputStr%
 }
 return
-
-
 lToggleCurrentPosition_StandUpBot:				;***
 {
 	global bStandingposition
@@ -399,40 +742,9 @@ lToggleCurrentPosition_StandUpBot:				;***
 	gosub, PlayTune_StandUpBot
 }
 return
-
-
-PlayTune_StayHydratedBot: 				;***
-{
-	if !PauseStatus_StayHydratedBot
-	{
-		if (StrLen(sFullFilePathToAudioFile_StayHydratedBot) >= 127) and InStr(sFullFilePathToAudioFile_StayHydratedBot,".wav")
-			Throw, "The Pathlength of the absolute path to the .wav-audiofile is greater than 127 characters. For .wav-files, this is an error of SoundPlay."
-		if SoundStatus_StayHydratedBot
-			SoundPlay, % sFullFilePathToAudioFile_StayHydratedBot
-		if HUDStatus_StayHydratedBot
-		{
-			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
-			if bRunNotify and !lIsIntrusive_StayHydratedBot
-				Notify().AddWindow(sNotifyMessageRemember_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathToNotifyPicture_StayHydratedBot})
-			if lIsIntrusive_StayHydratedBot
-				f_AlertUserIntrusive(sNotifyMessageRemember_StayHydratedBot,AU,VN)
-		}
-		sTrayTipSHB:=A_Now
-		EnvAdd, sTrayTipSHB, vMinutes_StayHydratedBot ,Minutes ; add 15 minits
-		FormatTime, sTrayTipSHB, %sTrayTipSHB%, HH:mm:ss tt
-		if PauseStatus_StayHydratedBot
-			strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
-		Else
-			strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-		outputStr:= strSHB "`n" strSUB
-		Menu,Tray,Tip,%outputStr%
-		Settimer, RemoveToolTip,-500 
-	}
-}
-return
-
 PlayTune_StandUpBot: 					;***
 {
+	SysGet, vMoncnt, MonitorCount
 	if !PauseStatus_StandUpBot
 	{
 		sFullFilePathToAudioFileUp_StandUpBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFileUp_StandUpBot)
@@ -443,7 +755,7 @@ PlayTune_StandUpBot: 					;***
 			Throw, "The Pathlength of the absolute path to the 'Standing-up'-.wav-audiofile is greater than 127 characters. For .wav-files, this is an error of SoundPlay."
 		if bStandingposition ;|| (ltoggleCurrentPositionFlag && !bStandingposition)	; if 1/standing, notify to sit down
 		{
-			if HUDStatus_StandUpBot and bRunNotify and !lIsIntrusive_StandUpBot
+			if HUDStatus_StandUpBot and bRunNotify and (!lIsIntrusive_StandUpBot || vMoncnt=1)
 				Notify().AddWindow(sNotifyMessageDown_StandUpBot,{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathToNotifyPicture_StandUpBot})
 			if SoundStatus_StandUpBot
 				SoundPlay, % sFullFilePathToAudioFileDown_StandUpBot
@@ -454,7 +766,7 @@ PlayTune_StandUpBot: 					;***
 		}
 		else 					; if 0/sitting, notify to stand up
 		{
-			if HUDStatus_StandUpBot and bRunNotify and !lIsIntrusive_StandUpBot
+			if HUDStatus_StandUpBot and bRunNotify and (!lIsIntrusive_StandUpBot || vMoncnt=1)
 				Notify().AddWindow(sNotifyMessageUp_StandUpBot,{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathForNotify_StayHydratedBot})
 			if SoundStatus_StandUpBot
 				SoundPlay, % sFullFilePathToAudioFileUp_StandUpBot
@@ -481,48 +793,6 @@ PlayTune_StandUpBot: 					;***
 	ltoggleCurrentPositionFlag:=false
 }
 return
-
-
-lPause_StayHydratedBot:				;*** 
-{
-	
-	PauseStatus_StayHydratedBot:=!PauseStatus_StayHydratedBot
-	
-	if PauseStatus_StayHydratedBot
-	{
-		if bRunNotify
-			Notify().AddWindow(sNotifyMessagePause_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-		menu, StayHydratedBot, UnCheck, Sound
-		menu, StayHydratedBot, UnCheck, HUD
-		menu, StayHydratedBot, Disable, Sound
-		menu, StayHydratedBot, Disable, HUD
-		menu, StayHydratedBot, Check, Pause
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
-	}
-	Else
-	{
-		if bRunNotify
-			Notify().AddWindow(sNotifyMessageResume_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-		if SoundStatus_StayHydratedBot
-			menu, StayHydratedBot, Check, Sound
-		menu, StayHydratedBot, Enable, Sound
-		if HUDStatus_StayHydratedBot
-			menu, StayHydratedBot, Check, HUD
-		menu, StayHydratedBot, Enable, HUD
-		Menu, StayHydratedBot, Uncheck, Pause
-		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|" SoundStatus_StayHydratedBot "|" HUDStatus_StayHydratedBot "|" lIsIntrusive_StayHydratedBot
-	}
-	outputStr:= strSHB "`n" strSUB
-	Menu,Tray,Tip,%outputStr%
-	sleep, 20
-	Menu,Tray,Tip,%outputStr%
-	sleep, 20
-	Menu,Tray,Tip,%outputStr%
-	sleep, 20
-	Menu,Tray,Tip,%outputStr%
-}
-return
-
 lPause_StandUpBot:  				;***
 {
 	PauseStatus_StandUpBot:=!PauseStatus_StandUpBot
@@ -565,7 +835,6 @@ lPause_StandUpBot:  				;***
 	Menu,Tray,Tip,%outputStr%
 }
 return
-
 lEditSettings_StandUpBot:				;**
 {
 	f_DestroyGuis()
@@ -616,52 +885,6 @@ lEditSettings_StandUpBot:				;**
 	Gui, show,autosize, %A_ThisLabel% 
 }
 return
-
-lEditSettings_StayHydratedBot:			;**
-{
-	f_DestroyGuis()
-	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-	Gui, Margin, 16, 16
-	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
-	Gui, Color, 1d1f21, 373b41, 
-	Gui, add, button, xm+190 w28 ym+1 glSwapActiveBackup_StayHydratedBot, Swp
-	Gui, add, button, xm+223 w28 ym+1 glEditAdvancedSettings_StayHydratedBot, Othr
-	Gui, add, button, xm+256 w28 ym+1 glRestoreActiveBackup_StayHydratedBot, Res
-	Gui, add, text, 
-	Gui, font, s11 cWhite, Segoe UI 
-	Gui, add, text, xm ym-17 w0 h0 ; reposition next elements
-	Gui, add, Tab3,, Active|Backup|Original
-	Gui, font, s11 cWhite, Verdana
-	Gui, tab, Active
-	Gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab r3 vPathToNewFileNew_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
-	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
-	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll  vDefaultTimeInMinutes_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
-	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll  vNotificationTimeInMilliSeconds_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
-	Gui, tab, Backup
-	Gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab r3 vPathToNewFileNew_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
-	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
-	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll  vDefaultTimeInMinutes_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
-	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll  vNotificationTimeInMilliSeconds_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
-	Gui, tab, Original
-	Gui, add, text,xm+30 ym+30, Insert (full) FilePath of AudioFile
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll -Tab ReadOnly r3 vPathToNewFileNew_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sFullFilePathToAudioFile_StayHydratedBot"]
-	Gui, add, Text, xm+30 ym+130, Set Def. Reminder Time (min)
-	Gui, add, Edit, xm+30 ym+155%gui_control_options% -VScroll ReadOnly  vDefaultTimeInMinutes_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["vDefaultTimeInMinutes_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+190, Set Def. Notification Time (ms)
-	Gui, add, Edit, xm+30 ym+215%gui_control_options% -VScroll ReadOnly  vNotificationTimeInMilliSeconds_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["vNotificationTimeInMilliSeconds_StayHydratedBot"]
-	Gui, tab
-	Gui, font, s7 cWhite, Verdana
-	Gui, add, Text,y280 x25, StayHydratedBot v.%VN%	Author: %AU% 
-		;Gui, add, Text,y292 x25, requires Restart   
-	Gui, show,autosize, %A_ThisLabel% 
-}
-return
-
-
 lSwapActiveBackupAdvanced_StandUpBot:				;**
 lSwapActiveBackup_StandUpBot:						;**
 {
@@ -705,29 +928,6 @@ lSwapActiveBackup_StandUpBot:						;**
 	gosub, Submit_StandUpBot
 }
 return
-
-lSwapActiveBackupAdvanced_StayHydratedBot:			;**
-lSwapActiveBackup_StayHydratedBot:					;**
-{
-	Gui, submit
-	f_DestroyGuis()
-	f_UnstickModKeys()
-	vTempActiveINISettings_StayHydratedBot:=vTempBackupINISettings_StayHydratedBot:=[]
-	vTempActiveINISettings_StayHydratedBot:=IniObj["Settings StayHydratedBot"].clone()
-	vTempBackupINISettings_StayHydratedBot:=IniObj["Backup Settings StayHydratedBot"].clone()
-	IniObj["Settings StayHydratedBot"]:=vTempBackupINISettings_StayHydratedBot
-	IniObj["Backup Settings StayHydratedBot"]:=vTempActiveINISettings_StayHydratedBot
-	SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
-	f_WriteINI_Bots(IniObj,ScriptName)
-	if bRunNotify
-		Notify().AddWindow("Swapping Settings",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	sleep, 1100
-	gosub, Submit_StayHydratedBot
-}
-return
-
-
 lRestoreActiveBackup_StandUpBot:				;**
 {
 	f_DestroyGuis()
@@ -736,7 +936,6 @@ lRestoreActiveBackup_StandUpBot:				;**
 		IniObj:=f_ReadBackSettings_StayHydratedBot(0,1)
 		if bRunNotify
 			Notify().AddWindow("Resetting 'Active' and 'Passive' settings",{Title:sNotifyMessageDown_StandUpBot,TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
-		Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:})
 		sleep, 1300
 		gosub, Submit_StandUpBot
 	}
@@ -744,24 +943,6 @@ lRestoreActiveBackup_StandUpBot:				;**
 		gosub, lEditSettings_StandUpBot
 }
 return
-
-lRestoreActiveBackup_StayHydratedBot:			;**
-{
-	f_DestroyGuis()
-	if f_Confirm_Question("Do you want to reset the settings for this bot?",AU,VN)
-	{
-		IniObj:=f_ReadBackSettings_StayHydratedBot(1,0)
-		if bRunNotify
-			Notify().AddWindow("Resetting 'Active'- and 'Backup'-settings",{Title:sNotifyMessageDown_StayHydratedBot,TitleColor:"0x000000",Time:1300,Color:"0x000000",Background:"0xFFFFFF",TitleSize:10,Size:10,ShowDelay:0,Icon:sPathToNotifyPicture_StayHydratedBot})
-		sleep, 1300
-		gosub, Submit_StayHydratedBot
-	}
-	else
-		gosub, lEditSettings_StayHydratedBot
-}
-return
-
-
 lEditAdvancedSettings_StandUpBot:		;**
 {
 	f_DestroyGuis()
@@ -852,108 +1033,6 @@ lEditAdvancedSettings_StandUpBot:		;**
 	Gui, show,autosize,%A_ThisLabel% 
 }
 return
-lEditAdvancedSettings_StayHydratedBot:	;**
-{
-	f_DestroyGuis()
-	gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-	Gui, Margin, 16, 16
-	Gui, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
-	Gui, Color, 1d1f21, 373b41, 
-	Gui, add, button, xm+190 w28 ym+1 glSwapActiveBackupAdvanced_StayHydratedBot, Swp
-	Gui, add, button, xm+223 w28 ym+1 glEditSettings_StayHydratedBot, Bck 
-	Gui, add, button, xm+256 w28 ym+1 glRestoreActiveBackup_StayHydratedBot, Res
-	Gui, add, text, 
-	Gui, font, s11 cWhite, Segoe UI 
-	Gui, add, text, xm ym-17 w0 h0 ; reposition next elements
-	Gui, add, Tab3,, Active|Backup|Original
-	Gui, font, s11 cWhite, Verdana
-	Gui, tab, Active
-	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll vHUDStatus_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
-	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
-	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  vSoundStatus_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32% ; this stupid non-printing char gets the perfect spacing for the tab control and the third button
-	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNotifyPicture_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+250, Set Notify-Title
-	Gui, add, edit, xm+30 ym+270%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+310, Show Icons on notify: 1/0
-	Gui, add, edit, xm+30 ym+330%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["bNotifyIcons"]
-	gui, add, text, xm+30 ym+370, Set default Intrusivity status
-	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Active, % IniObj["Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
-	Gui, tab, Backup
-	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll vHUDStatus_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
-	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
-	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  vSoundStatus_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32%
-	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 vsPathToNo tifyPicture_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+250, Set Notify-Title
-	Gui, add, edit, xm+30 ym+270%gui_control_options% -VScroll r1 vsNotifyTitle_StayHydratedBot_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+310, Show Icons on notify: 1/0
-	Gui, add, edit, xm+30 ym+330%gui_control_options% -VScroll r1 vbNotifyIcons_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["bNotifyIcons"]
-	gui, add, text, xm+30 ym+370, Set default Intrusivity status
-	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1  vlIsIntrusive_StayHydratedBot_Backup, % IniObj["Backup Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
-	Gui, tab, Original
-	Gui, add, text,xm+30 ym+30, Set Def. HUD Status
-	Gui, add, Edit, xm+30 ym+55%gui_control_options% -VScroll ReadOnly vHUDStatus_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["HUDStatus_StayHydratedBot"]
-	Gui, add, Text, xm+30 ym+90, Set Def. Sound Status
-	Gui, add, Edit, xm+30 ym+110%gui_control_options% -VScroll  ReadOnly vSoundStatus_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["SoundStatus_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+150, Set a new Path (Notify-Image) %char32%
-	Gui, add, Edit, xm+30 ym+170%gui_control_options% -VScroll -Tab r3 ReadOnly vsPathToNotifyPicture_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sPathToNotifyPicture_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+250, Set Notify-Title
-	Gui, add, edit, xm+30 ym+270%gui_control_options% -VScroll r1 ReadOnly vsNotifyTitle_StayHydratedBot_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["sNotifyTitle_StayHydratedBot"]
-	Gui, add, text, xm+30 ym+310, Show Icons on notify: 1/0
-	Gui, add, edit, xm+30 ym+330%gui_control_options% -VScroll r1 ReadOnly vbNotifyIcons_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["bNotifyIcons"]
-	gui, add, text, xm+30 ym+370, Set default Intrusivity status
-	Gui, add, edit, xm+30 ym+390%gui_control_options% -VScroll r1  ReadOnly vlIsIntrusive_StayHydratedBot_Original, % IniObj["Original Settings StayHydratedBot"]["lIsIntrusive_StayHydratedBot"]
-	Gui, tab
-	Gui, font, s7 cWhite, Verdana
-	Gui, add, Text,x25 y452, StayHydratedBot v.%VN% Author: %AU%     
-	Gui, add, Text,x25 y464, requires Restart     
-	Gui, show,autosize, %A_ThisLabel% 
-}
-return
-
-
-SubmitChangedSettings_StayHydratedBot: 		;**
-{
-	Gui, submit
-	f_DestroyGuis()
-	f_UnstickModKeys()
-		; active
-	if PathToNewFileNew_StayHydratedBot_Active
-		IniObj["Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot:=PathToNewFileNew_StayHydratedBot_Active
-	DefaultTimeInMinutes_StayHydratedBot_Active:=DefaultTimeInMinutes_StayHydratedBot_Active+0
-	if DefaultTimeInMinutes_StayHydratedBot_Active and (DefaultTimeInMinutes_StayHydratedBot_Active is in [integer number digit float])
-		IniObj["Settings StayHydratedBot"].vDefaultTimeInMinutes_StayHydratedBot:=DefaultTimeInMinutes_StayHydratedBot_Active
-	else
-		throw,"Error occured: The default reminder time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
-	NotificationTimeInMilliSeconds_StayHydratedBot_Active:=NotificationTimeInMilliSeconds_StayHydratedBot_Active+0
-	if NotificationTimeInMilliSeconds_StayHydratedBot_Active and (NotificationTimeInMilliSeconds_StayHydratedBot_Active is in [integer number digit float])
-		IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot:=NotificationTimeInMilliSeconds_StayHydratedBot_Active
-	else
-		throw,"Error occured: The notification time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
-		; backup
-	if PathToNewFileNew_StayHydratedBot_Backup
-		IniObj["Backup Settings StayHydratedBot"].sFullFilePathToAudioFile_StayHydratedBot:=PathToNewFileNew_StayHydratedBot_Backup
-	DefaultTimeInMinutes_StayHydratedBot_Backup:=DefaultTimeInMinutes_StayHydratedBot_Backup+0
-	if DefaultTimeInMinutes_StayHydratedBot_Backup and (DefaultTimeInMinutes_StayHydratedBot_Backup is in [integer number digit float])
-		IniObj["Backup Settings StayHydratedBot"].vDefaultTimeInMinutes_StayHydratedBot:=DefaultTimeInMinutes_StayHydratedBot_Backup
-	else
-		throw,"Error occured: The default reminder time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
-	NotificationTimeInMilliSeconds_StayHydratedBot_Backup:=NotificationTimeInMilliSeconds_StayHydratedBot_Backup+0
-	if NotificationTimeInMilliSeconds_StayHydratedBot_Backup and (NotificationTimeInMilliSeconds_StayHydratedBot_Backup is in [integer number digit float])
-		IniObj["Backup Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot:=NotificationTimeInMilliSeconds_StayHydratedBot_Backup
-	else
-		throw,"Error occured: The notification time entered is not an integer.`nThe value must be given as a plain integer such as 2000 for 2 seconds`nPlease either edit the file and resolve this or delete the ini-file in the GeneralHealthBot-Folder"
-	SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
-	f_WriteINI_Bots(IniObj,ScriptName)
-	if f_Confirm_Question("Application must be reloaded in`norder for the changes to take effect.`nDo you want to reload?",AU,VN)
-		Reload
-}
-return
-
 SubmitChangedSettings_StandUpBot:			;**
 {
 	Gui, submit
@@ -996,54 +1075,6 @@ SubmitChangedSettings_StandUpBot:			;**
 		Reload
 }
 return
-
-
-SubmitChangedAdvancedSettings_StayHydratedBot: 	;**
-{
-	Gui, submit
-	f_DestroyGuis()
-	f_UnstickModKeys()
-	bNotifyIcons_StayHydratedBot_Active:=bNotifyIcons_StayHydratedBot_Active+0
-	HUDStatus_StayHydratedBot_Active:=HUDStatus_StayHydratedBot_Active+0
-	SoundStatus_StayHydratedBot_Active:=SoundStatus_StayHydratedBot_Active+0
-	lIsIntrusive_StayHydratedBot_Active:=lIsIntrusive_StayHydratedBot_Active+0
-	bNotifyIcons_StayHydratedBot_Backup:=bNotifyIcons_StayHydratedBot_Backup+0
-	HUDStatus_StayHydratedBot_Backup:=HUDStatus_StayHydratedBot_Backup+0
-	SoundStatus_StayHydratedBot_Backup:=SoundStatus_StayHydratedBot_Backup+0
-	lIsIntrusive_StayHydratedBot_Backup:=lIsIntrusive_StayHydratedBot_Backup+0
-		; active
-	if (bNotifyIcons_StayHydratedBot_Active=0) || (bNotifyIcons_StayHydratedBot_Active=1)
-		IniObj["Settings StayHydratedBot"].bNotifyIcons:=bNotifyIcons_StayHydratedBot_Active	
-	if (HUDStatus_StayHydratedBot_Active=0) || (HUDStatus_StayHydratedBot_Active=1) 
-		IniObj["Settings StayHydratedBot"].HUDStatus_StayHydratedBot:=HUDStatus_StayHydratedBot_Active
-	if (SoundStatus_StayHydratedBot_Active=0) || (SoundStatus_StayHydratedBot_Active=1) 
-		IniObj["Settings StayHydratedBot"].SoundStatus_StayHydratedBot:=SoundStatus_StayHydratedBot_Active
-	if (lIsIntrusive_StayHydratedBot_Active=0) || (lIsIntrusive_StayHydratedBot_Active=1)
-		IniObj["Settings StayHydratedBot"].lIsIntrusive_StayHydratedBot:=lIsIntrusive_StayHydratedBot_Active
-	if sPathToNotifyPicture_StayHydratedBot_Active
-		IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot:=sPathToNotifyPicture_StayHydratedBot_Active
-	if sNotifyTitle_StayHydratedBot_StayHydratedBot_Active
-		IniObj["Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot:=sNotifyTitle_StayHydratedBot_StayHydratedBot_Active
-		; backup 
-	if (bNotifyIcons_StayHydratedBot_Backup=0) || (bNotifyIcons_StayHydratedBot_Backup=1)
-		IniObj["Backup Settings StayHydratedBot"].bNotifyIcons:=bNotifyIcons_StayHydratedBot_Backup
-	if (HUDStatus_StayHydratedBot_Backup=0) || (HUDStatus_StayHydratedBot_Backup=1)
-		IniObj["Backup Settings StayHydratedBot"].HUDStatus_StayHydratedBot:=HUDStatus_StayHydratedBot_Backup
-	if (SoundStatus_StayHydratedBot_Backup=0) || (SoundStatus_StayHydratedBot_Backup=1) 
-		IniObj["Backup Settings StayHydratedBot"].SoundStatus_StayHydratedBot:=SoundStatus_StayHydratedBot_Backup
-	if (lIsIntrusive_StayHydratedBot_Backup=0) || (lIsIntrusive_StayHydratedBot_Backup=1)
-		IniObj["Backup Settings StayHydratedBot"].lIsIntrusive_StayHydratedBot:=lIsIntrusive_StayHydratedBot_Backup
-	if sPathToNotifyPicture_StayHydratedBot_Backup
-		IniObj["BackupSettings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot:=sPathToNotifyPicture_StayHydratedBot_Backup
-	if sNotifyTitle_StayHydratedBot_StayHydratedBot_Backup
-		IniObj["Backup Settings StayHydratedBot"].sNotifyTitle_StayHydratedBot:=sNotifyTitle_StayHydratedBot_StayHydratedBot_Backup
-	SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
-	f_WriteINI_Bots(IniObj,ScriptName)
-	if f_Confirm_Question("Application must be reloaded in`norder for the changes to take effect.`nDo you want to reload?",AU,VN)
-		Reload
-}
-
 SubmitChangedAdvancedSettings_StandUpBot: 		;**
 {
 	Gui, submit
@@ -1103,27 +1134,28 @@ SubmitChangedAdvancedSettings_StandUpBot: 		;**
 }
 return
 
-RemoveToolTip:
-RemoveToolTip_StandUpBot:			;**
-RemoveToolTip_StayHydratedBot: 		;**
-Tooltip,
+;}
+;{ 07.4 LAB Labels_____________________________________________________________________
+	; preparation.
+;}
+;}_____________________________________________________________________________________
+;{ 08. Hotkeys_________________________________________________________________________
+;{ 08.1 General Hoteys_________________________________________________________________
+#IfWinActive, AUf_AlertUserIntrusive
+Enter:: 
+^XButton2::
+Escape::
+Gui, AlUs: destroy
 return
-;}______________________________________________________________________________________
-;{ Hotkeys_____________________________________________________________________________
-
-
-
+;{ 08.2 Hoteys SHB_____________________________________________________________________
 #IfWinactive, lHelp_StayHydratedBot
 Esc:: 
 gosub, GuiEscape_AboutStayHydratedBot
 return
-
 Enter:: 
 gosub, GuiEscape_AboutStayHydratedBot
 return
 
-#IfWinActive, ; other-tabs in settings missing
-#IfWinActive, ; other-tabs in settings missing
 #IfWinActive, lEditSettings_StayHydratedBot
 Enter::
 gosub, SubmitChangedSettings_StayHydratedBot
@@ -1146,11 +1178,18 @@ Esc::
 gosub, GuiEscape_StayHydratedBot
 return
 
-#IfWinActive, 
-#IfWinActive, 
+#IfWinActive, CQlRestoreActiveBackup_StayHydratedBot
+Esc:: 
+pause off
+Gosub, GuiEscape_StayHydratedBot
+return
+Enter:: 
+gosub, SubmitChangedSettings_StayHydratedBot
+return
 
-
-#IfWinActive, ; other-tabs in settings missing
+#IfWinActive, 
+;}
+;{ 08.3 Hotkeys SUB____________________________________________________________________
 #IfWinActive, lEditSettings_StandUpBot
 Enter:: 
 gosub,SubmitChangedSettings_StandUpBot
@@ -1166,26 +1205,11 @@ return
 Esc:: 
 gosub, GuiEscape_StandUpBot
 return
+
 #IfWinActive, lRestoreActiveBackup_StandUpBot
 #IfWinActive, lSetCurrentDelay_StandUpBot
 Esc:: 
 gosub, GuiEscape_StandUpBot
-return
-
-#IfWinActive, AUf_AlertUserIntrusive
-Enter:: 
-Gui, AlUs: destroy
-return
-
-#IfWinActive, CQlRestoreActiveBackup_StayHydratedBot
-
-Esc:: 
-pause off
-Gosub, GuiEscape_StayHydratedBot
-return
-
-Enter:: 
-gosub, SubmitChangedSettings_StayHydratedBot
 return
 
 #IfWinActive, CQlRestoreActiveBackup_StandUpBot
@@ -1197,8 +1221,13 @@ return
 Enter:: 
 gosub, SubmitChangedSettings_StandUpBot
 return
+
 ;}
-;{ Includes____________________________________________________________________________
+;{ 08.4 Hotkeys LAB____________________________________________________________________
+	; preparatiun.
+;}
+;}_____________________________________________________________________________________
+;{ 09. Includes________________________________________________________________________
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_AddStartupToggleToTrayMenu.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_AlertUserIntrusive.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_Confirm_Question.ahk
@@ -1207,7 +1236,7 @@ return
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_CreateTrayMenu_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_DestroyGuis.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_Help_GeneralHealthBots.ahk
-#Include %A_ScriptDir%\GeneralHealthBots\includes\f_OnExit_StayHydratedBot.ahk
+;#Include %A_ScriptDir%\GeneralHealthBots\includes\f_OnExit_StayHydratedBot.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_ReadBackSettings_StayHydratedBot.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_ReadINI_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_TrayIconSingleClickCallBack.ahk
@@ -1215,12 +1244,16 @@ return
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_UpdateTrayMenu_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_WriteINI_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\notify.ahk
-
+#Include %A_ScriptDir%\GeneralHealthBots\includes\NotifyTrayClick.ahk
 #Include %A_ScriptDir%\Updater.ahk
 
 
+;#Include 	D:\DokumenteCSA\AutoHotkey\Lib\Func_IniSettingsEditor_v6.ahk
+
+;}
+;{ 10. Changelog_______________________________________________________________________
+
 /* Changelog
-	
 	
 	Changelog prior to v.2.3.9.4 not written.
 	Changelog
@@ -1243,3 +1276,21 @@ return
 	again for an entire period.
 	
 	- all submenus are disabled if until bots are activated to prevent weird preemptive user behaviour to fuck stuff up.
+	
+	v.2.3.10.4 || 28.07.2021
+	- added functionality to close intrusive notifications by pressing ctrl+Xbutton2
+	
+	v.2.3.11.4 || 20.08.2021
+	- added indicator for the time during which the program is booting up, indicated by the greyed-out tray icon
+	- added option to change said image path to the settings menu of StayHydratedBot, as that bot's notify-icon is used for the tray as well.
+	- double-clicking the tray icon does no longer open the script monitor window displaying recently run lines (whatever that's called)
+	
+	v.2.3.12.4 || 28.08.2021
+	
+	- started rework on moving on to new settings-overview
+	/*
+	
+*/
+;}
+#IfWinNotActive IniFileCreator 8 - Create Ini file for IniSettingsEditor
+;Numpad0:: reload
