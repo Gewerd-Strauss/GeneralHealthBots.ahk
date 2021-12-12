@@ -2,7 +2,6 @@
 {
 	VNI=1.0.0.10
 	SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
 	IniSections:=[]
 	IniSections ["Settings StayHydratedBot"]
 			:= {  	sFullFilePathToAudioFile_StayHydratedBot: 	"A_ScriptDir\GeneralHealthBots\beep-01a.mp3"
@@ -99,8 +98,7 @@
 				, 	lIsIntrusive_StandUpBot: 0
 				, 	HUDStatus_StandUpBot: 1
 				, 	SoundStatus_StandUpBot: 1}
-	CheckFilePathIniRead=%A_ScriptDir%\GeneralHealthBots\%FileNameIniRead%
-	if FileExist(CheckFilePathIniRead) ; read back settings from IniFile
+	if FileExist(FileNameIniRead) ; read back settings from IniFile
 	{
 		if ResetSHB
 		{
