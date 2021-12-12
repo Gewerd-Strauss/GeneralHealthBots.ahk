@@ -51,7 +51,7 @@
 	Gui, destroy
 	SetTitleMatchMode, 2
 	WinGetActiveTitle, acttit
-	m(acttit)
+	msgbox, % acttit
 	if WinActive("Visual Studio Code")
 		vsdb:=true ; activate 
 	else 
@@ -256,7 +256,7 @@ f_PerformUpdate(ReturnPackage,GitPageURLComponents,LocalValues,VersionNumberDefS
 	; 0. Create Backup
 	if vNumberOfBackups>0
 	{
-		m(LocalValues)
+		;m(LocalValues)
 		f_CreateBackup(vNumberOfBackups,LocalValues[5])
 	}
 	; 1. Parse throught ReturnPackage[2]
@@ -345,7 +345,7 @@ f_WriteFilesFromArray(ReturnPackage,FileTexts,GitPageURLComponents,VersionNumber
 	; IniObj["local"]:=ReturnPackage[3]
 	; and now we only have to write the files to the files, duh.
 	if !vsdb
-		msgbox, "f_writeFilesFromArray:`nremember to finish thee notify-msgs"
+		msgbox, % A_ThisFunc ":`nremember to finish thee notify-msgs"
 		
 	f_FinishUp(GitPageURLComponents,Files)
 }

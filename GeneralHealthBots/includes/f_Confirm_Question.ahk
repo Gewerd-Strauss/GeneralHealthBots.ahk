@@ -18,7 +18,7 @@
 	GuiControl, Focus, %b2%
 	SendInput, {Left}{Right}
 	WinWaitClose
-	ttip(f_cQ_Callback)
+	;ttip(f_cQ_Callback)
 	return {(b):1, (b2):0, (b3):-1}[f_cQ_Callback]
 }
 f_cQ_Callback()
