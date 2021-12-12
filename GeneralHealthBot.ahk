@@ -25,7 +25,7 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetBatchLines -1
 SetTitleMatchMode, 2
 ;#Persistent
-;#Warn All ; Enable warnings to assist with detecting common errors.
+; #Warn All ; Enable warnings to assist with detecting common errors.
 ;DetectHiddenWindows, On
 ;SetKeyDelay -1
 
@@ -35,6 +35,7 @@ AU=Gewerd Strauss
 VN=2.3.11.4                                                                    
 LE=14 August 2021 11:59:04                              
 PublicVersionNumber=1.0.7.1
+
 ;}
 ;{ 02. Initialise Updater-variables____________________________________________________
 vUserName:="Gewerd-Strauss"
@@ -51,21 +52,8 @@ LocalValues:=[AU,VN,FolderStructIncludesRelativeToMainScript,FolderOfVersioningF
 GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelativeToMainScript]
 ;}
 ;{ 03. Autorun Section_________________________________________________________________
-if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
-	global bRunNotify:=!vsdb:=1
-else
-	global bRunNotify:=!vsdb:=0
-global sAdmin_PC:="DESKTOP-FH4RU5C"
-global lDevelopmentFlag:=0
-NotifyTrayClick(DllCall("GetDoubleClickTime")) ; Handle double left click on tray events and prevent them to open the script history
-OnMessage(0x404, "f_TrayIconSingleClickCallBack")
-;}____________________________________________________________________________________
-;{ 04. Load Settings from Ini-File_____________________________________________________
-SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
-;{ 03. Autorun Section_________________________________________________________________
-if WinActive("Visual Studio Code")	; if run in vscode, deactivate notify-messages to avoid crashing the program.
-	global bRunNotify:=!vsdb:=1
+if WinActive("Visual Studio Code") || WinActive("ahk_exe Code.exe")	; if run in vscode, deactivate notify-messages to avoid crashing the program. The second conditions covers VSCode if the title is set to only display the file path.
+ 	global bRunNotify:=!vsdb:=1
 else
 	global bRunNotify:=!vsdb:=0
 global sAdmin_PC:="DESKTOP-FH4RU5C"
@@ -76,12 +64,9 @@ OnError("f_RestartScript")
 ;}____________________________________________________________________________________
 ;{ 04. Load Settings from Ini-File_____________________________________________________
 SplitPath, A_ScriptName,,,, ScriptName
-	FileNameIniRead:=ScriptName . ".ini"
-	; FileNameIniRead2:=ScriptName . "_new Structure.ini"
-	if FileExist(FileNameIniRead)
-IniObj:=f_ReadINI_Bots(FileNameIniRead)
+global FileNameIniRead:=A_ScriptDir "\GeneralHealthbots\" ScriptName . ".ini"
+IniObj:=f_ReadBackSettings_StayHydratedBot()	
 
-; IniObj:=f_ReadBackSettings_StayHydratedBot()	
 
 ;}_____________________________________________________________________________________
 ;{ 05. Tray Menu_______________________________________________________________________
@@ -118,9 +103,6 @@ menu, tray, enable, Miscellaneous
 sPathToNotifyPicture_StayHydratedBot:=f_ConvertRelativePath(IniObj["Settings StayHydratedBot"].sPathToNotifyPicture_StayHydratedBot)
 if FileExist(sPathToNotifyPicture_StayHydratedBot)
 	menu, tray, icon, %sPathToNotifyPicture_StayHydratedBot%
-if lDevelopmentFlag
-	gosub, lSettingsOverall ; development Pst_wordwrap_Updater
-
 return
 
 NotifyTrayClick_203:
@@ -139,7 +121,8 @@ run, % A_ScriptDir
 return
 
 lReload:							;**
-Notify().AddWindow("Reloading.",{Title:"",TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
+if bRunNotify
+	Notify().AddWindow("Reloading.",{Title:"",TitleColor:"0xFFFFFF",Time:1300,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555})
 sleep, 1300
 Reload
 return
@@ -148,15 +131,10 @@ RemoveToolTip_StandUpBot:			;**
 RemoveToolTip_StayHydratedBot: 		;**
 Tooltip,
 return
-
-lSettingsOverall:
-IniSettingsEditor("GeneralHealthBots","GeneralHealthBots\GeneralHealthBot_new Structure.ini",OwnedBy = 0,DisableGui = 0)
-
-return
-lEditSettingsOverall:
-lChooseFile:=false
-FedFile:= A_ScriptDir . "\GeneralHealthBots\GeneralHealthBot_new Structure.ini"
-#Include %A_MyDocuments%\AutoHotkey\Lib\IniFileCreator_v8.ahk
+GuiEscape_AboutStayHydratedBot:
+GuiEscape_StayHydratedBot:
+GuiEscape_StandUpBot:
+gui, destroy
 return
 ;}
 ;{ 07.2 SHB Labels_____________________________________________________________________
@@ -231,9 +209,9 @@ lToggleBotHUD_StayHydratedBot:		;***
 	menu, StayHydratedBot, ToggleCheck, HUD
 	sleep, 20
 	
-	if HUDStatus_StayHydratedBot
+	if (HUDStatus_StayHydratedBot && bRunNotify)
 		Notify().AddWindow("HUD Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	else
+	else if bRunNotify
 		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
 	if PauseStatus_StayHydratedBot
 		strSHB:="SHB: " sTrayTipSHB "|" vMinutes_StayHydratedBot "|P|P|" lIsIntrusive_StayHydratedBot
@@ -248,9 +226,9 @@ lToggleBotAudio_StayHydratedBot:			;***
 	SoundStatus_StayHydratedBot:=!SoundStatus_StayHydratedBot
 	menu, StayHydratedBot, ToggleCheck, Sound
 	sleep, 20
-	if SoundStatus_StayHydratedBot
+	if (SoundStatus_StayHydratedBot && bRunNotify)
 		Notify().AddWindow("Audio Alert toggled on, Period: " vMinutes_StayHydratedBot " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
-	else
+	else if bRunNotify
 		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
 	
 	if PauseStatus_StayHydratedBot
@@ -672,9 +650,9 @@ lToggleBotHUD_StandUpBot:			;***
 	HUDStatus_StandUpBot:=!HUDStatus_StandUpBot
 	menu, StandUpBot, ToggleCheck, HUD
 	sleep, 20
-	if HUDStatus_StandUpBot
+	if (HUDStatus_StandUpBot && bRunNotify)
 		Notify().AddWindow("HUD Alert toggled on, Period: "vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
-	else
+	else if bRunNotify
 		Notify().AddWindow("HUD Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	if PauseStatus_StandUpBot
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
@@ -693,12 +671,14 @@ lToggleBotAudio_StandUpBot:				;***
 	if SoundStatus_StandUpBot
 	{
 		menu, StandUpBot, Check, Sound
-		Notify().AddWindow("Audio Alert toggled on, Period: "vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
+		if bRunNotify
+			Notify().AddWindow("Audio Alert toggled on, Period: "vMinutes_StandUpBot " minutes",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	}
 	else
 	{
 		menu, StandUpBot, UnCheck, Sound
-		Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
+		if bRunNotify
+			Notify().AddWindow("Audio Alert toggled off",{Title:sNotifyTitle_StandUpBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StandUpBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StandUpBot})
 	}
 	if PauseStatus_StandUpBot
 		strSUB:="SUB: " sTrayTipSUB "|" vMinutes_StandUpBot "|P|P|" lIsIntrusive_StandUpBot "|" sCurrentPosition
@@ -736,7 +716,7 @@ return
 lToggleCurrentPosition_StandUpBot:				;***
 {
 	global bStandingposition
-	d:=f_UpdateTrayMenu_Bots(vAllowedTogglesCount)
+	f_UpdateTrayMenu_Bots(vAllowedTogglesCount)
 	;bstandold:=bStandingposition
 	ltoggleCurrentPositionFlag:=true
 	gosub, PlayTune_StandUpBot
@@ -1224,7 +1204,9 @@ return
 
 ;}
 ;{ 08.4 Hotkeys LAB____________________________________________________________________
-	; preparatiun.
+	; preparation
+
+
 ;}
 ;}_____________________________________________________________________________________
 ;{ 09. Includes________________________________________________________________________
@@ -1245,10 +1227,10 @@ return
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_WriteINI_Bots.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\notify.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\NotifyTrayClick.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\f_RestartScript.ahk
 #Include %A_ScriptDir%\Updater.ahk
 
 
-;#Include 	D:\DokumenteCSA\AutoHotkey\Lib\Func_IniSettingsEditor_v6.ahk
 
 ;}
 ;{ 10. Changelog_______________________________________________________________________
@@ -1292,5 +1274,8 @@ return
 	
 */
 ;}
-#IfWinNotActive IniFileCreator 8 - Create Ini file for IniSettingsEditor
-;Numpad0:: reload
+
+
+
+
+
