@@ -53,7 +53,7 @@ GitPageURLComponents:=[vUserName,VProjectName,vFileName,FolderStructIniFileRelat
 ;}
 ;{ 03. Autorun Section_________________________________________________________________
 if WinActive("Visual Studio Code") || WinActive("ahk_exe Code.exe")	; if run in vscode, deactivate notify-messages to avoid crashing the program. The second conditions covers VSCode if the title is set to only display the file path.
-	global bRunNotify:=!vsdb:=1
+ 	global bRunNotify:=!vsdb:=1
 else
 	global bRunNotify:=!vsdb:=0
 global sAdmin_PC:="DESKTOP-FH4RU5C"
@@ -131,7 +131,11 @@ RemoveToolTip_StandUpBot:			;**
 RemoveToolTip_StayHydratedBot: 		;**
 Tooltip,
 return
-
+GuiEscape_AboutStayHydratedBot:
+GuiEscape_StayHydratedBot:
+GuiEscape_StandUpBot:
+gui, destroy
+return
 ;}
 ;{ 07.2 SHB Labels_____________________________________________________________________
 Submit_StayHydratedBot: 					;**
@@ -1200,7 +1204,9 @@ return
 
 ;}
 ;{ 08.4 Hotkeys LAB____________________________________________________________________
-	; preparatiun.
+	; preparation
+
+
 ;}
 ;}_____________________________________________________________________________________
 ;{ 09. Includes________________________________________________________________________
@@ -1268,5 +1274,8 @@ return
 	
 */
 ;}
-#IfWinNotActive IniFileCreator 8 - Create Ini file for IniSettingsEditor
-;Numpad0:: reload
+
+
+
+
+
