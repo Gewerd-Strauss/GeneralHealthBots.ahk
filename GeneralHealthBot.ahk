@@ -185,6 +185,7 @@ Submit_StayHydratedBot: 					;**
 		menu, StayHydratedBot, Check, Intrusive
 	if bRunNotify
 		Notify().AddWindow("Setting Timer to " vMinutes_StayHydratedBot  " minutes",{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0x5555,Icon:sPathToNotifyPicture_StayHydratedBot})
+	
 }
 return
 lSetCurrentDelay_StayHydratedBot:			;**
@@ -277,6 +278,8 @@ PlayTune_StayHydratedBot: 				;***
 			sFullFilePathToAudioFile_StayHydratedBot:=f_ConvertRelativeWavPath_StayHydratedBot(sFullFilePathToAudioFile_StayHydratedBot)
 			if bRunNotify and (!lIsIntrusive_StayHydratedBot || vMoncnt=1)
 				Notify().AddWindow(sNotifyMessageRemember_StayHydratedBot,{Title:sNotifyTitle_StayHydratedBot,TitleColor:"0xFFFFFF",Time:IniObj["Settings StayHydratedBot"].vNotificationTimeInMilliSeconds_StayHydratedBot,Color:"0xFFFFFF",Background:"0x000000",TitleSize:10,Size:10,ShowDelay:0,Radius:15, Flash:1000,FlashColor:0xBBBB,Icon:sPathToNotifyPicture_StayHydratedBot})
+			Else if !bRunNotify and (!lIsIntrusive_StayHydratedBot || vMoncnt=1)
+				ttip(sNotifyMessageRemember_StayHydratedBot)
 			else if lIsIntrusive_StayHydratedBot
 				f_AlertUserIntrusive(sNotifyMessageRemember_StayHydratedBot,AU,VN)
 		}
@@ -1228,8 +1231,8 @@ return
 #Include %A_ScriptDir%\GeneralHealthBots\includes\notify.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\NotifyTrayClick.ahk
 #Include %A_ScriptDir%\GeneralHealthBots\includes\f_RestartScript.ahk
+#Include %A_ScriptDir%\GeneralHealthBots\includes\ttip.ahk
 #Include %A_ScriptDir%\Updater.ahk
-
 
 
 ;}
