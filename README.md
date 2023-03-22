@@ -43,8 +43,7 @@ dd
 
 The sections "Active" and "Backup" can be edited, the section "Original" can not be edited and only serves as a simple way of retrieving the factory-default settings. 
 Only the "Active" settings are used. 
-Pressing _Swp_ will interchange all settings between the active and backup set for that respective bot, and restarts said timer. 
-Pressing _Res_ will reset all settings to [factory default]. Note that factory-default is not the same as the "Original"-settings in the third set. Those are reserved for restoring by hand. 
+Pressing _Swp_ will interchange all settings between the active and backup set for that respective bot, and restarts said timer.
 Pressing _Res_ will reset all settings to [factory default](#overview-over-factory-default-settings). Note that factory-default is not the same as the "Original"-settings in the third set. Those are reserved for restoring by hand. 
 
 ___
